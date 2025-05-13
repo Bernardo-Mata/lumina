@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+from google import genai
 
 # Crear una instancia de FastAPI
 app = FastAPI()
@@ -43,3 +44,14 @@ def get_last_processed_text():
         raise HTTPException(status_code=404, detail="No hay textos procesados disponibles")
     return {"last_processed_text": processed_texts[-1]}
 
+
+@app.get("/generate-response")
+def get_response():
+    if not processed_texts:
+        raise HTTPException(status_code=404, detail="No hay textos procesados disponibles")
+    
+    client = genai.Client(api_key="AIzaSyBS0ERWhkYDIaMifZD1IWpFWGNtSyfZUPo")
+    response = client.models.generate_content(
+        model="gemini-2.0-flash", contents=processed_texts[-1]  # Use the last processed text
+    )
+    return {"response": response.text}

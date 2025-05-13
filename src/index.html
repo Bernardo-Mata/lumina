@@ -84,7 +84,7 @@
                 // Manejar la respuesta de la API para el POST
                 if (postResponse.ok) {
                     // Enviar una solicitud GET al endpoint /get-ai-response
-                    const getResponse = await fetch("http://127.0.0.1:8000/get-ai-response", {
+                    const getResponse = await fetch("http://127.0.0.1:8000/generate-response", {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json"
