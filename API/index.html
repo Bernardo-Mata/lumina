@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procesador de Texto</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .response {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Procesador de Texto</h1>
+        <textarea id="textInput" placeholder="Escribe tu texto aquí..."></textarea>
+        <button onclick="sendText()">Enviar</button>
+        <div class="response" id="response"></div>
+    </div>
+
+    <script>
+        async function sendText() {
+            const textInput = document.getElementById("textInput").value;
+            const responseDiv = document.getElementById("response");
+
+            // Crear el JSON con el texto ingresado
+            const data = { "text": textInput };
+
+            try {
+                // Enviar el JSON a la API mediante una solicitud POST
+                const postResponse = await fetch("http://127.0.0.1:8000/process-text/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                // Manejar la respuesta de la API para el POST
+                if (postResponse.ok) {
+                    // Enviar una solicitud GET al endpoint /get-ai-response
+                    const getResponse = await fetch("http://127.0.0.1:8000/get-ai-response", {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    });
+
+                    // Manejar la respuesta de la API para el GET
+                    if (getResponse.ok) {
+                        const result = await getResponse.json();
+                        responseDiv.innerHTML = `
+                            <p><strong>Respuesta de la IA:</strong> ${result.response}</p>
+                        `;
+                    } else {
+                        const error = await getResponse.json();
+                        console.error("GET Response status:", getResponse.status); // Log status
+                        responseDiv.innerHTML = `<p style="color: red;">Error en GET: ${error.detail}</p>`;
+                    }
+                } else {
+                    const error = await postResponse.json();
+                    console.error("POST Response status:", postResponse.status); // Log status
+                    responseDiv.innerHTML = `<p style="color: red;">Error en POST: ${error.detail}</p>`;
+                }
+            } catch (error) {
+                console.error("Error details:", error); // Log the error details
+                responseDiv.innerHTML = `<p style="color: red;">Error al conectar con la API.</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
