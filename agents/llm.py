@@ -1,43 +1,39 @@
-# research.py
-import sys
-import os
-from api.backendRequest import get_last_processed_text
-from api.backendRequest import process_text
-from api.backendRequest import TextInput
- # Import processed_texts if used
 from google import genai  # Import genai for LLM interaction
-from fastapi import HTTPException
+from fastapi import HTTPException, APIRouter
+from pydantic import BaseModel
+import re
+router = APIRouter()
 
+# Definir el modelo de datos para el texto recibido
+class TextInput(BaseModel):
+    text: str
+# In-memory storage for processed texts
+processed_texts = []
 
-# Obtén la ruta al directorio padre
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+# Ruta POST para recibir texto
+@router.post("/process-text/")
+def process_text(input: TextInput):
+    if not input.text:
+        raise HTTPException(status_code=400, detail="El texto no puede estar vacío")
+    
+    # Store the processed text in memory
+    processed_texts.append(input.text)
+    
+    return input.text
 
-# Añade el directorio padre a sys.path si no está ya
-if parent_dir not in sys.path:
-    sys.path.append(parent_dir)
-
-
-try:
-    input_text = get_last_processed_text()
-    last_text = input_text["last_processed_text"]
-    print(last_text)
-except HTTPException as e:
-    print(f"Error: {e.detail}")
-processed_result = process_text(TextInput(text=input_text))  # Ensure proper input format
-
-
+@router.get("/get-response/")
 def get_response():
-    if not processed_result:
+    if not processed_texts:
         raise HTTPException(status_code=404, detail="No hay textos procesados disponibles")
     
     client = genai.Client(api_key="AIzaSyBS0ERWhkYDIaMifZD1IWpFWGNtSyfZUPo")
 
-    #research prompt
+    # Research prompt
     prompt = f"""
         Conduct a comprehensive search across the internet
         for all available information regarding the following
         supply chain risk management
-        problem provided by the user: {processed_result}.
+        problem provided by the user: {processed_texts[-1]}.
         Ensure the output is in the same language as the user's input.
         If the user's input is not related to supply chain risk management
         (e.g., general greetings, unrelated definitions), 
@@ -63,3 +59,24 @@ def get_response():
     )
 
     return response.text
+
+
+@router.get("/get-preprocess-text/")
+def preprocess_text() -> str:
+    """
+    Preprocess the input text by removing unwanted characters and patterns.
+
+    Args:
+        text (str): The input text to preprocess.
+
+    Returns:
+        str: The cleaned and preprocessed text.
+    """
+    text = get_response()
+    # Remove newline characters and backslashes
+    text = re.sub(r'\\n|\\n\\n|\\', ' ', text)
+    # Remove asterisks
+    text = re.sub(r'\*', '', text)
+    # Remove extra spaces
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text
