@@ -1,12 +1,17 @@
+"""
+This module sets up the FastAPI backend for handling text
+processing and LLM-based research endpoints.
+It configures CORS, defines the main FastAPI app,
+and includes routers for modular functionality.
+"""
 
-# Corrected relative import path
 import sys
 import os
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-from agents import llm
-from agents import preprocessing
+from fastapi import FastAPI
+from pydantic import BaseModel
+from agents import research
+
 # Obtén la ruta absoluta al directorio que contiene la carpeta "Agent"
 ruta_carpeta_agent = os.path.abspath(os.path.join(os.path.dirname(__file__), 'agents'))
 sys.path.append(ruta_carpeta_agent)
@@ -14,7 +19,7 @@ sys.path.append(ruta_carpeta_agent)
 
 # Crear una instancia de FastAPI
 app = FastAPI()
-
+"""Main FastAPI application instance."""
 
 
 app.add_middleware(
@@ -23,15 +28,22 @@ app.add_middleware(
     allow_methods=["GET", "POST", "OPTIONS"],  # Allow specific methods
     allow_headers=["*"],  # Allow specific headers
 )
+"""Configure CORS middleware for the FastAPI app."""
 
-# Ruta GET para devolver un mensaje de bienvenida
 @app.get("/")
 def read_root():
+    """
+    GET endpoint for the root path.
+    Returns a welcome message.
+    """
     return {"message": "Hola"}
 
-# Definir el modelo de datos para el texto recibido
+
 class TextInput(BaseModel):
+    """
+    Pydantic model for receiving text input from the user.
+    """
     text: str
 
-app.include_router(llm.router)
+app.include_router(research.router)
 # app.include_router(preprocessing.router)

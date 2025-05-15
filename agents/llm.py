@@ -1,50 +1,45 @@
+"""
+This module provides a function to generate a simplified and user-friendly explanation
+of a supply chain risk management plan using a large language model (LLM).
+"""
+
 from google import genai  # Import genai for LLM interaction
-from fastapi import HTTPException, APIRouter
-from pydantic import BaseModel
-import re
-router = APIRouter()
+from agents.scrmPlan import scrm_plan_response
 
-# Definir el modelo de datos para el texto recibido
-class TextInput(BaseModel):
-    text: str
-# In-memory storage for processed texts
-processed_texts = []
+def get_llm_response() -> str:
+    """
+    Generates a simplified and user-friendly explanation of a supply chain risk
+    management plan using a large language model (LLM).
 
-# Ruta POST para recibir texto
-@router.post("/process-text/")
-def process_text(input: TextInput):
-    if not input.text:
-        raise HTTPException(status_code=400, detail="El texto no puede estar vacío")
-    
-    # Store the processed text in memory
-    processed_texts.append(input.text)
-    
-    return input.text
+    The function retrieves the supply chain risk management plan, constructs a prompt
+    instructing the LLM to reformat and explain the plan in plain language, and returns
+    the LLM's response. The explanation is organized, concise, and tailored for users
+    without a background in supply chain management.
 
-
-def get_response() -> str:
-    if not processed_texts:
-        raise HTTPException(status_code=404, detail="No hay textos procesados disponibles")
-    
+    Returns:
+        str: The LLM-generated explanation of the supply chain risk management plan.
+    """
     client = genai.Client(api_key="AIzaSyBS0ERWhkYDIaMifZD1IWpFWGNtSyfZUPo")
 
     # Research prompt
     prompt = f"""
-        Conduct a comprehensive search across the internet
-        for all available information regarding the following
-        supply chain risk management
-        problem provided by the user: {processed_texts[-1]}.
-        Ensure the output is in the same language as the user's input.
-        If the user's input is not related to supply chain risk management
-        (e.g., general greetings, unrelated definitions), 
-        respond with the message:
+        You are a communication expert specializing in simplifying complex information. Your task is to take a detailed supply chain risk management plan (provided below) and reformat and explain it in a way that is easily understandable for someone who may not have a background in supply chain management.
 
-        "My purpose is to provide solutions for risk management;
-        I am not qualified to provide this type of information." 
+        Your goals are to:
 
-        Include definitions, problem analysis, potential impact, 
-        contributing factors, and any other relevant information
-        discovered related to the specified supply chain risk.
+        1.  **Organize the information logically:** Structure the plan with clear headings, subheadings, and bullet points to improve readability.
+        2.  **Simplify complex language:** Rephrase any technical terms, jargon, or overly academic language into plain and simple English (or the language of the user's original problem, if specified). Provide brief and clear definitions for any essential technical terms that cannot be easily replaced.
+        3.  **Summarize key findings:** For each identified risk, briefly summarize its nature, severity, score, and the core of the proposed mitigation strategies in an easily digestible manner.
+        4.  **Highlight actionable takeaways:** Emphasize the specific actions recommended in the mitigation strategies so the user understands what steps can be taken.
+        5.  **Use analogies or examples:** Where appropriate, use simple analogies or real-world examples to illustrate the risks and the benefits of the proposed mitigation strategies.
+        6.  **Maintain a clear and concise writing style:** Avoid unnecessary details or lengthy explanations. Focus on conveying the essential information effectively.
+        7.  **Ensure a positive and encouraging tone:** Frame the information in a way that empowers the user to understand and act on the plan.
+
+        Present the following supply chain risk management plan in an easily digestible format for the user:
+
+        ---
+        {scrm_plan_response()}
+        ---
     """
 
     response = client.models.generate_content(
@@ -59,24 +54,3 @@ def get_response() -> str:
     )
 
     return response.text
-
-
-
-def preprocess_text() -> str:
-    """
-    Preprocess the input text by removing unwanted characters and patterns.
-
-    Args:
-        text (str): The input text to preprocess.
-
-    Returns:
-        str: The cleaned and preprocessed text.
-    """
-    text = get_response()
-    # Remove newline characters and backslashes
-    text = re.sub(r'\\n|\\n\\n|\\', ' ', text)
-    # Remove asterisks
-    text = re.sub(r'\*', '', text)
-    # Remove extra spaces
-    text = re.sub(r'\s+', ' ', text).strip()
-    return text
