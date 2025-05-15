@@ -21,8 +21,8 @@ def process_text(input: TextInput):
     
     return input.text
 
-@router.get("/get-response/")
-def get_response():
+
+def get_response() -> str:
     if not processed_texts:
         raise HTTPException(status_code=404, detail="No hay textos procesados disponibles")
     
@@ -61,7 +61,7 @@ def get_response():
     return response.text
 
 
-@router.get("/get-preprocess-text/")
+
 def preprocess_text() -> str:
     """
     Preprocess the input text by removing unwanted characters and patterns.
