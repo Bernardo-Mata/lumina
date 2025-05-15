@@ -1,34 +1,54 @@
+"""
+This module provides FastAPI endpoints and utility functions for processing user text,
+generating LLM-based responses for supply chain risk management, and preprocessing
+the resulting text to remove unwanted characters.
+"""
+
+import re
 from google import genai  # Import genai for LLM interaction
 from fastapi import HTTPException, APIRouter
 from pydantic import BaseModel
-import re
+
 router = APIRouter()
 
-# Definir el modelo de datos para el texto recibido
 class TextInput(BaseModel):
+    """
+    Pydantic model for receiving text input from the user.
+    """
     text: str
+
 # In-memory storage for processed texts
 processed_texts = []
 
-# Ruta POST para recibir texto
 @router.post("/process-text/")
 def process_text(input: TextInput):
+    """
+    Receives user text input, validates it, and stores it in memory.
+
+    Args:
+        input (TextInput): The input text from the user.
+
+    Returns:
+        str: The original input text.
+    """
     if not input.text:
         raise HTTPException(status_code=400, detail="El texto no puede estar vacío")
-    
-    # Store the processed text in memory
     processed_texts.append(input.text)
-    
     return input.text
 
-
 def get_response() -> str:
+    """
+    Generates a supply chain risk management response using the last processed text.
+
+    Returns:
+        str: The LLM-generated response.
+
+    Raises:
+        HTTPException: If no processed texts are available.
+    """
     if not processed_texts:
         raise HTTPException(status_code=404, detail="No hay textos procesados disponibles")
-    
     client = genai.Client(api_key="AIzaSyBS0ERWhkYDIaMifZD1IWpFWGNtSyfZUPo")
-
-    # Research prompt
     prompt = f"""
         Conduct a comprehensive search across the internet
         for all available information regarding the following
@@ -46,7 +66,6 @@ def get_response() -> str:
         contributing factors, and any other relevant information
         discovered related to the specified supply chain risk.
     """
-
     response = client.models.generate_content(
         model="gemini-2.0-flash-lite",
         contents=prompt,
@@ -57,26 +76,17 @@ def get_response() -> str:
             "top_k": 40,
         }
     )
-
     return response.text
-
-
 
 def preprocess_text() -> str:
     """
-    Preprocess the input text by removing unwanted characters and patterns.
-
-    Args:
-        text (str): The input text to preprocess.
+    Preprocess the LLM response text by removing unwanted characters and patterns.
 
     Returns:
         str: The cleaned and preprocessed text.
     """
     text = get_response()
-    # Remove newline characters and backslashes
     text = re.sub(r'\\n|\\n\\n|\\', ' ', text)
-    # Remove asterisks
     text = re.sub(r'\*', '', text)
-    # Remove extra spaces
     text = re.sub(r'\s+', ' ', text).strip()
     return text

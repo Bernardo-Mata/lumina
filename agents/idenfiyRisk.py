@@ -1,7 +1,17 @@
+"""Python script to identify supply chain risks using Google GenAI API.
+This script defines a function to analyze supply chain risk management problems"""
 from google import genai  # Import genai for LLM interaction
-from agents.llm import get_response
+from agents.research import get_response
 
-def identify_risk_response() -> str:  
+def identify_risk_response() -> str:
+    """
+    Identifies potential risks in a supply chain risk management problem.
+    Args:
+        None
+
+    Returns:
+        str: The LLM-generated response containing identified risks and their severity levels.
+    """
     client = genai.Client(api_key="AIzaSyBS0ERWhkYDIaMifZD1IWpFWGNtSyfZUPo")
 
     # Research prompt
@@ -41,5 +51,3 @@ def identify_risk_response() -> str:
     )
 
     return response.text
-
-

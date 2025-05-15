@@ -1,7 +1,19 @@
+"""
+    This module provides a function to generate mitigation strategies for risks
+"""
 from google import genai  # Import genai for LLM interaction
 from agents.riskScore import score_risk_response
 
-def mitigation_strategy_response() -> str:  
+def mitigation_strategy_response() -> str:
+    """
+    Proposes specific and actionable mitigation strategies for each scored risk
+    in a supply chain risk management problem.
+    Args:
+        None
+    Returns:
+        str: The LLM-generated response containing the proposed mitigation strategies
+        for each scored risk.
+    """
     client = genai.Client(api_key="AIzaSyBS0ERWhkYDIaMifZD1IWpFWGNtSyfZUPo")
 
     # Research prompt

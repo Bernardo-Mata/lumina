@@ -9,7 +9,6 @@ import sys
 import os
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
-from pydantic import BaseModel
 from agents import research
 
 # Obtén la ruta absoluta al directorio que contiene la carpeta "Agent"
@@ -38,12 +37,6 @@ def read_root():
     """
     return {"message": "Hola"}
 
-
-class TextInput(BaseModel):
-    """
-    Pydantic model for receiving text input from the user.
-    """
-    text: str
 
 app.include_router(research.router)
 # app.include_router(preprocessing.router)

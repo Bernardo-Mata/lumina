@@ -1,11 +1,22 @@
+"""
+    This module provides a function to generate mitigation strategies for risks
+    identified in a supply chain risk management problem using a large language model (LLM).
+"""
 from google import genai  # Import genai for LLM interaction
-
 from agents.idenfiyRisk import identify_risk_response
 from agents.assessingRisk import assessing_risk_response
 from agents.riskScore import score_risk_response
 from agents.mitigationStrategy import mitigation_strategy_response
 
-def scrm_plan_response() -> str:  
+
+def scrm_plan_response() -> str:
+    """
+    Generates a comprehensive risk management plan for a supply chain risk management problem.
+    Args:
+        None
+    Returns:
+        str: The LLM-generated response containing the risk management plan.
+    """
     client = genai.Client(api_key="AIzaSyBS0ERWhkYDIaMifZD1IWpFWGNtSyfZUPo")
 
     # Research prompt
