@@ -83,8 +83,8 @@
 
                 // Manejar la respuesta de la API para el POST
                 if (postResponse.ok) {
-                    // Enviar una solicitud GET al endpoint /get-ai-response
-                    const getResponse = await fetch("http://127.0.0.1:8000/generate-response", {
+                    // Enviar una solicitud GET al endpoint /get-response
+                    const getResponse = await fetch("http://127.0.0.1:8000/get-response/", {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json"
@@ -99,12 +99,12 @@
                         `;
                     } else {
                         const error = await getResponse.json();
-                        console.error("GET Response status:", getResponse.status); // Log status
+                        console.error("GET Response status:", getResponse.status, "Error:", error.detail); // Log status and error
                         responseDiv.innerHTML = `<p style="color: red;">Error en GET: ${error.detail}</p>`;
                     }
                 } else {
                     const error = await postResponse.json();
-                    console.error("POST Response status:", postResponse.status); // Log status
+                    console.error("POST Response status:", postResponse.status, "Error:", error.detail); // Log status and error
                     responseDiv.innerHTML = `<p style="color: red;">Error en POST: ${error.detail}</p>`;
                 }
             } catch (error) {
