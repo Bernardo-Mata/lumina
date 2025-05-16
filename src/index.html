@@ -100,8 +100,8 @@
         <div class="chat-header">Lumina LLM Chat</div>
         <div class="chat-messages" id="chatMessages"></div>
         <form class="chat-input-area" id="chatForm">
-            <textarea id="userInput" placeholder="Escribe tu mensaje..." required></textarea>
-            <button type="submit">Enviar</button>
+            <textarea id="userInput" placeholder="Ask any question..." required></textarea>
+            <button type="submit">Submit</button>
         </form>
     </div>
     <script>
@@ -131,7 +131,7 @@
             const text = userInput.value.trim();
             if (!text) return;
 
-            addMessage(text, 'user', 'Tú');
+            addMessage(text, 'user', 'Me');
             userInput.value = '';
             userInput.disabled = true;
 
@@ -143,7 +143,7 @@
                     body: JSON.stringify({ text })
                 });
             } catch (err) {
-                addMessage("Error de conexión al enviar el texto.", 'agent', "Error");
+                addMessage("Error to send the text.", 'agent', "Error");
                 userInput.disabled = false;
                 userInput.focus();
                 return;
@@ -155,11 +155,46 @@
                 if (respResearch.ok) {
                     // LLMs may return plain text, not JSON
                 } else {
+                    addMessage("Error.", 'agent', "Research");
+                }
+            } catch (err) {
+                addMessage("Error connection.", 'agent', "Research");
+            }
+
+
+            try {
+                const respResearch = await fetch("http://127.0.0.1:8000/identify-risk/", { method: "GET" });
+                if (respResearch.ok) {
+                    // LLMs may return plain text, not JSON
+                } else {
+                    addMessage("Error.", 'agent', "Research");
+                }
+            } catch (err) {
+                addMessage("Error connection.", 'agent', "Research");
+            }
+
+            try {
+                const respResearch = await fetch("http://127.0.0.1:8000/mitigation_strategy/", { method: "GET" });
+                if (respResearch.ok) {
+                    // LLMs may return plain text, not JSON
+                } else {
+                    addMessage("Error to connect the mitigation risk.", 'agent', "Research");
+                }
+            } catch (err) {
+                addMessage("Error connection.", 'agent', "Research");
+            }
+
+            try {
+                const respResearch = await fetch("http://127.0.0.1:8000/plan/", { method: "GET" });
+                if (respResearch.ok) {
+                    // LLMs may return plain text, not JSON
+                } else {
                     addMessage("Error al obtener respuesta del agente Research.", 'agent', "Research");
                 }
             } catch (err) {
                 addMessage("Error de conexión con el agente Research.", 'agent', "Research");
             }
+
 
             // GET from get-response (final LLM output)
             try {
