@@ -8,7 +8,11 @@ from agents.assessingRisk import assessing_risk_response
 from agents.riskScore import score_risk_response
 from agents.mitigationStrategy import mitigation_strategy_response
 
+from fastapi import APIRouter
 
+router = APIRouter()
+
+@router.get("/plan/")
 def scrm_plan_response() -> str:
     """
     Generates a comprehensive risk management plan for a supply chain risk management problem.
@@ -59,7 +63,7 @@ def scrm_plan_response() -> str:
         contents=prompt,
         config={
             "temperature": 0.1,
-            "max_output_tokens": 150,
+            "max_output_tokens": 300,
             "top_p": 0.8,
             "top_k": 40,
         }

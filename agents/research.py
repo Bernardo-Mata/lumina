@@ -36,6 +36,8 @@ def process_text(input: TextInput):
     processed_texts.append(input.text)
     return input.text
 
+
+@router.get("/get-research-response/")
 def get_response() -> str:
     """
     Generates a supply chain risk management response using the last processed text.

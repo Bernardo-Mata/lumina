@@ -3,7 +3,11 @@
 """
 from google import genai  # Import genai for LLM interaction
 from agents.riskScore import score_risk_response
+from fastapi import APIRouter
 
+router = APIRouter()
+
+@router.get("/mitigation_strategy/")
 def mitigation_strategy_response() -> str:
     """
     Proposes specific and actionable mitigation strategies for each scored risk

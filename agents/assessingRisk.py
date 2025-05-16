@@ -3,7 +3,11 @@ This script defines a function to analyze supply chain risk management problems
 """
 from google import genai  # Import genai for LLM interaction
 from agents.idenfiyRisk import identify_risk_response
+from fastapi import APIRouter
 
+router = APIRouter()
+
+@router.get("/assessing_risk_response/")
 def assessing_risk_response() -> str:
     """
     Analyzes the potential impact and likelihood of occurrence for 

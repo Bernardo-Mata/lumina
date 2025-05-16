@@ -1,6 +1,6 @@
 import re
 # Replace 'research' with the correct module or ensure it is installed
-from agents.llm import get_response  # Adjust the import based on your project structure
+ # Adjust the import based on your project structure
 
   # Import genai for LLM interaction
 from fastapi import APIRouter
@@ -8,8 +8,8 @@ from fastapi import APIRouter
 
 router = APIRouter()
 
-@router.post("/get-preprocess_text/")
-def preprocess_text() -> str:
+# @router.post("/get_preprocess_text/")
+def preprocess_text(inputs: str) -> str:
     """
     Preprocess the input text by removing unwanted characters and patterns.
 
@@ -19,7 +19,7 @@ def preprocess_text() -> str:
     Returns:
         str: The cleaned and preprocessed text.
     """
-    text = get_response()
+    text = inputs
     # Remove newline characters and backslashes
     text = re.sub(r'\\n|\\n\\n|\\', ' ', text)
     # Remove asterisks

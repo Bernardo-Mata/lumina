@@ -9,7 +9,7 @@ import sys
 import os
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
-from agents import research
+from agents import llm, research,idenfiyRisk,assessingRisk,mitigationStrategy,riskScore,scrmPlan, preprocessing  # Importing routers from agents module
 
 # Obtén la ruta absoluta al directorio que contiene la carpeta "Agent"
 ruta_carpeta_agent = os.path.abspath(os.path.join(os.path.dirname(__file__), 'agents'))
@@ -27,7 +27,6 @@ app.add_middleware(
     allow_methods=["GET", "POST", "OPTIONS"],  # Allow specific methods
     allow_headers=["*"],  # Allow specific headers
 )
-"""Configure CORS middleware for the FastAPI app."""
 
 @app.get("/")
 def read_root():
@@ -38,5 +37,12 @@ def read_root():
     return {"message": "Hola"}
 
 
+app.include_router(llm.router)
 app.include_router(research.router)
+app.include_router(idenfiyRisk.router)
+app.include_router(assessingRisk.router)
+app.include_router(mitigationStrategy.router)
+app.include_router(riskScore.router)
+app.include_router(scrmPlan.router)
 # app.include_router(preprocessing.router)
+

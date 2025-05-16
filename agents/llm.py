@@ -4,8 +4,14 @@ of a supply chain risk management plan using a large language model (LLM).
 """
 
 from google import genai  # Import genai for LLM interaction
-from agents.scrmPlan import scrm_plan_response
+from agents.preprocessing import preprocess_text
+from agents.research import get_response  # Import the function to get the supply chain risk management plan
+from fastapi import APIRouter
 
+router = APIRouter()
+
+
+@router.get("/get-response/")
 def get_llm_response() -> str:
     """
     Generates a simplified and user-friendly explanation of a supply chain risk
@@ -38,7 +44,7 @@ def get_llm_response() -> str:
         Present the following supply chain risk management plan in an easily digestible format for the user:
 
         ---
-        {scrm_plan_response()}
+        {get_response()}
         ---
     """
 
@@ -47,10 +53,14 @@ def get_llm_response() -> str:
         contents=prompt,
         config={
             "temperature": 0.1,
-            "max_output_tokens": 150,
+            "max_output_tokens": 300,
             "top_p": 0.8,
             "top_k": 40,
         }
     )
 
-    return response.text
+    llm_response = preprocess_text(response.text)
+
+    return llm_response
+
+
