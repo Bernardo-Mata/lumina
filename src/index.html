@@ -3,115 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Procesador de Texto</title>
+    <title>Lumina LLM Chat</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+            background: #f4f4f9;
+            font-family: 'Segoe UI', Arial, sans-serif;
             margin: 0;
             padding: 0;
+        }
+        .chat-container {
+            max-width: 700px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            padding: 0 0 20px 0;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            flex-direction: column;
+            min-height: 80vh;
         }
-        .container {
-            background: #ffffff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            width: 300px;
-            text-align: center;
-        }
-        h1 {
+        .chat-header {
+            background: #007bff;
+            color: #fff;
+            padding: 24px 32px;
+            border-radius: 10px 10px 0 0;
             font-size: 1.5em;
-            margin-bottom: 20px;
+            font-weight: 600;
+            letter-spacing: 1px;
         }
-        textarea {
-            width: 100%;
-            height: 100px;
-            margin-bottom: 15px;
-            padding: 10px;
+        .chat-messages {
+            flex: 1;
+            padding: 24px 32px;
+            overflow-y: auto;
+        }
+        .message {
+            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+        }
+        .message.user .bubble {
+            align-self: flex-end;
+            background: #e3f0ff;
+            color: #222;
+        }
+        .message.agent .bubble {
+            align-self: flex-start;
+            background: #f1f1f1;
+            color: #222;
+        }
+        .bubble {
+            max-width: 70%;
+            padding: 12px 18px;
+            border-radius: 16px;
+            margin-bottom: 4px;
+            font-size: 1em;
+            word-break: break-word;
+        }
+        .source-label {
+            font-size: 0.85em;
+            color: #888;
+            margin-bottom: 2px;
+        }
+        .chat-input-area {
+            display: flex;
+            gap: 8px;
+            padding: 16px 32px 0 32px;
+            border-top: 1px solid #eee;
+        }
+        .chat-input-area textarea, .chat-input-area button {
+            font-size: 1em;
+        }
+        .chat-input-area textarea {
+            flex: 1;
+            resize: none;
+            border-radius: 6px;
             border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 1em;
+            padding: 10px;
+            min-height: 44px;
         }
-        button {
-            background-color: #007bff;
-            color: white;
+        .chat-input-area button {
+            background: #007bff;
+            color: #fff;
             border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
+            border-radius: 6px;
+            padding: 0 22px;
             cursor: pointer;
-            font-size: 1em;
+            transition: background 0.2s;
         }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .response {
-            margin-top: 20px;
-            font-size: 0.9em;
-            color: #333;
+        .chat-input-area button:hover {
+            background: #0056b3;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Procesador de Texto</h1>
-        <textarea id="textInput" placeholder="Escribe tu texto aquí..."></textarea>
-        <button onclick="sendText()">Enviar</button>
-        <div class="response" id="response"></div>
+    <div class="chat-container">
+        <div class="chat-header">Lumina LLM Chat</div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <form class="chat-input-area" id="chatForm">
+            <textarea id="userInput" placeholder="Ask any question..." required></textarea>
+            <button type="submit">Submit</button>
+        </form>
     </div>
-
     <script>
-        async function sendText() {
-            const textInput = document.getElementById("textInput").value;
-            const responseDiv = document.getElementById("response");
+        const chatMessages = document.getElementById('chatMessages');
+        const chatForm = document.getElementById('chatForm');
+        const userInput = document.getElementById('userInput');
 
-            // Crear el JSON con el texto ingresado
-            const data = { "text": textInput };
-
-            try {
-                // Enviar el JSON a la API mediante una solicitud POST
-                const postResponse = await fetch("http://127.0.0.1:8000/process-text/", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                // Manejar la respuesta de la API para el POST
-                if (postResponse.ok) {
-                    // Enviar una solicitud GET al endpoint /get-response
-                    const getResponse = await fetch("http://127.0.0.1:8000/get-response/", {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json"
-                        }
-                    });
-
-                    // Manejar la respuesta de la API para el GET
-                    if (getResponse.ok) {
-                        const result = await getResponse.json();
-                        responseDiv.innerHTML = `
-                            <p><strong>Respuesta de la IA:</strong> ${result.response}</p>
-                        `;
-                    } else {
-                        const error = await getResponse.json();
-                        console.error("GET Response status:", getResponse.status, "Error:", error.detail); // Log status and error
-                        responseDiv.innerHTML = `<p style="color: red;">Error en GET: ${error.detail}</p>`;
-                    }
-                } else {
-                    const error = await postResponse.json();
-                    console.error("POST Response status:", postResponse.status, "Error:", error.detail); // Log status and error
-                    responseDiv.innerHTML = `<p style="color: red;">Error en POST: ${error.detail}</p>`;
-                }
-            } catch (error) {
-                console.error("Error details:", error); // Log the error details
-                responseDiv.innerHTML = `<p style="color: red;">Error al conectar con la API.</p>`;
+        function addMessage(text, sender, agentLabel = "") {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${sender}`;
+            if (agentLabel) {
+                const label = document.createElement('span');
+                label.className = 'source-label';
+                label.textContent = agentLabel;
+                msgDiv.appendChild(label);
             }
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            bubble.textContent = text;
+            msgDiv.appendChild(bubble);
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
+
+        chatForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            addMessage(text, 'user', 'Me');
+            userInput.value = '';
+            userInput.disabled = true;
+
+            // POST to process-text
+            try {
+                await fetch("http://127.0.0.1:8000/process-text/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text })
+                });
+            } catch (err) {
+                addMessage("Error to send the text.", 'agent', "Error");
+                userInput.disabled = false;
+                userInput.focus();
+                return;
+            }
+
+            // GET from get-response (final LLM output)
+            try {
+                const resp = await fetch("http://127.0.0.1:8000/get-response/", { method: "GET" });
+                if (resp.ok) {
+                    const data = await resp.text();
+                    addMessage(data, 'agent', "LLM");
+                } else {
+                    addMessage("Error al obtener respuesta del LLM.", 'agent', "LLM");
+                }
+            } catch (err) {
+                addMessage("Error de conexión con el LLM.", 'agent', "LLM");
+            }
+
+            userInput.disabled = false;
+            userInput.focus();
+        });
     </script>
 </body>
 </html>
+``` 
