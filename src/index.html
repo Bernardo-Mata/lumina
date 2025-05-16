@@ -108,6 +108,7 @@
         const chatMessages = document.getElementById('chatMessages');
         const chatForm = document.getElementById('chatForm');
         const userInput = document.getElementById('userInput');
+<<<<<<< HEAD
 
         function addMessage(text, sender, agentLabel = "") {
             const msgDiv = document.createElement('div');
@@ -196,11 +197,57 @@
             }
 
 
+=======
+
+        function addMessage(text, sender, agentLabel = "") {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${sender}`;
+            if (agentLabel) {
+                const label = document.createElement('span');
+                label.className = 'source-label';
+                label.textContent = agentLabel;
+                msgDiv.appendChild(label);
+            }
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            bubble.textContent = text;
+            msgDiv.appendChild(bubble);
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        chatForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            addMessage(text, 'user', 'Me');
+            userInput.value = '';
+            userInput.disabled = true;
+
+            // POST to process-text
+            try {
+                await fetch("http://127.0.0.1:8000/process-text/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text })
+                });
+            } catch (err) {
+                addMessage("Error to send the text.", 'agent', "Error");
+                userInput.disabled = false;
+                userInput.focus();
+                return;
+            }
+
+>>>>>>> feature/bernardo
             // GET from get-response (final LLM output)
             try {
                 const resp = await fetch("http://127.0.0.1:8000/get-response/", { method: "GET" });
                 if (resp.ok) {
+<<<<<<< HEAD
                     // LLMs may return plain text, not JSON
+=======
+>>>>>>> feature/bernardo
                     const data = await resp.text();
                     addMessage(data, 'agent', "LLM");
                 } else {
@@ -210,9 +257,12 @@
                 addMessage("Error de conexión con el LLM.", 'agent', "LLM");
             }
 
+<<<<<<< HEAD
 
 
 
+=======
+>>>>>>> feature/bernardo
             userInput.disabled = false;
             userInput.focus();
         });
