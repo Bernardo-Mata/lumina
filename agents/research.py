@@ -2,12 +2,10 @@
 This module provides FastAPI endpoints and utility functions for processing user text,
 generating LLM-based responses for supply chain risk management, and preprocessing
 the resulting text to remove unwanted characters.
-"""
-
-import re
-from google import genai  # Import genai for LLM interaction
+"""  
 from fastapi import HTTPException, APIRouter
 from pydantic import BaseModel
+from google import genai
 
 router = APIRouter()
 
@@ -32,7 +30,7 @@ def process_text(input: TextInput):
         str: The original input text.
     """
     if not input.text:
-        raise HTTPException(status_code=400, detail="El texto no puede estar vacío")
+        raise HTTPException(status_code=400, detail="The text cannot be empty")
     processed_texts.append(input.text)
     return input.text
 
@@ -49,7 +47,7 @@ def get_response() -> str:
         HTTPException: If no processed texts are available.
     """
     if not processed_texts:
-        raise HTTPException(status_code=404, detail="No hay textos procesados disponibles")
+        raise HTTPException(status_code=404, detail="No processed texts available")
     client = genai.Client(api_key="AIzaSyBS0ERWhkYDIaMifZD1IWpFWGNtSyfZUPo")
     prompt = f"""
         Conduct a comprehensive search across the internet
@@ -73,22 +71,9 @@ def get_response() -> str:
         contents=prompt,
         config={
             "temperature": 0.1,
-            "max_output_tokens": 150,
+            "max_output_tokens": 250,
             "top_p": 0.8,
             "top_k": 40,
         }
     )
     return response.text
-
-def preprocess_text() -> str:
-    """
-    Preprocess the LLM response text by removing unwanted characters and patterns.
-
-    Returns:
-        str: The cleaned and preprocessed text.
-    """
-    text = get_response()
-    text = re.sub(r'\\n|\\n\\n|\\', ' ', text)
-    text = re.sub(r'\*', '', text)
-    text = re.sub(r'\s+', ' ', text).strip()
-    return text

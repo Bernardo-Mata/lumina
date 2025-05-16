@@ -3,11 +3,10 @@ This module provides a function to generate a simplified and user-friendly expla
 of a supply chain risk management plan using a large language model (LLM).
 """
 
+from fastapi import APIRouter
 from google import genai  # Import genai for LLM interaction
 from agents.preprocessing import preprocess_text
 from agents.research import get_response
-from agents.scrmPlan import scrm_plan_response  # Import the function to get the supply chain risk management plan
-from fastapi import APIRouter
 
 router = APIRouter()
 
@@ -44,9 +43,20 @@ def get_llm_response() -> str:
 
         Present the following supply chain risk management plan in an easily digestible format for the user:
 
+        Ensure the output is in the same language as the user's input.
+        If the user's input is not related to supply chain risk management
+        (e.g., general greetings, unrelated definitions), 
+        respond with the message:
+
+        "My purpose is to provide solutions for risk management;
+        I am not qualified to provide this type of information." 
+
+        Include definitions, problem analysis, potential impact, 
+        contributing factors, and any other relevant information
+        discovered related to the specified supply chain risk.
         ---
         {get_response()}
-        ---
+        --- 
     """
 
     response = client.models.generate_content(

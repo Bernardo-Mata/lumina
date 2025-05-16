@@ -1,9 +1,9 @@
 """Python script to identify supply chain risks using Google GenAI API.
 This script defines a function to analyze supply chain risk management problems
 """
+from fastapi import APIRouter
 from google import genai  # Import genai for LLM interaction
 from agents.idenfiyRisk import identify_risk_response
-from fastapi import APIRouter
 
 router = APIRouter()
 
