@@ -205,9 +205,21 @@ const PromptButton = styled.button`
 `;
 
 const PromptResponse = styled.div`
-  margin-top: 10px;
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-start;
+`;
+
+const ResponseBubble = styled.div`
+  background: #f1f6fb;
   color: ${darkBlue};
-  font-size: 1rem;
+  border-radius: 18px 18px 18px 4px;
+  padding: 14px 20px;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 8px rgba(48, 122, 193, 0.08);
+  max-width: 70%;
+  word-break: break-word;
+  border: 1px solid ${lightBlue};
 `;
 
 // Dummy Data (Replace with API calls)
@@ -248,15 +260,23 @@ const Dashboard = () => {
     setLoading(true);
     setResponse('');
     try {
-      const res = await fetch('http://localhost:3000/api/prompt', {
+      // 1. Envía el texto al backend
+      await fetch('http://127.0.0.1:8000/process-text/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ text: prompt }),
       });
-      const data = await res.json();
-      setResponse(data.result || 'Respuesta recibida');
+
+      // 2. Obtiene la respuesta del backend
+      const resp = await fetch('http://127.0.0.1:8000/get-response/', { method: 'GET' });
+      if (resp.ok) {
+        const data = await resp.text();
+        setResponse(data);
+      } else {
+        setResponse('Error al obtener respuesta del LLM.');
+      }
     } catch (err) {
-      setResponse('Error al enviar el prompt');
+      setResponse('Error de conexión con el LLM.');
     }
     setLoading(false);
   };
@@ -268,13 +288,19 @@ const Dashboard = () => {
           type="text"
           value={prompt}
           onChange={e => setPrompt(e.target.value)}
-          placeholder="Escribe tu prompt aquí"
+          placeholder="Ask any questtion..."
         />
         <PromptButton type="submit" disabled={loading}>
           {loading ? 'Enviando...' : 'Enviar'}
         </PromptButton>
       </PromptBox>
-      {response && <PromptResponse>Respuesta: {response}</PromptResponse>}
+      {response && (
+        <PromptResponse>
+          <ResponseBubble>
+            <strong>Respuesta:</strong> {response}
+          </ResponseBubble>
+        </PromptResponse>
+      )}
       <DashboardContainer>
         <RiskScoreWidget>
           <h2>Overall Risk Score</h2>
