@@ -1,22 +1,38 @@
+"""
+backendRequest.py
+
+This module provides a FastAPI backend for processing user text and generating
+comprehensive supply chain risk management plans using a Google LLM (Gemini).
+It includes endpoints for receiving user input, storing it, and returning a
+preprocessed LLM-generated response. The response is cleaned to remove unwanted
+characters for better readability.
+
+Endpoints:
+    - POST /process-text/: Receives and stores user text.
+    - GET /get-response/: Returns a cleaned LLM-generated risk management plan.
+
+Functions:
+    - process_text: Stores user input for later processing.
+    - get_response: Generates a risk management plan using the LLM.
+    - preprocess_text: Cleans and returns the LLM output.
+"""
+
 from google import genai  # Import genai for LLM interaction
 import re
-# Corrected relative import path
 import sys
 import os
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
-# Obtén la ruta absoluta al directorio que contiene la carpeta "Agent"
+# Add the absolute path to the 'agents' directory to sys.path
 ruta_carpeta_agent = os.path.abspath(os.path.join(os.path.dirname(__file__), 'agents'))
 sys.path.append(ruta_carpeta_agent)
 
-
-# Crear una instancia de FastAPI
+# Create FastAPI app instance
 app = FastAPI()
 
-
-
+# Configure CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Replace '*' with specific origins if needed
@@ -24,32 +40,49 @@ app.add_middleware(
     allow_headers=["*"],  # Allow specific headers
 )
 
-# Ruta GET para devolver un mensaje de bienvenida
 @app.get("/")
 def read_root():
+    """
+    Root endpoint that returns a welcome message.
+    """
     return {"message": "Hola"}
 
-# Definir el modelo de datos para el texto recibido
 class TextInput(BaseModel):
+    """
+    Pydantic model for receiving user text input.
+    """
     text: str
 
 # In-memory storage for processed texts
 processed_texts = []
 
-# Ruta POST para recibir texto
 @app.post("/process-text/")
 def process_text(input: TextInput):
+    """
+    Receives user text input, validates it, and stores it in memory.
+
+    Args:
+        input (TextInput): The input text from the user.
+
+    Returns:
+        str: The original input text.
+    """
     if not input.text:
         raise HTTPException(status_code=400, detail="El texto no puede estar vacío")
-    
-    # Store the processed text in memory
     processed_texts.append(input.text)
-    
     return input.text
-# app.include_router(preprocessing.router)
-
 
 def get_response() -> str:
+    """
+    Generates a comprehensive supply chain risk management plan using the LLM
+    based on the last user-provided text.
+
+    Returns:
+        str: The LLM-generated risk management plan.
+
+    Raises:
+        HTTPException: If no processed texts are available.
+    """
     if not processed_texts:
         raise HTTPException(status_code=404, detail="No hay textos procesados disponibles")
     
@@ -116,13 +149,11 @@ def get_response() -> str:
 @app.get("/get-response/")
 def preprocess_text() -> str:
     """
-    Preprocess the input text by removing unwanted characters and patterns.
-
-    Args:
-        text (str): The input text to preprocess.
+    Calls the LLM to generate a risk management plan and preprocesses the output
+    by removing unwanted characters and patterns.
 
     Returns:
-        str: The cleaned and preprocessed text.
+        str: The cleaned and preprocessed LLM output.
     """
     text = get_response()
     # Remove newline characters and backslashes
