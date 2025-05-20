@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import RiskMap from './components/RiskMap';
 import Alerts from './components/Alerts';
@@ -7,10 +7,38 @@ import Suppliers from './components/Suppliers';
 import RiskScores from './components/RiskScores';
 import Compilance from './components/Compilance';
 import Reports from './components/Reports';
-import { Bell, Settings, User, Home, Map, List, CheckSquare, Shield, Activity, Server, Search, Box, TrendingUp, AlertTriangle, AlertOctagon, AlertCircle, Minimize } from 'lucide-react';
+import { Bell, Settings, User, Home, Map, List, CheckSquare, Shield, Activity, Server, Box } from 'lucide-react';
+
+function GenerateInsightsButton({ onClick, loading }) {
+  return (
+    <button
+      className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition"
+      onClick={onClick}
+      style={{ marginLeft: 16 }}
+      disabled={loading}
+    >
+      {loading ? 'Generando...' : 'Generar insights'}
+    </button>
+  );
+}
 
 const App = () => {
-  const [activeFilter, setActiveFilter] = useState('All Risks');
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  // Esta función hace el fetch al endpoint y pasa los datos al Dashboard
+  const handleGenerateInsights = async () => {
+    setLoading(true);
+    setDashboardData(null);
+    try {
+      const res = await fetch('http://127.0.0.1:8000/api/dashboard');
+      const json = await res.json();
+      setDashboardData(json);
+    } catch (e) {
+      setDashboardData({ error: 'Error al obtener insights' });
+    }
+    setLoading(false);
+  };
 
   return (
     <Router>
@@ -18,9 +46,10 @@ const App = () => {
         <header className="bg-white shadow-md px-6 py-3 flex justify-between items-center">
           <div className="flex items-center space-x-3">
             <Box className="text-blue-500" size={28} />
-            <h1 className="font-bold text-xl text-gray-800">AI Supply Chain Risk Manager</h1>
+            <h1 className="font-bold text-xl text-gray-800">Lumina</h1>
           </div>
           <div className="flex items-center space-x-4">
+            <GenerateInsightsButton onClick={handleGenerateInsights} loading={loading} />
             <button className="p-2 rounded-full hover:bg-gray-100">
               <Bell size={20} className="text-gray-600" />
             </button>
@@ -38,7 +67,7 @@ const App = () => {
             <nav className="p-4">
               <ul className="space-y-2">
                 <li>
-                  <Link to="/" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition-all">
+                  <Link to="/dashboard" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition-all">
                     <Home size={18} />
                     <span>Dashboard</span>
                   </Link>
@@ -85,7 +114,17 @@ const App = () => {
           {/* Main Content */}
           <main className="flex-1 overflow-y-auto p-6">
             <Routes>
-              <Route path="/" element={<Dashboard />}/>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route
+                path="/dashboard"
+                element={
+                  <Dashboard
+                    data={dashboardData}
+                    loading={loading}
+                    onGenerateInsights={handleGenerateInsights}
+                  />
+                }
+              />
               <Route path="/risk-map" element={<RiskMap />} />
               <Route path="/alerts" element={<Alerts />} />
               <Route path="/suppliers" element={<Suppliers />} />

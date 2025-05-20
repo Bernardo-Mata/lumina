@@ -17,149 +17,143 @@ Functions:
     - preprocess_text: Cleans and returns the LLM output.
 """
 
-from google import genai  # Import genai for LLM interaction
-import re
-import sys
-import os
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+
+from typing import List, Dict, Any
+from google import genai
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import json
+import re
 
-# Add the absolute path to the 'agents' directory to sys.path
-ruta_carpeta_agent = os.path.abspath(os.path.join(os.path.dirname(__file__), 'agents'))
-sys.path.append(ruta_carpeta_agent)
+# Configura tu API Key de Google GenAI
+client = genai.Client(api_key='AIzaSyBS0ERWhkYDIaMifZD1IWpFWGNtSyfZUPo')
 
-# Create FastAPI app instance
-app = FastAPI()
+# Ruta del archivo CSV
+CSV_PATH = "database/supply_chain_data.csv"
 
-# Configure CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Replace '*' with specific origins if needed
-    allow_methods=["GET", "POST", "OPTIONS"],  # Allow specific methods
-    allow_headers=["*"],  # Allow specific headers
-)
+# Clase para estructurar la respuesta para los dashboards
+class DashboardData:
+    def __init__(self, records: List[Dict[str, Any]]):
+        self.total_suppliers = len(records)
+        self.risk_scores = self._extract_risk_scores(records)
+        self.compliance_issues = self._extract_compliance_issues(records)
+        self.recent_alerts = self._extract_recent_alerts(records)
+        self.on_time_delivery = self._extract_on_time_delivery(records)
 
-@app.get("/")
-def read_root():
-    """
-    Root endpoint that returns a welcome message.
-    """
-    return {"message": "Hola"}
-
-class TextInput(BaseModel):
-    """
-    Pydantic model for receiving user text input.
-    """
-    text: str
-
-# In-memory storage for processed texts
-processed_texts = []
-
-@app.post("/process-text/")
-def process_text(input: TextInput):
-    """
-    Receives user text input, validates it, and stores it in memory.
-
-    Args:
-        input (TextInput): The input text from the user.
-
-    Returns:
-        str: The original input text.
-    """
-    if not input.text:
-        raise HTTPException(status_code=400, detail="El texto no puede estar vacío")
-    processed_texts.append(input.text)
-    return input.text
-
-def get_response() -> str:
-    """
-    Generates a comprehensive supply chain risk management plan using the LLM
-    based on the last user-provided text.
-
-    Returns:
-        str: The LLM-generated risk management plan.
-
-    Raises:
-        HTTPException: If no processed texts are available.
-    """
-    if not processed_texts:
-        raise HTTPException(status_code=404, detail="No hay textos procesados disponibles")
-    
-    client = genai.Client(api_key="AIzaSyBS0ERWhkYDIaMifZD1IWpFWGNtSyfZUPo")
-
-    # Research prompt
-    prompt = f"""
-        You are an expert in supply chain risk management. Your task is to develop a comprehensive risk management plan based on a user-provided supply chain risk problem. Follow these steps sequentially:
-        If the user's input is not related to supply chain risk management
-        (e.g., general greetings, unrelated definitions), respond with the message:
-        "My purpose is to provide solutions for risk management;
-        I am not qualified to provide this type of information." 
-
-        Include definitions, problem analysis, potential impact, 
-        contributing factors, and any other relevant information
-        discovered related to the specified supply chain risk.
-
-        **Step 1: Information Gathering:** Conduct a comprehensive search across the internet for all available information regarding the following supply chain risk management problem provided by the user: {processed_texts[-1]}. Ensure your internal output is in the same language as the user's input and focuses exclusively on supply chain risk management. If the user's input is not related to supply chain risk management, state: "My purpose is to provide solutions for risk management; I am not qualified to provide this type of information." Include definitions, problem analysis, potential impact, contributing factors, and any other relevant information discovered.
-
-        **Step 2: Risk Identification:** Analyze the information gathered in Step 1 and identify the potential risks involved. For each identified risk, categorize its severity level into one of the following categories: Alto (High), Medio (Medium), Bajo (Low). Briefly explain your reasoning for the assigned severity level.
-
-        **Step 3: Risk Assessment:** For each risk identified in Step 2, analyze its potential impact (operational, financial, reputational) and the likelihood of its occurrence (High, Medium, Low).
-
-        **Step 4: Risk Scoring:** Assign a risk score to each assessed risk based on its potential impact and likelihood. Use a clear scoring system (either qualitative like Very High, High, Medium, Low, Very Low, or numerical like 1-10). Justify your assigned score.
-
-        **Step 5: Risk Mitigation Strategies:** For each scored risk in Step 4, propose specific and actionable mitigation strategies. For each strategy, outline concrete and implementable actions to reduce the likelihood and/or impact of the risk.
-
-        Present the final output in a structured format, clearly outlining each identified risk, its severity, assessment (impact and likelihood), score, and proposed mitigation strategies with specific actions.
-
-        **Final Output Format:**
-
-        **Risk:** [Description of Risk]
-        **Severity:** [Alto/Medio/Bajo]
-        **Potential Impact:** [Description]
-        **Likelihood of Occurrence:** [High/Medium/Low]
-        **Risk Score:** [Assigned Score]
-        **Justification:** [Reason for the score]
-        **Mitigation Strategies:**
-        * **Strategy 1:** [Name of Strategy]
-            * **Actions:** [List of specific actions]
-        * **Strategy 2:** [Name of Strategy]
-            * **Actions:** [List of specific actions]
-        * [...]
-
-        ---
-        Repeat this format for each identified risk.
-
-        
-    """
-
-    response = client.models.generate_content(
-        model="gemini-2.0-flash-lite",
-        contents=prompt,
-        config={
-            "temperature": 0.1,
-            "max_output_tokens": 600,
-            "top_p": 0.8,
-            "top_k": 40,
+    def _extract_risk_scores(self, records):
+        # Ejemplo: extraer promedios o lista de puntajes de riesgo
+        scores = [float(r.get("risk_score", 0)) for r in records if "risk_score" in r]
+        return {
+            "average": sum(scores) / len(scores) if scores else 0,
+            "scores": scores
         }
+
+    def _extract_compliance_issues(self, records):
+        # Ejemplo: contar issues de cumplimiento
+        return sum(1 for r in records if r.get("compliance_issue", "").lower() == "yes")
+
+    def _extract_recent_alerts(self, records):
+        # Ejemplo: filtrar alertas recientes
+        return [
+            {
+                "type": r.get("alert_type", ""),
+                "location": r.get("location", ""),
+                "timestamp": r.get("timestamp", "")
+            }
+            for r in records if r.get("alert_type")
+        ]
+
+    def _extract_on_time_delivery(self, records):
+        # Ejemplo: calcular porcentaje de entregas a tiempo
+        deliveries = [r.get("on_time_delivery", "0") for r in records]
+        deliveries = [float(d) for d in deliveries if d.replace('.', '', 1).isdigit()]
+        return sum(deliveries) / len(deliveries) if deliveries else 0
+
+    def as_dict(self):
+        return {
+            "total_suppliers": self.total_suppliers,
+            "risk_scores": self.risk_scores,
+            "compliance_issues": self.compliance_issues,
+            "recent_alerts": self.recent_alerts,
+            "on_time_delivery": self.on_time_delivery
+        }
+
+
+def get_structured_dashboard_response():
+    """
+    Lee el archivo CSV y genera un resumen estructurado para dashboards ejecutivos.
+    """
+    # Lee el CSV como texto
+    with open(CSV_PATH, "r", encoding="utf-8") as f:
+        csv_content = f.read()
+
+    prompt = (
+        "Eres un asistente experto en gestión de riesgos de cadena de suministro. "
+        "Analiza el siguiente archivo CSV y genera un resumen estructurado para mostrar en un dashboard ejecutivo. "
+        "Incluye insights clave, riesgos principales, oportunidades de mejora y recomendaciones. "
+        "Incluye valores cuantitativos claros y precisos como: promedios, totales, porcentajes, conteos y métricas clave. "
+        "Por ejemplo: total de proveedores, promedio de riesgo, porcentaje de entregas a tiempo, número de incidencias de cumplimiento, etc. "
+        "Devuelve la respuesta en formato JSON con los siguientes campos: "
+        "total_suppliers, average_risk_score, compliance_issues_count, on_time_delivery_percentage, recent_alerts (lista), summary, main_risks, improvement_opportunities, recommendations.\n\n"
+        f"Archivo CSV:\n{csv_content}"
     )
 
+    response = client.models.generate_content(
+    model='gemini-2.0-flash-001', contents=prompt)
     return response.text
 
-@app.get("/get-response/")
-def preprocess_text() -> str:
-    """
-    Calls the LLM to generate a risk management plan and preprocesses the output
-    by removing unwanted characters and patterns.
+# FastAPI app initialization
+app = FastAPI()
 
-    Returns:
-        str: The cleaned and preprocessed LLM output.
+# Permitir CORS para desarrollo local (ajusta origins en producción)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/api/dashboard")
+def dashboard_insights():
     """
-    text = get_response()
-    # Remove newline characters and backslashes
-    text = re.sub(r'\\n|\\n\\n|\\', ' ', text)
-    # Remove asterisks
-    text = re.sub(r'\*', '', text)
-    # Remove extra spaces
-    text = re.sub(r'\s+', ' ', text).strip()
-    return text
+    Endpoint que genera insights usando el LLM y retorna el JSON estructurado.
+    Si el LLM no devuelve un JSON válido, intenta extraerlo del texto.
+    """
+    llm_response = get_structured_dashboard_response()
+
+    # Intento 1: Parsear directamente
+    try:
+        data = json.loads(llm_response)
+        return data
+    except Exception:
+        pass
+
+    # Intento 2: Buscar el primer bloque JSON en el texto usando regex
+    json_match = re.search(r'\{[\s\S]*\}', llm_response)
+    if json_match:
+        json_str = json_match.group(0)
+        try:
+            data = json.loads(json_str)
+            return data
+        except Exception:
+            pass
+
+    # Intento 3: Reemplazar comillas simples por dobles y volver a intentar
+    if json_match:
+        json_str_fixed = json_match.group(0).replace("'", '"')
+        try:
+            data = json.loads(json_str_fixed)
+            return data
+        except Exception:
+            pass
+
+    # Si todo falla, retorna el texto plano y un mensaje de error
+    return {
+        "error": "El LLM no generó un JSON válido. Revisa el texto generado.",
+        "raw": llm_response
+    }
+
+# Ejemplo de uso:
+#print(get_structured_dashboard_response())
+
