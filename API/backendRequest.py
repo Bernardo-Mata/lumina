@@ -90,11 +90,11 @@ def get_structured_dashboard_response():
     prompt = (
         "Eres un asistente experto en gestión de riesgos de cadena de suministro. "
         "Analiza el siguiente archivo CSV y genera un resumen estructurado para mostrar en un dashboard ejecutivo. "
-        "Incluye insights clave, riesgos principales, oportunidades de mejora y recomendaciones. "
+        # "Incluye insights clave, riesgos principales, oportunidades de mejora y recomendaciones. "
         "Incluye valores cuantitativos claros y precisos como: promedios, totales, porcentajes, conteos y métricas clave. "
         "Por ejemplo: total de proveedores, promedio de riesgo, porcentaje de entregas a tiempo, número de incidencias de cumplimiento, etc. "
         "Devuelve la respuesta en formato JSON con los siguientes campos: "
-        "total_suppliers, average_risk_score, compliance_issues_count, on_time_delivery_percentage, recent_alerts (lista), summary, main_risks, improvement_opportunities, recommendations.\n\n"
+        "total_suppliers, average_risk_score, compliance_issues_count, on_time_delivery_percentage, recent_alerts (lista)\n\n"
         f"Archivo CSV:\n{csv_content}"
     )
 
@@ -154,6 +154,68 @@ def dashboard_insights():
         "raw": llm_response
     }
 
+def get_alerts_summary():
+    """
+    Lee el archivo CSV y genera un resumen de alertas clasificadas por prioridad usando el LLM.
+    """
+    with open(CSV_PATH, "r", encoding="utf-8") as f:
+        csv_content = f.read()
+
+    prompt = (
+        "Eres un asistente experto en gestión de riesgos de cadena de suministro. "
+        "Analiza el siguiente archivo CSV y extrae todas las alertas, clasificándolas por prioridad: "
+        "alta (roja), media (amarilla), baja (verde). "
+        "Devuelve la respuesta en formato JSON con los siguientes campos: "
+        "high_priority (lista de alertas), medium_priority (lista), low_priority (lista). "
+        "Cada alerta debe tener: type, location, timestamp, y una breve descripción.\n\n"
+        "Devuelve la respuesta en Ingles.\n\n"
+        f"Archivo CSV:\n{csv_content}"
+    )
+
+    response = client.models.generate_content(
+        model='gemini-2.0-flash-001', contents=prompt
+    )
+    return response.text
+
+@app.get("/api/alerts-summary")
+def alerts_summary():
+    """
+    Endpoint que genera un resumen de alertas clasificadas por prioridad usando el LLM.
+    """
+    llm_response = get_alerts_summary()
+
+    # Intento 1: Parsear directamente
+    try:
+        data = json.loads(llm_response)
+        return data
+    except Exception:
+        pass
+
+    # Intento 2: Buscar el primer bloque JSON en el texto usando regex
+    json_match = re.search(r'\{[\s\S]*\}', llm_response)
+    if json_match:
+        json_str = json_match.group(0)
+        try:
+            data = json.loads(json_str)
+            return data
+        except Exception:
+            pass
+
+    # Intento 3: Reemplazar comillas simples por dobles y volver a intentar
+    if json_match:
+        json_str_fixed = json_match.group(0).replace("'", '"')
+        try:
+            data = json.loads(json_str_fixed)
+            return data
+        except Exception:
+            pass
+
+    # Si todo falla, retorna el texto plano y un mensaje de error
+    return {
+        "error": "El LLM no generó un JSON válido. Revisa el texto generado.",
+        "raw": llm_response
+    }
+
 # Ejemplo de uso:
-#print(get_structured_dashboard_response())
+print(alerts_summary())
 

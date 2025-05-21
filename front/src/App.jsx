@@ -43,25 +43,27 @@ const App = () => {
   return (
     <Router>
       <div className="flex flex-col h-screen bg-gray-100">
-        <header className="bg-white shadow-md px-6 py-3 flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-            <Box className="text-blue-500" size={28} />
-            <h1 className="font-bold text-xl text-gray-800">Lumina</h1>
-          </div>
-          <div className="flex items-center space-x-4">
-            <GenerateInsightsButton onClick={handleGenerateInsights} loading={loading} />
-            <button className="p-2 rounded-full hover:bg-gray-100">
-              <Bell size={20} className="text-gray-600" />
-            </button>
-            <button className="p-2 rounded-full hover:bg-gray-100">
-              <Settings size={20} className="text-gray-600" />
-            </button>
-            <button className="p-2 rounded-full bg-blue-500 text-white">
-              <User size={20} />
-            </button>
+        <header className="bg-white shadow-md px-6 py-3 ">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-3">
+              <Box className="text-blue-500" size={28} />
+              <h1 className="font-bold text-xl text-gray-800">Lumina</h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              <GenerateInsightsButton onClick={handleGenerateInsights} loading={loading} />
+              <button className="p-2 rounded-full hover:bg-gray-100">
+                <Bell size={20} className="text-gray-600" />
+              </button>
+              <button className="p-2 rounded-full hover:bg-gray-100">
+                <Settings size={20} className="text-gray-600" />
+              </button>
+              <button className="p-2 rounded-full bg-blue-500 text-white">
+                <User size={20} />
+              </button>
+            </div>
           </div>
         </header>
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 overflow-hidden w-full">
           {/* Sidebar */}
           <aside className="w-64 bg-gray-800 text-white">
             <nav className="p-4">
@@ -112,7 +114,7 @@ const App = () => {
             </nav>
           </aside>
           {/* Main Content */}
-          <main className="flex-1 overflow-y-auto p-6">
+          <main className="flex-1 w-full overflow-y-auto">
             <Routes>
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route

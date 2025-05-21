@@ -17,7 +17,7 @@ const Dashboard = ({ data, loading }) => {
   if (loading) return <div>Generating insights...</div>;
   if (!data) return <div>Press "Generating insights" to make a response.</div>;
   if (data.error) return (
-    <div>
+    <div className="max-w-2xl mx-auto p-6">
       <div className="text-red-500">{data.error}</div>
       <pre className="bg-white text-black p-2 rounded mt-2">{data.raw}</pre>
     </div>
@@ -37,19 +37,13 @@ const Dashboard = ({ data, loading }) => {
   };
 
   return (
-    <div className="p-6">
+    <div className="w-full p-6">
       <h2 className="font-bold text-2xl text-gray-800 mb-4">Compliance Issues (Bar Chart)</h2>
       <div className="bg-white rounded shadow p-4 mb-6">
         <Bar data={barData} />
       </div>
-      <h3 className="font-bold text-lg text-gray-800 mt-8 mb-2">Compliance Issues (Tabla):</h3>
+      <h3 className="font-bold text-lg text-gray-800 mt-8 mb-2">Compliance Issues (Table):</h3>
       <table className="min-w-max bg-white rounded shadow text-sm mb-6">
-        <thead>
-          <tr>
-            <th className="px-4 py-2 border">Estado</th>
-            <th className="px-4 py-2 border">Cantidad</th>
-          </tr>
-        </thead>
         <tbody>
           {Object.entries(compliance).map(([status, count]) => (
             <tr key={status}>
