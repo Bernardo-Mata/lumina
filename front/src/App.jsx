@@ -17,7 +17,7 @@ function GenerateInsightsButton({ onClick, loading }) {
       style={{ marginLeft: 16 }}
       disabled={loading}
     >
-      {loading ? 'Generando...' : 'Generar insights'}
+      {loading ? 'Generating...' : 'Generating insights'}
     </button>
   );
 }
@@ -35,15 +35,15 @@ const App = () => {
       const json = await res.json();
       setDashboardData(json);
     } catch (e) {
-      setDashboardData({ error: 'Error al obtener insights' });
+      setDashboardData({ error: 'Error to obtain the insights' });
     }
     setLoading(false);
   };
 
-  return (
+  return (  
     <Router>
       <div className="flex flex-col h-screen bg-gray-100">
-        <header className="bg-white shadow-md px-6 py-3 ">
+        <header className="bg-blue shadow-md px-6 py-3 ">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-3">
               <Box className="text-blue-500" size={28} />

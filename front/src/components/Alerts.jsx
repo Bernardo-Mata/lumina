@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { List, AlertTriangle, AlertCircle } from 'lucide-react';
 
 const PRIORITY_CONFIG = [
-  { key: 'high_priority', label: 'Alta (Roja)', icon: <AlertCircle className="text-red-500" />, color: 'border-red-500' },
-  { key: 'medium_priority', label: 'Media (Amarilla)', icon: <AlertTriangle className="text-yellow-500" />, color: 'border-yellow-500' },
-  { key: 'low_priority', label: 'Baja (Verde)', icon: <AlertTriangle className="text-green-500" />, color: 'border-green-500' },
+  { key: 'high_priority', label: 'High (Red)', icon: <AlertCircle className="text-red-500" />, color: 'border-red-500' },
+  { key: 'medium_priority', label: 'Medium (Yellow)', icon: <AlertTriangle className="text-yellow-500" />, color: 'border-yellow-500' },
+  { key: 'low_priority', label: 'Low (Green)', icon: <AlertTriangle className="text-green-500" />, color: 'border-green-500' },
 ];
 
 const Alerts = () => {
@@ -21,8 +21,8 @@ const Alerts = () => {
       .catch(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="p-6">Cargando alertas...</div>;
-  if (!alerts || alerts.error) return <div className="p-6 text-red-500">No se pudieron cargar las alertas.</div>;
+  if (loading) return <div className="p-6">Loading alerts...</div>;
+  if (!alerts || alerts.error) return <div className="p-6 text-red-500">Error to import the alerts.</div>;
 
   return (
     <div className="p-6">
@@ -38,7 +38,7 @@ const Alerts = () => {
           </h3>
           <ul className="divide-y">
             {(alerts[key] || []).length === 0 && (
-              <li className="text-gray-500 text-sm px-2 py-2">Sin alertas de esta prioridad.</li>
+              <li className="text-gray-500 text-sm px-2 py-2">No alerts in this risk</li>
             )}
             {(alerts[key] || []).map((alert, idx) => (
               <li key={idx} className="flex flex-col p-4 hover:bg-gray-50 border-l-4 mb-2 rounded">
