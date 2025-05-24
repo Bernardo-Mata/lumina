@@ -1,46 +1,50 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { CheckSquare } from 'lucide-react';
 
-// Accept data and loading as props
+// Recibe data y loading como props
 const Compilance = ({ data, loading }) => {
-  const [summary, setSummary] = useState([]);
-  const [localLoading, setLocalLoading] = useState(true);
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center mb-6">
+          <CheckSquare className="text-blue-500 mr-2" size={28} />
+          <h2 className="font-bold text-2xl text-gray-800">Compliance</h2>
+        </div>
+        <div className="bg-white rounded-lg shadow p-4">
+          <div className="p-4">Loading compliance summary...</div>
+        </div>
+      </div>
+    );
+  }
 
-  useEffect(() => {
-    if (data && Array.isArray(data.summary)) {
-      setSummary(data.summary);
-      setLocalLoading(false);
-    } else if (data && data.error) {
-      setSummary([]);
-      setLocalLoading(false);
-    } else if (!data) {
-      // Fallback: fetch if no data prop (optional)
-      fetch('http://127.0.0.1:8000/api/compliance')
-        .then(res => res.json())
-        .then(json => {
-          setSummary(Array.isArray(json.summary) ? json.summary : []);
-          setLocalLoading(false);
-        })
-        .catch(() => setLocalLoading(false));
-    }
-  }, [data]);
+  if (data && data.error) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center mb-6">
+          <CheckSquare className="text-blue-500 mr-2" size={28} />
+          <h2 className="font-bold text-2xl text-gray-800">Compliance</h2>
+        </div>
+        <div className="bg-white rounded-lg shadow p-4">
+          <div className="p-4 text-red-500">{data.error}</div>
+          <pre className="bg-white text-black p-2 rounded mt-2">{data.raw}</pre>
+        </div>
+      </div>
+    );
+  }
 
-  const isLoading = loading || localLoading;
+  // Mostrar el resumen si existe
+  const summary = data && Array.isArray(data.summary) ? data.summary : [];
 
   return (
     <div className="p-6">
-      {/* Title */}
       <div className="flex items-center mb-6">
         <CheckSquare className="text-blue-500 mr-2" size={28} />
         <h2 className="font-bold text-2xl text-gray-800">Compliance</h2>
       </div>
-      {/* Compliance Content */}
       <div className="bg-white rounded-lg shadow p-4">
         <h3 className="font-bold text-gray-700 mb-4">Compliance Overview</h3>
-        {isLoading ? (
-          <div className="p-4">Loading compliance summary...</div>
-        ) : data && data.error ? (
-          <div className="p-4 text-red-500">{data.error}</div>
+        {summary.length === 0 ? (
+          <div className="p-4 text-gray-500">No compliance summary available.</div>
         ) : (
           <ul className="list-disc pl-6 text-gray-700">
             {summary.map((item, idx) => (

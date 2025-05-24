@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { List, AlertTriangle, AlertCircle } from 'lucide-react';
 
 const PRIORITY_CONFIG = [
@@ -7,22 +7,10 @@ const PRIORITY_CONFIG = [
   { key: 'low_priority', label: 'Low (Green)', icon: <AlertTriangle className="text-green-500" />, color: 'border-green-500' },
 ];
 
-const Alerts = () => {
-  const [alerts, setAlerts] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/alerts-summary')
-      .then(res => res.json())
-      .then(data => {
-        setAlerts(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
-
+// Recibe data y loading como props
+const Alerts = ({ data, loading }) => {
   if (loading) return <div className="p-6">Loading alerts...</div>;
-  if (!alerts || alerts.error) return <div className="p-6 text-red-500">Error to import the alerts.</div>;
+  if (!data || data.error) return <div className="p-6 text-red-500">Error to import the alerts.</div>;
 
   return (
     <div className="p-6">
@@ -37,10 +25,10 @@ const Alerts = () => {
             <span className="ml-2">{label}</span>
           </h3>
           <ul className="divide-y">
-            {(alerts[key] || []).length === 0 && (
+            {(data[key] || []).length === 0 && (
               <li className="text-gray-500 text-sm px-2 py-2">No alerts in this risk</li>
             )}
-            {(alerts[key] || []).map((alert, idx) => (
+            {(data[key] || []).map((alert, idx) => (
               <li key={idx} className="flex flex-col p-4 hover:bg-gray-50 border-l-4 mb-2 rounded">
                 <div className="flex justify-between items-center">
                   <span className="font-medium text-gray-800">{alert.type}</span>
