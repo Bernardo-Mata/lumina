@@ -1,47 +1,50 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Shield } from 'lucide-react';
 
-// Accept data and loading as props
+// Recibe data y loading como props
 const RiskScores = ({ data, loading }) => {
-  const [scores, setScores] = useState([]);
-  const [localLoading, setLocalLoading] = useState(true);
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center mb-6">
+          <Shield className="text-blue-500 mr-2" size={28} />
+          <h2 className="font-bold text-2xl text-gray-800">Risk Scores</h2>
+        </div>
+        <div className="bg-white rounded-lg shadow p-4">
+          <div className="p-4">Loading risk scores...</div>
+        </div>
+      </div>
+    );
+  }
 
-  useEffect(() => {
-    if (data && Array.isArray(data.risk_scores)) {
-      setScores(data.risk_scores);
-      setLocalLoading(false);
-    } else if (data && data.error) {
-      setScores([]);
-      setLocalLoading(false);
-    } else if (!data) {
-      // Fallback: fetch if no data prop (optional)
-      fetch('http://127.0.0.1:8000/api/risk-scores')
-        .then(res => res.json())
-        .then(json => {
-          setScores(Array.isArray(json.risk_scores) ? json.risk_scores : []);
-          setLocalLoading(false);
-        })
-        .catch(() => setLocalLoading(false));
-    }
-  }, [data]);
+  if (data && data.error) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center mb-6">
+          <Shield className="text-blue-500 mr-2" size={28} />
+          <h2 className="font-bold text-2xl text-gray-800">Risk Scores</h2>
+        </div>
+        <div className="bg-white rounded-lg shadow p-4">
+          <div className="p-4 text-red-500">{data.error}</div>
+          <pre className="bg-white text-black p-2 rounded mt-2">{data.raw}</pre>
+        </div>
+      </div>
+    );
+  }
 
-  const isLoading = loading || localLoading;
+  const scores = Array.isArray(data?.risk_scores) ? data.risk_scores : [];
 
   return (
     <div className="p-6">
-      {/* Title */}
       <div className="flex items-center mb-6">
         <Shield className="text-blue-500 mr-2" size={28} />
         <h2 className="font-bold text-2xl text-gray-800">Risk Scores</h2>
       </div>
-      {/* Risk Scores Table */}
       <div className="bg-white rounded-lg shadow p-4">
         <h3 className="font-bold text-gray-700 mb-4">Supplier Risk Scores</h3>
         <div className="overflow-x-auto">
-          {isLoading ? (
-            <div className="p-4">Loading risk scores...</div>
-          ) : data && data.error ? (
-            <div className="p-4 text-red-500">{data.error}</div>
+          {scores.length === 0 ? (
+            <div className="p-4 text-gray-500">No risk scores available.</div>
           ) : (
             <table className="min-w-full text-sm text-left">
               <thead>
