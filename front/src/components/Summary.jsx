@@ -2,6 +2,14 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Map } from 'lucide-react';
 import Dashboard from './Dashboard';
 import Alerts from './Alerts';
+import Suppliers from './Suppliers';
+
+// Función para obtener N elementos aleatorios de un array
+function getRandomItems(arr, n) {
+  if (!Array.isArray(arr)) return [];
+  const shuffled = arr.slice().sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, n);
+}
 
 const Summary = (props) => {
   const fileInputRef = useRef(null);
@@ -10,6 +18,7 @@ const Summary = (props) => {
   const [uploadResult, setUploadResult] = useState(null);
   const [dashboardData, setDashboardData] = useState(null);
   const [alertsData, setAlertsData] = useState(null);
+  const [suppliersData, setSuppliersData] = useState(null);
 
   // Sincroniza el dashboard global con el local al montar o cuando cambie
   useEffect(() => {
@@ -25,6 +34,12 @@ const Summary = (props) => {
     }
   }, [props.alertsData]);
 
+  useEffect(() => {
+    if (!suppliersData && props.suppliersData) {
+      setSuppliersData(props.suppliersData);
+    }
+  }, [props.suppliersData]);
+
   // Subir documento
   const handleFileUpload = async (e) => {
     e.preventDefault();
@@ -34,6 +49,7 @@ const Summary = (props) => {
     setUploadResult(null);
     setDashboardData(null);
     setAlertsData(null);
+    setSuppliersData(null);
 
     const formData = new FormData();
     formData.append('file', file);
@@ -57,17 +73,12 @@ const Summary = (props) => {
     setProcessing(true);
     setDashboardData(null);
     setAlertsData(null);
+    setSuppliersData(null);
 
     const formData = new FormData();
     formData.append('filename', uploadResult.filename);
 
     try {
-      // Procesa el documento con el LLM
-      await fetch('http://127.0.0.1:8000/api/process-document', {
-        method: 'POST',
-        body: formData,
-      });
-
       // Dashboard
       const resDashboard = await fetch(
         `http://127.0.0.1:8000/api/dashboard?filename=${encodeURIComponent(
@@ -92,6 +103,18 @@ const Summary = (props) => {
         props.setAlertsDataFromSummary(alertsJson);
       }
 
+      // Suppliers
+      const resSuppliers = await fetch(
+        `http://127.0.0.1:8000/api/suppliers?filename=${encodeURIComponent(
+          uploadResult.filename
+        )}`
+      );
+      const suppliersJson = await resSuppliers.json();
+      setSuppliersData(suppliersJson);
+      if (props.setSuppliersDataFromSummary) {
+        props.setSuppliersDataFromSummary(suppliersJson);
+      }
+
       // Aquí puedes agregar más fetch para otros componentes futuros
     } catch (err) {
       setDashboardData({ error: 'Error processing the document.' });
@@ -99,6 +122,27 @@ const Summary = (props) => {
     }
     setProcessing(false);
   };
+
+  // --- RESUMEN ALEATORIO PARA ALERTS ---
+  let alertsSummary = null;
+  if (alertsData) {
+    alertsSummary = {};
+    ['high_priority', 'medium_priority', 'low_priority'].forEach((level) => {
+      if (Array.isArray(alertsData[level])) {
+        alertsSummary[level] = getRandomItems(alertsData[level], 5);
+      }
+    });
+    // Mantén el problem_summary si existe
+    if (alertsData.problem_summary) {
+      alertsSummary.problem_summary = alertsData.problem_summary;
+    }
+  }
+
+  // --- RESUMEN ALEATORIO PARA SUPPLIERS ---
+  let suppliersSummary = null;
+  if (Array.isArray(suppliersData)) {
+    suppliersSummary = getRandomItems(suppliersData, 10);
+  }
 
   return (
     <div className="p-6">
@@ -148,9 +192,14 @@ const Summary = (props) => {
             <Dashboard data={dashboardData} loading={processing} />
           </div>
         )}
-        {alertsData && (
+        {alertsSummary && (
           <div className="mt-6">
-            <Alerts data={alertsData} loading={processing} />
+            <Alerts data={alertsSummary} loading={processing} />
+          </div>
+        )}
+        {suppliersSummary && (
+          <div className="mt-6">
+            <Suppliers data={suppliersSummary} loading={processing} />
           </div>
         )}
       </div>

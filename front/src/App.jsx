@@ -86,6 +86,13 @@ const App = () => {
     }));
   }
 
+  function setSuppliersDataFromSummary(suppliersJson) {
+    setData(prev => ({
+      ...prev,
+      [ENDPOINTS['/suppliers']]: suppliersJson
+    }));
+  }
+
   return (
     <Router>
       <div className="flex flex-col h-screen bg-gray-100">
@@ -169,9 +176,11 @@ const App = () => {
                     <Summary
                       data={data[ENDPOINTS['/dashboard']]}
                       alertsData={data[ENDPOINTS['/alerts']]}
+                      suppliersData={data[ENDPOINTS['/suppliers']]}
                       loading={loading[ENDPOINTS['/dashboard']]}
                       setDashboardDataFromSummary={setDashboardDataFromSummary}
                       setAlertsDataFromSummary={setAlertsDataFromSummary}
+                      setSuppliersDataFromSummary={setSuppliersDataFromSummary}
                     />
                   }
                 />
@@ -194,14 +203,14 @@ const App = () => {
                 }
               />
               <Route
-                path="/suppliers"
-                element={
-                  <Suppliers
-                    data={getDataForRoute('/suppliers')}
-                    loading={getLoadingForRoute('/suppliers')}
-                  />
-                }
-              />
+                  path="/suppliers"
+                  element={
+                    <Suppliers
+                      data={data[ENDPOINTS['/suppliers']]}
+                      loading={loading[ENDPOINTS['/suppliers']]}
+                    />
+                  }
+                />
               {/* <Route path="/risk-map" element={<RiskMap />} /> */}
               <Route path="/risk-scores" element={
                 <RiskScores

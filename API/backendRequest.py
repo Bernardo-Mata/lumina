@@ -227,22 +227,23 @@ def alerts_summary():
         "raw": llm_response
     }
 
-def get_suppliers_llm():
+def get_suppliers_llm(filename):
     """
-    Uses the LLM to analyze the supply chain CSV and generate a JSON table with supplier name, location, risk score, and status.
+    Uses the LLM to analyze the uploaded document and generate a JSON table with supplier name, location, risk_score, and status.
     """
-    with open(CSV_PATH, "r", encoding="utf-8") as f:
-        csv_content = f.read()
+    text, error = read_uploaded_document(filename)
+    if error:
+        return {"error": error}
 
     prompt = (
         "You are an expert assistant in supply chain risk management. "
-        "Analyze the following CSV file and extract a table of all suppliers. "
-        "For each supplier, provide the following fields: name, location, risk_score, and status. "
+        "Analyze the following document and extract a table of all suppliers. "
+        "For each supplier, provide the following fields: name, location, risk_score (number), and status (Active/Inactive or similar). "
         "Return the result as a JSON array, where each element is an object with these fields. "
         "Example:\n"
         "[{\"name\": \"Supplier A\", \"location\": \"USA\", \"risk_score\": 80, \"status\": \"Active\"}, ...]\n\n"
-        "CSV file:\n"
-        f"{csv_content}"
+        "Document:\n"
+        f"{text}"
     )
 
     response = client.models.generate_content(
@@ -251,11 +252,11 @@ def get_suppliers_llm():
     return response.text
 
 @app.get("/api/suppliers")
-def suppliers_endpoint():
+def suppliers_endpoint(filename: str = Query(..., description="Previously uploaded file name")):
     """
-    Endpoint that uses the LLM to extract supplier data from the CSV and returns it as a JSON array.
+    Endpoint that uses the LLM to extract supplier data from the uploaded document and returns it as a JSON array.
     """
-    llm_response = get_suppliers_llm()
+    llm_response = get_suppliers_llm(filename)
 
     # Try to parse the LLM response as JSON
     try:
