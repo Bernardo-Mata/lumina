@@ -22,15 +22,22 @@ from typing import List, Dict, Any
 from google import genai
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import UploadFile, File, Form, Query
+# from fastapi.responses import JSONResponse
 import json
 import re
-import csv
-
+# import csv
+# import tempfile
+import os
+import PyPDF2
+import docx
 # Configura tu API Key de Google GenAI
 client = genai.Client(api_key='AIzaSyBS0ERWhkYDIaMifZD1IWpFWGNtSyfZUPo')
 
 # Ruta del archivo CSV
-CSV_PATH = "database/supply_chain_data.csv"
+CSV_PATH = ""
+UPLOAD_FOLDER = "uploaded_docs"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Clase para estructurar la respuesta para los dashboards
 class DashboardData:
@@ -80,28 +87,30 @@ class DashboardData:
         }
 
 
-def get_structured_dashboard_response():
+def get_structured_dashboard_response(filename):
     """
-    Lee el archivo CSV y genera un resumen estructurado para dashboards ejecutivos.
+    Lee el documento cargado (usando read_uploaded_document) y genera un resumen estructurado para dashboards ejecutivos.
     """
-    # Lee el CSV como texto
-    with open(CSV_PATH, "r", encoding="utf-8") as f:
-        csv_content = f.read()
+    # Lee el documento como texto usando la función existente
+    text, error = read_uploaded_document(filename)
+    if error:
+        return {"error": error}
 
     prompt = (
         "Eres un asistente experto en gestión de riesgos de cadena de suministro. "
-        "Analiza el siguiente archivo CSV y genera un resumen estructurado para mostrar en un dashboard ejecutivo. "
-        # "Incluye insights clave, riesgos principales, oportunidades de mejora y recomendaciones. "
+        "Analiza el siguiente documento y genera un resumen estructurado para mostrar en un dashboard ejecutivo. "
         "Incluye valores cuantitativos claros y precisos como: promedios, totales, porcentajes, conteos y métricas clave. "
         "Por ejemplo: total de proveedores, promedio de riesgo, porcentaje de entregas a tiempo, número de incidencias de cumplimiento, etc. "
         "Devuelve la respuesta en formato JSON con los siguientes campos: "
         "total_suppliers, average_risk_score, compliance_issues_count, on_time_delivery_percentage, recent_alerts (lista)\n\n"
-        f"Archivo CSV:\n{csv_content}"
+        f"Documento:\n{text}"
     )
 
     response = client.models.generate_content(
-    model='gemini-2.0-flash-001', contents=prompt)
+        model='gemini-2.0-flash-001', contents=prompt
+    )
     return response.text
+
 
 # FastAPI app initialization
 app = FastAPI()
@@ -116,12 +125,13 @@ app.add_middleware(
 )
 
 @app.get("/api/dashboard")
-def dashboard_insights():
+def dashboard_insights(filename: str = Query(..., description="Nombre del archivo previamente subido")):
     """
-    Endpoint que genera insights usando el LLM y retorna el JSON estructurado.
+    Endpoint que genera insights usando el LLM y retorna el JSON estructurado,
+    usando el documento cargado identificado por filename.
     Si el LLM no devuelve un JSON válido, intenta extraerlo del texto.
     """
-    llm_response = get_structured_dashboard_response()
+    llm_response = get_structured_dashboard_response(filename)
 
     # Intento 1: Parsear directamente
     try:
@@ -491,3 +501,154 @@ def risk_scores_endpoint():
         "raw": llm_response
     }
 
+# 1. Endpoint para cargar el documento
+@app.post("/api/upload-document")
+async def upload_document(file: UploadFile = File(...)):
+    """
+    Sube el documento y lo guarda en disco. No llama al LLM.
+    """
+    suffix = os.path.splitext(file.filename)[-1]
+    save_path = os.path.join(UPLOAD_FOLDER, file.filename)
+    try:
+        with open(save_path, "wb") as f:
+            contents = await file.read()
+            f.write(contents)
+        return {"success": True, "filename": file.filename, "message": "El documento fue cargado exitosamente."}
+    except Exception as e:
+        return {"success": False, "error": f"Error al guardar el archivo: {str(e)}"}
+
+# 2. Función para leer el documento cargado
+def read_uploaded_document(filename):
+    # Solo el nombre base, sin rutas
+    filename = os.path.basename(filename)
+    path = os.path.join("uploaded_docs",filename)
+    
+    suffix = os.path.splitext(filename)[-1].lower()
+    
+    try:
+        if suffix == ".pdf":
+            with open(path, "rb") as f:
+                reader = PyPDF2.PdfReader(f)
+                text = "\n".join(page.extract_text() for page in reader.pages if page.extract_text())
+        elif suffix in [".csv", ".txt"]:
+            with open(path, "r", encoding="utf-8") as f:
+                text = f.read()
+        elif suffix in [".doc", ".docx"]:
+            doc = docx.Document(path)
+            text = "\n".join([p.text for p in doc.paragraphs])
+        elif suffix == ".json":
+            with open(path, "r", encoding="utf-8") as f:
+                text = f.read()
+        else:
+            return None, "Tipo de archivo no soportado."
+        return text, None
+    except Exception as e:
+        return None, f"Error leyendo el archivo: {str(e)}"
+
+# 3. Endpoint para procesar el documento con el LLM
+@app.post("/api/process-document")
+async def process_document(filename: str = Form(...)):
+    """
+    Lee el documento cargado y lo procesa con el LLM para generar un JSON.
+    """
+    text, error = read_uploaded_document(filename)
+    if error:
+        return {"error": error}
+
+    prompt = (
+        "Eres un asistente experto en análisis de documentos de cadena de suministro. "
+        "Convierte el siguiente documento a un formato JSON estructurado, extrayendo los datos clave relevantes. "
+        "Incluye valores cuantitativos claros y precisos como: promedios, totales, porcentajes, conteos y métricas clave. "
+        "Por ejemplo: total de proveedores, promedio de riesgo, porcentaje de entregas a tiempo, número de incidencias de cumplimiento, etc. "
+        "Devuelve la respuesta en formato JSON con los siguientes campos: "
+        "total_suppliers, average_risk_score, compliance_issues_count, on_time_delivery_percentage, recent_alerts (lista)\n\n"
+        "Si es un CSV, JSON o tabla, estructura los datos como una lista de objetos JSON. "
+        "Si es un PDF o Word, resume y extrae los datos cuantitativos en formato JSON. "
+        "ejemplo de lo que puede ir en el JSON:\n"
+        "Documento:\n"
+        f"{text}"
+    )
+
+    try:
+        response = client.models.generate_content(
+            model='gemini-2.0-flash-001', contents=prompt
+        )
+        llm_response = response.text
+        # Intenta parsear el JSON generado
+        try:
+            data = json.loads(llm_response)
+            return data
+        except Exception:
+            # Busca el primer bloque JSON en el texto usando regex
+            json_match = re.search(r'\{[\s\S]*\}|\[[\s\S]*\]', llm_response)
+            if json_match:
+                json_str = json_match.group(0)
+                try:
+                    data = json.loads(json_str)
+                    return data
+                except Exception:
+                    pass
+            return {"error": "El LLM no generó un JSON válido. Revisa el texto generado.", "raw": llm_response}
+    except Exception as e:
+        return {"error": f"Error procesando con LLM: {str(e)}"}
+
+@app.get("/api/alerts")
+def alerts_insights(filename: str = Query(..., description="Nombre del archivo previamente subido")):
+    """
+    Endpoint que genera alertas usando el LLM y retorna el JSON estructurado,
+    usando el documento cargado identificado por filename.
+    """
+    text, error = read_uploaded_document(filename)
+    if error:
+        return {"error": error}
+
+    prompt = (
+        "You are a supply chain risk management expert. "
+        "Analyze the following document and extract all relevant alerts. "
+        "Classify the alerts into high_priority, medium_priority, and low_priority according to their risk level. "
+        "Return the response as a JSON object with the structure: "
+        "{'problem_summary': string, 'high_priority': [...], 'medium_priority': [...], 'low_priority': [...]}.\n"
+        "Each alert must be a JSON object with the following fields: "
+        "sku, product_type, availability, stock_levels, lead_time, description, solutions. "
+        "The 'solutions' field must be a list of one or more specific recommendations to mitigate the risk. "
+        "For example, if the risk is low stock, suggest actions like 'Increase inventory', 'Find alternative suppliers', etc. "
+        "If a field does not apply, leave it empty or null. "
+        "Do NOT return alerts as plain text, only as JSON objects. "
+        "All output must be in English.\n"
+        "Example of an alert:\n"
+        "{"
+        "Example of problem_summary: \"Several SKUs have critically low stock, risking production delays.\"\n"
+        "\"sku\": \"AUTO0\","
+        "\"product_type\": \"Hatchback\","
+        "\"availability\": 7,"
+        "\"stock_levels\": 3,"
+        "\"lead_time\": 2,"
+        "\"description\": \"Critical low stock level. Potential production halt or inability to fulfill orders.\","
+        "\"solutions\": [\"Increase inventory levels\", \"Negotiate faster deliveries with suppliers\"]"
+        "}\n"
+        f"Document:\n{text}"
+    )
+
+    try:
+        response = client.models.generate_content(
+            model='gemini-2.0-flash-001', contents=prompt
+        )
+        llm_response = response.text
+        try:
+            data = json.loads(llm_response)
+            return data
+        except Exception:
+            json_match = re.search(r'\{[\s\S]*\}|\[[\s\S]*\]', llm_response)
+            if json_match:
+                json_str = json_match.group(0)
+                try:
+                    data = json.loads(json_str)
+                    return data
+                except Exception:
+                    pass
+            return {"error": "El LLM no generó un JSON válido. Revisa el texto generado.", "raw": llm_response}
+    except Exception as e:
+        return {"error": f"Error procesando con LLM: {str(e)}"}
+
+
+print(read_uploaded_document(r"uploaded_docs\\marcas_autos_mexico.csv"))

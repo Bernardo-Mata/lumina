@@ -72,6 +72,20 @@ const App = () => {
     return loading[endpoint] || false;
   }
 
+  function setDashboardDataFromSummary(dashboardJson) {
+    setData(prev => ({
+      ...prev,
+      [ENDPOINTS['/dashboard']]: dashboardJson
+    }));
+  }
+
+  function setAlertsDataFromSummary(alertsJson) {
+    setData(prev => ({
+      ...prev,
+      [ENDPOINTS['/alerts']]: alertsJson
+    }));
+  }
+
   return (
     <Router>
       <div className="flex flex-col h-screen bg-gray-100">
@@ -153,8 +167,11 @@ const App = () => {
                   path="/summary"
                   element={
                     <Summary
-                      data={getDataForRoute('/summary')}
-                      loading={getLoadingForRoute('/summary')}
+                      data={data[ENDPOINTS['/dashboard']]}
+                      alertsData={data[ENDPOINTS['/alerts']]}
+                      loading={loading[ENDPOINTS['/dashboard']]}
+                      setDashboardDataFromSummary={setDashboardDataFromSummary}
+                      setAlertsDataFromSummary={setAlertsDataFromSummary}
                     />
                   }
                 />
