@@ -17,149 +17,477 @@ Functions:
     - preprocess_text: Cleans and returns the LLM output.
 """
 
-from google import genai  # Import genai for LLM interaction
-import re
-import sys
-import os
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+
+from typing import List, Dict, Any
+from google import genai
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import json
+import re
+import csv
 
-# Add the absolute path to the 'agents' directory to sys.path
-ruta_carpeta_agent = os.path.abspath(os.path.join(os.path.dirname(__file__), 'agents'))
-sys.path.append(ruta_carpeta_agent)
+# Configura tu API Key de Google GenAI
+client = genai.Client(api_key='AIzaSyBS0ERWhkYDIaMifZD1IWpFWGNtSyfZUPo')
 
-# Create FastAPI app instance
-app = FastAPI()
+# Ruta del archivo CSV
+CSV_PATH = "database/supply_chain_data.csv"
 
-# Configure CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Replace '*' with specific origins if needed
-    allow_methods=["GET", "POST", "OPTIONS"],  # Allow specific methods
-    allow_headers=["*"],  # Allow specific headers
-)
+# Clase para estructurar la respuesta para los dashboards
+class DashboardData:
+    def __init__(self, records: List[Dict[str, Any]]):
+        self.total_suppliers = len(records)
+        self.risk_scores = self._extract_risk_scores(records)
+        self.compliance_issues = self._extract_compliance_issues(records)
+        self.recent_alerts = self._extract_recent_alerts(records)
+        self.on_time_delivery = self._extract_on_time_delivery(records)
 
-@app.get("/")
-def read_root():
-    """
-    Root endpoint that returns a welcome message.
-    """
-    return {"message": "Hola"}
-
-class TextInput(BaseModel):
-    """
-    Pydantic model for receiving user text input.
-    """
-    text: str
-
-# In-memory storage for processed texts
-processed_texts = []
-
-@app.post("/process-text/")
-def process_text(input: TextInput):
-    """
-    Receives user text input, validates it, and stores it in memory.
-
-    Args:
-        input (TextInput): The input text from the user.
-
-    Returns:
-        str: The original input text.
-    """
-    if not input.text:
-        raise HTTPException(status_code=400, detail="El texto no puede estar vacío")
-    processed_texts.append(input.text)
-    return input.text
-
-def get_response() -> str:
-    """
-    Generates a comprehensive supply chain risk management plan using the LLM
-    based on the last user-provided text.
-
-    Returns:
-        str: The LLM-generated risk management plan.
-
-    Raises:
-        HTTPException: If no processed texts are available.
-    """
-    if not processed_texts:
-        raise HTTPException(status_code=404, detail="No hay textos procesados disponibles")
-    
-    client = genai.Client(api_key="AIzaSyBS0ERWhkYDIaMifZD1IWpFWGNtSyfZUPo")
-
-    # Research prompt
-    prompt = f"""
-        You are an expert in supply chain risk management. Your task is to develop a comprehensive risk management plan based on a user-provided supply chain risk problem. Follow these steps sequentially:
-        If the user's input is not related to supply chain risk management
-        (e.g., general greetings, unrelated definitions), respond with the message:
-        "My purpose is to provide solutions for risk management;
-        I am not qualified to provide this type of information." 
-
-        Include definitions, problem analysis, potential impact, 
-        contributing factors, and any other relevant information
-        discovered related to the specified supply chain risk.
-
-        **Step 1: Information Gathering:** Conduct a comprehensive search across the internet for all available information regarding the following supply chain risk management problem provided by the user: {processed_texts[-1]}. Ensure your internal output is in the same language as the user's input and focuses exclusively on supply chain risk management. If the user's input is not related to supply chain risk management, state: "My purpose is to provide solutions for risk management; I am not qualified to provide this type of information." Include definitions, problem analysis, potential impact, contributing factors, and any other relevant information discovered.
-
-        **Step 2: Risk Identification:** Analyze the information gathered in Step 1 and identify the potential risks involved. For each identified risk, categorize its severity level into one of the following categories: Alto (High), Medio (Medium), Bajo (Low). Briefly explain your reasoning for the assigned severity level.
-
-        **Step 3: Risk Assessment:** For each risk identified in Step 2, analyze its potential impact (operational, financial, reputational) and the likelihood of its occurrence (High, Medium, Low).
-
-        **Step 4: Risk Scoring:** Assign a risk score to each assessed risk based on its potential impact and likelihood. Use a clear scoring system (either qualitative like Very High, High, Medium, Low, Very Low, or numerical like 1-10). Justify your assigned score.
-
-        **Step 5: Risk Mitigation Strategies:** For each scored risk in Step 4, propose specific and actionable mitigation strategies. For each strategy, outline concrete and implementable actions to reduce the likelihood and/or impact of the risk.
-
-        Present the final output in a structured format, clearly outlining each identified risk, its severity, assessment (impact and likelihood), score, and proposed mitigation strategies with specific actions.
-
-        **Final Output Format:**
-
-        **Risk:** [Description of Risk]
-        **Severity:** [Alto/Medio/Bajo]
-        **Potential Impact:** [Description]
-        **Likelihood of Occurrence:** [High/Medium/Low]
-        **Risk Score:** [Assigned Score]
-        **Justification:** [Reason for the score]
-        **Mitigation Strategies:**
-        * **Strategy 1:** [Name of Strategy]
-            * **Actions:** [List of specific actions]
-        * **Strategy 2:** [Name of Strategy]
-            * **Actions:** [List of specific actions]
-        * [...]
-
-        ---
-        Repeat this format for each identified risk.
-
-        
-    """
-
-    response = client.models.generate_content(
-        model="gemini-2.0-flash-lite",
-        contents=prompt,
-        config={
-            "temperature": 0.1,
-            "max_output_tokens": 600,
-            "top_p": 0.8,
-            "top_k": 40,
+    def _extract_risk_scores(self, records):
+        # Ejemplo: extraer promedios o lista de puntajes de riesgo
+        scores = [float(r.get("risk_score", 0)) for r in records if "risk_score" in r]
+        return {
+            "average": sum(scores) / len(scores) if scores else 0,
+            "scores": scores
         }
+
+    def _extract_compliance_issues(self, records):
+        # Ejemplo: contar issues de cumplimiento
+        return sum(1 for r in records if r.get("compliance_issue", "").lower() == "yes")
+
+    def _extract_recent_alerts(self, records):
+        # Ejemplo: filtrar alertas recientes
+        return [
+            {
+                "type": r.get("alert_type", ""),
+                "location": r.get("location", ""),
+                "timestamp": r.get("timestamp", "")
+            }
+            for r in records if r.get("alert_type")
+        ]
+
+    def _extract_on_time_delivery(self, records):
+        # Ejemplo: calcular porcentaje de entregas a tiempo
+        deliveries = [r.get("on_time_delivery", "0") for r in records]
+        deliveries = [float(d) for d in deliveries if d.replace('.', '', 1).isdigit()]
+        return sum(deliveries) / len(deliveries) if deliveries else 0
+
+    def as_dict(self):
+        return {
+            "total_suppliers": self.total_suppliers,
+            "risk_scores": self.risk_scores,
+            "compliance_issues": self.compliance_issues,
+            "recent_alerts": self.recent_alerts,
+            "on_time_delivery": self.on_time_delivery
+        }
+
+
+def get_structured_dashboard_response():
+    """
+    Lee el archivo CSV y genera un resumen estructurado para dashboards ejecutivos.
+    """
+    # Lee el CSV como texto
+    with open(CSV_PATH, "r", encoding="utf-8") as f:
+        csv_content = f.read()
+
+    prompt = (
+        "Eres un asistente experto en gestión de riesgos de cadena de suministro. "
+        "Analiza el siguiente archivo CSV y genera un resumen estructurado para mostrar en un dashboard ejecutivo. "
+        # "Incluye insights clave, riesgos principales, oportunidades de mejora y recomendaciones. "
+        "Incluye valores cuantitativos claros y precisos como: promedios, totales, porcentajes, conteos y métricas clave. "
+        "Por ejemplo: total de proveedores, promedio de riesgo, porcentaje de entregas a tiempo, número de incidencias de cumplimiento, etc. "
+        "Devuelve la respuesta en formato JSON con los siguientes campos: "
+        "total_suppliers, average_risk_score, compliance_issues_count, on_time_delivery_percentage, recent_alerts (lista)\n\n"
+        f"Archivo CSV:\n{csv_content}"
     )
 
+    response = client.models.generate_content(
+    model='gemini-2.0-flash-001', contents=prompt)
     return response.text
 
-@app.get("/get-response/")
-def preprocess_text() -> str:
-    """
-    Calls the LLM to generate a risk management plan and preprocesses the output
-    by removing unwanted characters and patterns.
+# FastAPI app initialization
+app = FastAPI()
 
-    Returns:
-        str: The cleaned and preprocessed LLM output.
+# Permitir CORS para desarrollo local (ajusta origins en producción)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/api/dashboard")
+def dashboard_insights():
     """
-    text = get_response()
-    # Remove newline characters and backslashes
-    text = re.sub(r'\\n|\\n\\n|\\', ' ', text)
-    # Remove asterisks
-    text = re.sub(r'\*', '', text)
-    # Remove extra spaces
-    text = re.sub(r'\s+', ' ', text).strip()
-    return text
+    Endpoint que genera insights usando el LLM y retorna el JSON estructurado.
+    Si el LLM no devuelve un JSON válido, intenta extraerlo del texto.
+    """
+    llm_response = get_structured_dashboard_response()
+
+    # Intento 1: Parsear directamente
+    try:
+        data = json.loads(llm_response)
+        return data
+    except Exception:
+        pass
+
+    # Intento 2: Buscar el primer bloque JSON en el texto usando regex
+    json_match = re.search(r'\{[\s\S]*\}', llm_response)
+    if json_match:
+        json_str = json_match.group(0)
+        try:
+            data = json.loads(json_str)
+            return data
+        except Exception:
+            pass
+
+    # Intento 3: Reemplazar comillas simples por dobles y volver a intentar
+    if json_match:
+        json_str_fixed = json_match.group(0).replace("'", '"')
+        try:
+            data = json.loads(json_str_fixed)
+            return data
+        except Exception:
+            pass
+
+    # Si todo falla, retorna el texto plano y un mensaje de error
+    return {
+        "error": "El LLM no generó un JSON válido. Revisa el texto generado.",
+        "raw": llm_response
+    }
+
+def get_alerts_summary():
+    """
+    Lee el archivo CSV y genera un resumen de alertas clasificadas por prioridad usando el LLM.
+    """
+    with open(CSV_PATH, "r", encoding="utf-8") as f:
+        csv_content = f.read()
+
+    prompt = (
+        "Eres un asistente experto en gestión de riesgos de cadena de suministro. "
+        "Analiza el siguiente archivo CSV y extrae todas las alertas, clasificándolas por prioridad: "
+        "alta (roja), media (amarilla), baja (verde). "
+        "Devuelve la respuesta en formato JSON con los siguientes campos: "
+        "high_priority (lista de alertas), medium_priority (lista), low_priority (lista). "
+        "Cada alerta debe tener: type, location, timestamp, y una breve descripción.\n\n"
+        "Devuelve la respuesta en Ingles.\n\n"
+        f"Archivo CSV:\n{csv_content}"
+    )
+
+    response = client.models.generate_content(
+        model='gemini-2.0-flash-001', contents=prompt
+    )
+    return response.text
+
+@app.get("/api/alerts-summary")
+def alerts_summary():
+    """
+    Endpoint que genera un resumen de alertas clasificadas por prioridad usando el LLM.
+    """
+    llm_response = get_alerts_summary()
+
+    # Intento 1: Parsear directamente
+    try:
+        data = json.loads(llm_response)
+        return data
+    except Exception:
+        pass
+
+    # Intento 2: Buscar el primer bloque JSON en el texto usando regex
+    json_match = re.search(r'\{[\s\S]*\}', llm_response)
+    if json_match:
+        json_str = json_match.group(0)
+        try:
+            data = json.loads(json_str)
+            return data
+        except Exception:
+            pass
+
+    # Intento 3: Reemplazar comillas simples por dobles y volver a intentar
+    if json_match:
+        json_str_fixed = json_match.group(0).replace("'", '"')
+        try:
+            data = json.loads(json_str_fixed)
+            return data
+        except Exception:
+            pass
+
+    # Si todo falla, retorna el texto plano y un mensaje de error
+    return {
+        "error": "El LLM no generó un JSON válido. Revisa el texto generado.",
+        "raw": llm_response
+    }
+
+def get_suppliers_llm():
+    """
+    Uses the LLM to analyze the supply chain CSV and generate a JSON table with supplier name, location, risk score, and status.
+    """
+    with open(CSV_PATH, "r", encoding="utf-8") as f:
+        csv_content = f.read()
+
+    prompt = (
+        "You are an expert assistant in supply chain risk management. "
+        "Analyze the following CSV file and extract a table of all suppliers. "
+        "For each supplier, provide the following fields: name, location, risk_score, and status. "
+        "Return the result as a JSON array, where each element is an object with these fields. "
+        "Example:\n"
+        "[{\"name\": \"Supplier A\", \"location\": \"USA\", \"risk_score\": 80, \"status\": \"Active\"}, ...]\n\n"
+        "CSV file:\n"
+        f"{csv_content}"
+    )
+
+    response = client.models.generate_content(
+        model='gemini-2.0-flash-001', contents=prompt
+    )
+    return response.text
+
+@app.get("/api/suppliers")
+def suppliers_endpoint():
+    """
+    Endpoint that uses the LLM to extract supplier data from the CSV and returns it as a JSON array.
+    """
+    llm_response = get_suppliers_llm()
+
+    # Try to parse the LLM response as JSON
+    try:
+        data = json.loads(llm_response)
+        return data
+    except Exception:
+        pass
+
+    # Try to extract the first JSON array from the response using regex
+    json_match = re.search(r'\[.*\]', llm_response, re.DOTALL)
+    if json_match:
+        json_str = json_match.group(0)
+        try:
+            data = json.loads(json_str)
+            return data
+        except Exception:
+            pass
+
+    # Try to fix single quotes and parse again
+    if json_match:
+        json_str_fixed = json_match.group(0).replace("'", '"')
+        try:
+            data = json.loads(json_str_fixed)
+            return data
+        except Exception:
+            pass
+
+    # If everything fails, return the raw response and an error
+    return {
+        "error": "The LLM did not generate a valid JSON array. Check the generated text.",
+        "raw": llm_response
+    }
+
+def get_compliance_summary():
+    """
+    Uses the LLM to analyze the supply chain CSV and generate a compliance summary as a JSON list of strings.
+    """
+    with open(CSV_PATH, "r", encoding="utf-8") as f:
+        csv_content = f.read()
+
+    prompt = (
+        "You are an expert assistant in supply chain compliance. "
+        "Analyze the following CSV file and generate a concise compliance summary for an executive dashboard. "
+        "Return a JSON array of 2-5 short bullet points (as strings) summarizing the compliance status. "
+        "Focus on facts such as: if all suppliers have submitted required documents, "
+        "how many suppliers have expiring certifications this month, "
+        "and if there are any major compliance issues detected. "
+        "Example:\n"
+        "["
+        "\"All suppliers have submitted required documents.\", "
+        "\"2 suppliers have expiring certifications this month.\", "
+        "\"No major compliance issues detected.\""
+        "]\n\n"
+        "CSV file:\n"
+        f"{csv_content}"
+    )
+
+    response = client.models.generate_content(
+        model='gemini-2.0-flash-001', contents=prompt
+    )
+    return response.text
+
+@app.get("/api/compliance")
+def compliance_endpoint():
+    """
+    Endpoint that uses the LLM to extract a compliance summary from the CSV and returns it as a JSON array of strings.
+    """
+    llm_response = get_compliance_summary()
+
+    # Try to parse the LLM response as JSON
+    try:
+        data = json.loads(llm_response)
+        return {"summary": data}
+    except Exception:
+        pass
+
+    # Try to extract the first JSON array from the response using regex
+    json_match = re.search(r'\[.*\]', llm_response, re.DOTALL)
+    if json_match:
+        json_str = json_match.group(0)
+        try:
+            data = json.loads(json_str)
+            return {"summary": data}
+        except Exception:
+            pass
+
+    # Try to fix single quotes and parse again
+    if json_match:
+        json_str_fixed = json_match.group(0).replace("'", '"')
+        try:
+            data = json.loads(json_str_fixed)
+            return {"summary": data}
+        except Exception:
+            pass
+
+    # If everything fails, return the raw response and an error
+    return {
+        "error": "The LLM did not generate a valid JSON array. Check the generated text.",
+        "raw": llm_response
+    }
+
+import re
+import json
+
+def get_reports_summary():
+    """
+    Uses the LLM to analyze the supply chain CSV and generate a JSON object with:
+    - Monthly risk trend analysis
+    - Supplier performance summary
+    - Compliance audit logs
+    - Custom exportable reports (summary)
+    """
+    with open(CSV_PATH, "r", encoding="utf-8") as f:
+        csv_content = f.read()
+
+    prompt = (
+        "You are an expert assistant in supply chain analytics. "
+        "Analyze the following CSV file and generate a JSON object with the following fields: "
+        "\"monthly_risk_trend_analysis\" (string), "
+        "\"supplier_performance_summary\" (string), "
+        "\"compliance_audit_logs\" (string), "
+        "\"custom_exportable_reports\" (string). "
+        "Each field should contain a concise summary or insight for an executive report. "
+        "Example:\n"
+        "{"
+        "\"monthly_risk_trend_analysis\": \"Risk scores have increased slightly over the past month, with a spike in week 3.\", "
+        "\"supplier_performance_summary\": \"Most suppliers met KPIs, but 2 had delayed shipments.\", "
+        "\"compliance_audit_logs\": \"No major compliance issues detected. 2 minor documentation delays.\", "
+        "\"custom_exportable_reports\": \"All data is available for export in CSV and PDF formats.\""
+        "}\n\n"
+        "CSV file:\n"
+        f"{csv_content}"
+    )
+
+    response = client.models.generate_content(
+        model='gemini-2.0-flash-001', contents=prompt
+    )
+    return response.text
+
+@app.get("/api/reports")
+def reports_endpoint():
+    """
+    Endpoint that uses the LLM to extract analytics and reports from the CSV and returns them as a JSON object.
+    """
+    llm_response = get_reports_summary()
+
+    # Try to parse the LLM response as JSON
+    try:
+        data = json.loads(llm_response)
+        return data
+    except Exception:
+        pass
+
+    # Try to extract the first JSON object from the response using regex
+    json_match = re.search(r'\{[\s\S]*\}', llm_response)
+    if json_match:
+        json_str = json_match.group(0)
+        try:
+            data = json.loads(json_str)
+            return data
+        except Exception:
+            pass
+
+    # Try to fix single quotes and parse again
+    if json_match:
+        json_str_fixed = json_match.group(0).replace("'", '"')
+        try:
+            data = json.loads(json_str_fixed)
+            return data
+        except Exception:
+            pass
+
+    # If everything fails, return the raw response and an error
+    return {
+        "error": "The LLM did not generate a valid JSON object. Check the generated text.",
+        "raw": llm_response
+    }
+
+def get_risk_scores_summary():
+    """
+    Uses the LLM to analyze the supply chain CSV and generate a JSON array of supplier risk scores.
+    Each object should have: supplier, category, risk_score, level.
+    """
+    with open(CSV_PATH, "r", encoding="utf-8") as f:
+        csv_content = f.read()
+
+    prompt = (
+        "You are an expert assistant in supply chain risk management. "
+        "Analyze the following CSV file and generate a JSON array for a risk score table. "
+        "Each element should be an object with the following fields: "
+        "\"supplier\" (string), \"category\" (string), \"risk_score\" (number), \"level\" (string: Low, Medium, or High). "
+        "Example:\n"
+        "["
+        "{\"supplier\": \"Supplier A\", \"category\": \"Logistics\", \"risk_score\": 78, \"level\": \"Medium\"}, "
+        "{\"supplier\": \"Supplier B\", \"category\": \"Raw Materials\", \"risk_score\": 92, \"level\": \"High\"}, "
+        "{\"supplier\": \"Supplier C\", \"category\": \"Manufacturing\", \"risk_score\": 60, \"level\": \"Low\"}"
+        "]\n\n"
+        "CSV file:\n"
+        f"{csv_content}"
+    )
+
+    response = client.models.generate_content(
+        model='gemini-2.0-flash-001', contents=prompt
+    )
+    return response.text
+
+@app.get("/api/risk-scores")
+def risk_scores_endpoint():
+    """
+    Endpoint that uses the LLM to extract supplier risk scores from the CSV and returns them as a JSON array.
+    """
+    llm_response = get_risk_scores_summary()
+
+    # Try to parse the LLM response as JSON
+    try:
+        data = json.loads(llm_response)
+        return {"risk_scores": data}
+    except Exception:
+        pass
+
+    # Try to extract the first JSON array from the response using regex
+    json_match = re.search(r'\[.*\]', llm_response, re.DOTALL)
+    if json_match:
+        json_str = json_match.group(0)
+        try:
+            data = json.loads(json_str)
+            return {"risk_scores": data}
+        except Exception:
+            pass
+
+    # Try to fix single quotes and parse again
+    if json_match:
+        json_str_fixed = json_match.group(0).replace("'", '"')
+        try:
+            data = json.loads(json_str_fixed)
+            return {"risk_scores": data}
+        except Exception:
+            pass
+
+    # If everything fails, return the raw response and an error
+    return {
+        "error": "The LLM did not generate a valid JSON array. Check the generated text.",
+        "raw": llm_response
+    }
+

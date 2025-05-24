@@ -2,6 +2,7 @@
   "hash": "09620b9e",
   "configHash": "ff065fa9",
   "lockfileHash": "4b0c6d1e",
+<<<<<<< HEAD
   "browserHash": "6ae293cb",
   "optimized": {
     "react": {
@@ -55,4 +56,9 @@
       "file": "chunk-VCDLJVZS.js"
     }
   }
+=======
+  "browserHash": "a02930f1",
+  "optimized": {},
+  "chunks": {}
+>>>>>>> 151f175bab0d9f5588f656e8b9e89e612b27727a
 }
