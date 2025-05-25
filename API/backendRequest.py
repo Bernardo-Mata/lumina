@@ -24,14 +24,14 @@ from google.genai import types
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import UploadFile, File, Form, Query
-# from fastapi.responses import JSONResponse
+from fastapi.responses import StreamingResponse
 import json
 import re
-# import csv
-# import tempfile
+import io
 import os
 import PyPDF2
 import docx
+import time
 # Configura tu API Key de Google GenAI
 client = genai.Client(api_key='AIzaSyBS0ERWhkYDIaMifZD1IWpFWGNtSyfZUPo')
 
@@ -718,4 +718,49 @@ async def process_document(filename: str = Form(...)):
 
 
 
-# print(read_uploaded_document(r"uploaded_docs\\marcas_autos_mexico.csv"))
+@app.post("/api/generate-csv-from-json")
+async def generate_csv_from_json(form_json: dict = None):
+    """
+    Recibe un JSON con la información del formulario, usa el LLM para generar un CSV
+    con la cantidad de registros indicada en units_available (o similar).
+    El CSV se guarda en uploaded_docs/ y también se devuelve como archivo descargable.
+    """
+    if not form_json:
+        return {"error": "No JSON data provided."}
+
+    prompt = (
+        "You are an expert in supply chain data simulation. "
+        "Given the following JSON with product and company information, generate a realistic CSV file. "
+        "The CSV must have as many rows as the value in 'units_available' (or a similar field). "
+        "Each row should represent a product unit, including all relevant fields such as: "
+        "sku, product_type, unit_price, supplier_name, location, stock, lead_time, units_per_order, "
+        "shipping_company, average_shipping_cost, manufacturing_days, manufacturing_cost, "
+        "last_quality_inspection, defective_percentage, main_transport_mode, main_route, total_cost, etc. "
+        "Also, invent and include additional suppliers and other fields as needed to make the data realistic. "
+        "If the JSON mentions only one supplier, generate more suppliers with plausible data. "
+        "Return ONLY the CSV, with headers in English, and no explanations or extra text.\n\n"
+        f"JSON:\n{json.dumps(form_json, indent=2)}"
+    )
+
+    response = client.models.generate_content(
+        model='gemini-2.0-flash-001',
+        contents=prompt,
+        config=types.GenerateContentConfig(top_p=0.2),
+    )
+    csv_text = response.text
+
+    # Guarda el CSV en uploaded_docs con un nombre único
+    filename = f"generated_{int(time.time())}.csv"
+    save_path = os.path.join(UPLOAD_FOLDER, filename)
+    with open(save_path, "w", encoding="utf-8") as f:
+        f.write(csv_text)
+
+    # Devuelve el nombre del archivo y el CSV como descarga
+    return StreamingResponse(
+        io.StringIO(csv_text),
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": f"attachment; filename={filename}",
+            "X-Generated-Filename": filename  # Puedes leer este header en el frontend
+        }
+    )
