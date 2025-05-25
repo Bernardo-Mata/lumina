@@ -37,7 +37,6 @@ const Summary = (props) => {
 
   // Alerts global para persistencia
   const [alertsData, setAlertsData] = useState(() => {
-    // Usa el prop si existe, si no, intenta localStorage
     if (props.alertsData) return props.alertsData;
     try {
       const stored = localStorage.getItem('alertsData');
@@ -52,6 +51,30 @@ const Summary = (props) => {
     medium: [],
     low: []
   });
+
+  // Compliance global para persistencia
+  const [complianceData, setComplianceData] = useState(() => {
+    try {
+      const stored = localStorage.getItem('complianceData');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [complianceLoading, setComplianceLoading] = useState(false);
+  const [randomCompliance, setRandomCompliance] = useState([]);
+
+  // Suppliers global para persistencia
+  const [suppliersData, setSuppliersData] = useState(() => {
+    try {
+      const stored = localStorage.getItem('suppliersData');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [suppliersLoading, setSuppliersLoading] = useState(false);
+  const [randomSuppliers, setRandomSuppliers] = useState([]);
 
   // Subir documento
   const handleFileUpload = async (e) => {
@@ -84,19 +107,24 @@ const Summary = (props) => {
     setInputMode(null); // Regresa al menú principal para poder presionar Generate Insights
   };
 
-  // Lógica para el botón de "Generate Insights" (dashboard y alerts)
+  // Lógica para el botón de "Generate Insights" (dashboard, alerts, compliance, suppliers)
   const handleGenerateInsights = async () => {
     if (!csvFilename) return;
     setDashboardLoading(true);
     setAlertsLoading(true);
+    setComplianceLoading(true);
+    setSuppliersLoading(true);
     setDashboardData(null);
     setAlertsData(null);
+    setComplianceData(null);
+    setSuppliersData(null);
     try {
       // Dashboard
       const dashboardRes = await fetch(`http://127.0.0.1:8000/api/dashboard?filename=${encodeURIComponent(csvFilename)}`);
       const dashboardJson = await dashboardRes.json();
       setDashboardData(dashboardJson);
       localStorage.setItem('dashboardData', JSON.stringify(dashboardJson));
+      if (props.setDashboardDataFromSummary) props.setDashboardDataFromSummary(dashboardJson);
       const dashKeys = Object.keys(dashboardJson);
       setRandomDashboardKeys(getRandomItems(dashKeys, 4));
 
@@ -106,8 +134,6 @@ const Summary = (props) => {
       setAlertsData(alertsJson);
       localStorage.setItem('alertsData', JSON.stringify(alertsJson));
       if (props.setAlertsDataFromSummary) props.setAlertsDataFromSummary(alertsJson);
-
-      // Seleccionar 2 random de cada riesgo
       const getByRisk = (risk) =>
         Array.isArray(alertsJson[risk]) ? getRandomItems(alertsJson[risk], 2) : [];
       setRandomAlerts({
@@ -115,14 +141,37 @@ const Summary = (props) => {
         medium: getByRisk('medium_priority'),
         low: getByRisk('low_priority')
       });
+
+      // Compliance
+      const complianceRes = await fetch(`http://127.0.0.1:8000/api/compliance?filename=${encodeURIComponent(csvFilename)}`);
+      const complianceJson = await complianceRes.json();
+      setComplianceData(complianceJson);
+      localStorage.setItem('complianceData', JSON.stringify(complianceJson));
+      if (props.setComplianceDataFromSummary) props.setComplianceDataFromSummary(complianceJson);
+      setRandomCompliance(getRandomItems(complianceJson.summary, 3));
+
+      // Suppliers
+      const suppliersRes = await fetch(`http://127.0.0.1:8000/api/suppliers?filename=${encodeURIComponent(csvFilename)}`);
+      const suppliersJson = await suppliersRes.json();
+      setSuppliersData(suppliersJson);
+      localStorage.setItem('suppliersData', JSON.stringify(suppliersJson));
+      if (props.setSuppliersDataFromSummary) props.setSuppliersDataFromSummary(suppliersJson);
+      // suppliersJson.suppliers debe ser un array
+      setRandomSuppliers(getRandomItems(suppliersJson.suppliers, 3));
     } catch (err) {
       setDashboardData({ error: 'Error generating dashboard insights.' });
       setAlertsData({ error: 'Error generating alerts insights.' });
+      setComplianceData({ error: 'Error generating compliance insights.' });
+      setSuppliersData({ error: 'Error generating suppliers insights.' });
       setRandomDashboardKeys([]);
       setRandomAlerts({ high: [], medium: [], low: [] });
+      setRandomCompliance([]);
+      setRandomSuppliers([]);
     }
     setDashboardLoading(false);
     setAlertsLoading(false);
+    setComplianceLoading(false);
+    setSuppliersLoading(false);
   };
 
   // Cuando cambias de sección (Summary), elige insights random nuevos
@@ -140,7 +189,13 @@ const Summary = (props) => {
         low: getByRisk('low_priority')
       });
     }
-  }, [inputMode, dashboardData, alertsData]);
+    if (!inputMode && complianceData && Array.isArray(complianceData.summary)) {
+      setRandomCompliance(getRandomItems(complianceData.summary, 3));
+    }
+    if (!inputMode && suppliersData && Array.isArray(suppliersData.suppliers)) {
+      setRandomSuppliers(getRandomItems(suppliersData.suppliers, 3));
+    }
+  }, [inputMode, dashboardData, alertsData, complianceData, suppliersData]);
 
   // Render principal
   if (!inputMode) {
@@ -208,6 +263,34 @@ const Summary = (props) => {
                 </ul>
               </div>
             </div>
+          </div>
+        )}
+        {/* Mostrar 3 random de compliance */}
+        {complianceData && randomCompliance.length > 0 && (
+          <div className="mt-8">
+            <h3 className="font-bold text-lg text-gray-800 mb-2">Compliance Summary</h3>
+            <ul className="bg-green-50 rounded p-4 space-y-2">
+              {randomCompliance.map((item, idx) => (
+                <li key={idx} className="text-green-900 font-semibold">{item}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {/* Mostrar 3 random de suppliers */}
+        {suppliersData && randomSuppliers.length > 0 && (
+          <div className="mt-8">
+            <h3 className="font-bold text-lg text-gray-800 mb-2">Suppliers Summary</h3>
+            <ul className="bg-blue-50 rounded p-4 space-y-2">
+              {randomSuppliers.map((supplier, idx) => (
+                <li key={idx} className="text-blue-900 font-semibold">
+                  {typeof supplier === 'object'
+                    ? (supplier.name
+                        ? `${supplier.name} (${supplier.location || 'Unknown'}) - Risk: ${supplier.risk_score ?? '-'}`
+                        : JSON.stringify(supplier))
+                    : String(supplier)}
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </div>
