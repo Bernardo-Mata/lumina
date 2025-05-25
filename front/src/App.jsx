@@ -3,11 +3,12 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } f
 import Dashboard from './components/Dashboard';
 import Alerts from './components/Alerts';
 import Suppliers from './components/Suppliers';
-import RiskMap from './components/RiskMap';
+import Summary from './components/Summary';
 import RiskScores from './components/RiskScores';
 import Compilance from './components/Compilance';
 import Reports from './components/Reports';
-import { Bell, Settings, User, Home, Map, List, CheckSquare, Shield, Activity, Server, Box } from 'lucide-react';
+import { Bell, Settings, User, Home, Map, List, CheckSquare, Shield, Activity, Server, Box, Table } from 'lucide-react';
+import { Chart } from 'chart.js';
 
 // Map each route to its API endpoint
 const ENDPOINTS = {
@@ -16,7 +17,8 @@ const ENDPOINTS = {
   '/suppliers': 'http://127.0.0.1:8000/api/suppliers',
   '/compliance': 'http://127.0.0.1:8000/api/compliance',
   '/reports': 'http://127.0.0.1:8000/api/reports',
-  '/risk-scores': 'http://127.0.0.1:8000/api/risk-scores', // <-- Add this line
+  '/risk-scores': 'http://127.0.0.1:8000/api/risk-scores',
+  '/summary': 'http://127.0.0.1:8000/api/summary', // <-- Add this line
   // Add more as needed
 };
 
@@ -70,6 +72,27 @@ const App = () => {
     return loading[endpoint] || false;
   }
 
+  function setDashboardDataFromSummary(dashboardJson) {
+    setData(prev => ({
+      ...prev,
+      [ENDPOINTS['/dashboard']]: dashboardJson
+    }));
+  }
+
+  function setAlertsDataFromSummary(alertsJson) {
+    setData(prev => ({
+      ...prev,
+      [ENDPOINTS['/alerts']]: alertsJson
+    }));
+  }
+
+  function setSuppliersDataFromSummary(suppliersJson) {
+    setData(prev => ({
+      ...prev,
+      [ENDPOINTS['/suppliers']]: suppliersJson
+    }));
+  }
+
   return (
     <Router>
       <div className="flex flex-col h-screen bg-gray-100">
@@ -99,15 +122,15 @@ const App = () => {
             <nav className="p-4">
               <ul className="space-y-2">
                 <li>
-                  <Link to="/dashboard" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition-all">
+                  <Link to="/summary" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition-all">
                     <Home size={18} />
-                    <span>Dashboard</span>
+                    <span>Summary</span>
                   </Link>
                 </li>
                 <li>
-                  <Link to="/risk-map" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition-all">
-                    <Map size={18} />
-                    <span>Risk Map</span>
+                  <Link to="/dashboard" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition-all">
+                    <Table size={18} />
+                    <span>Dashboard</span>
                   </Link>
                 </li>
                 <li>
@@ -146,7 +169,21 @@ const App = () => {
           {/* Main Content */}
           <main className="flex-1 w-full overflow-y-auto">
             <Routes>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/" element={<Navigate to="/summary" replace />} />
+              <Route
+                  path="/summary"
+                  element={
+                    <Summary
+                      data={data[ENDPOINTS['/dashboard']]}
+                      alertsData={data[ENDPOINTS['/alerts']]}
+                      suppliersData={data[ENDPOINTS['/suppliers']]}
+                      loading={loading[ENDPOINTS['/dashboard']]}
+                      setDashboardDataFromSummary={setDashboardDataFromSummary}
+                      setAlertsDataFromSummary={setAlertsDataFromSummary}
+                      setSuppliersDataFromSummary={setSuppliersDataFromSummary}
+                    />
+                  }
+                />
               <Route
                 path="/dashboard"
                 element={
@@ -166,15 +203,15 @@ const App = () => {
                 }
               />
               <Route
-                path="/suppliers"
-                element={
-                  <Suppliers
-                    data={getDataForRoute('/suppliers')}
-                    loading={getLoadingForRoute('/suppliers')}
-                  />
-                }
-              />
-              <Route path="/risk-map" element={<RiskMap />} />
+                  path="/suppliers"
+                  element={
+                    <Suppliers
+                      data={data[ENDPOINTS['/suppliers']]}
+                      loading={loading[ENDPOINTS['/suppliers']]}
+                    />
+                  }
+                />
+              {/* <Route path="/risk-map" element={<RiskMap />} /> */}
               <Route path="/risk-scores" element={
                 <RiskScores
                   data={getDataForRoute('/risk-scores')}

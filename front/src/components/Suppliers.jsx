@@ -1,6 +1,26 @@
 import React from 'react';
 import { Server } from 'lucide-react';
 
+// Helper para formatear el risk score como porcentaje
+const formatRiskScore = (score) => {
+  if (typeof score !== 'number') return '-';
+  return `${(score).toFixed(2)}%`;
+};
+
+const riskColor = (score) => {
+  if (typeof score !== 'number') return '';
+  if (score >= 80) return 'bg-red-100 text-red-700 border-red-300';
+  if (score >= 50) return 'bg-yellow-100 text-yellow-700 border-yellow-300';
+  return 'bg-green-100 text-green-700 border-green-300';
+};
+
+const statusColor = (status) => {
+  if (!status) return '';
+  return status.toLowerCase() === 'active'
+    ? 'bg-green-200 text-green-800 border-green-400'
+    : 'bg-red-200 text-red-800 border-red-400';
+};
+
 // Recibe data y loading como props
 const Suppliers = ({ data, loading }) => {
   if (loading) {
@@ -48,21 +68,36 @@ const Suppliers = ({ data, loading }) => {
           ) : (
             <table className="min-w-full text-sm text-left">
               <thead>
-                <tr>
-                  <th className="px-4 py-2 text-gray-600">Name</th>
-                  <th className="px-4 py-2 text-gray-600">Location</th>
-                  <th className="px-4 py-2 text-gray-600">Risk Score</th>
-                  <th className="px-4 py-2 text-gray-600">Status</th>
+                <tr className="bg-blue-50">
+                  <th className="px-4 py-2 text-blue-700 font-semibold rounded-tl">Name</th>
+                  <th className="px-4 py-2 text-blue-700 font-semibold">Location</th>
+                  <th className="px-4 py-2 text-blue-700 font-semibold">Risk Score</th>
+                  <th className="px-4 py-2 text-blue-700 font-semibold rounded-tr">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {suppliers.map((supplier, idx) => (
-                  <tr className="border-t" key={idx}>
-                    <td className="px-4 py-2 text-gray-500">{supplier.name}</td>
-                    <td className="px-4 py-2 text-gray-500">{supplier.location}</td>
-                    <td className="px-4 py-2 text-gray-500">{supplier.risk_score}</td>
-                    <td className={`px-4 py-2 text-gray-500 ${supplier.status === 'Active' ? 'text-green-600' : 'text-red-600'}`}>
-                      {supplier.status}
+                  <tr
+                    className={`border-t hover:bg-blue-50 transition ${
+                      idx % 2 === 0 ? 'bg-white' : 'bg-blue-100'
+                    }`}
+                    key={idx}
+                  >
+                    <td className="px-4 py-2 font-medium text-gray-800">{supplier.name}</td>
+                    <td className="px-4 py-2 text-gray-700">{supplier.location}</td>
+                    <td className="px-4 py-2">
+                      <span
+                        className={`inline-block px-2 py-1 rounded border text-xs font-semibold ${riskColor(supplier.risk_score)}`}
+                      >
+                        {formatRiskScore(supplier.risk_score)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-2">
+                      <span
+                        className={`inline-block px-2 py-1 rounded border text-xs font-semibold ${statusColor(supplier.status)}`}
+                      >
+                        {supplier.status}
+                      </span>
                     </td>
                   </tr>
                 ))}
