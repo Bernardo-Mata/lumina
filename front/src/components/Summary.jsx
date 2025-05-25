@@ -3,8 +3,8 @@ import { Map } from 'lucide-react';
 import Dashboard from './Dashboard';
 import Alerts from './Alerts';
 import Suppliers from './Suppliers';
-import Compilance from './Compilance'; // Asegúrate de importar el componente de Compliance
-import RiskScores from './RiskScores'; // Asegúrate de importar el componente de RiskScores
+import Compilance from './Compilance';
+import RiskScores from './RiskScores';
 
 // Función para obtener N elementos aleatorios de un array
 function getRandomItems(arr, n) {
@@ -21,6 +21,27 @@ function getRandomKeys(obj, n) {
   return shuffled.slice(0, n);
 }
 
+// New component for user choice
+const DataInputChoice = ({ onChoose }) => (
+  <div className="flex flex-col items-center justify-center py-8">
+    <h3 className="font-bold text-lg text-gray-800 mb-4">How would you like to provide your company data?</h3>
+    <div className="flex gap-6">
+      <button
+        className="bg-blue-600 text-white px-6 py-3 rounded shadow hover:bg-blue-700 transition font-semibold"
+        onClick={() => onChoose('upload')}
+      >
+        Upload Database File
+      </button>
+      <button
+        className="bg-green-600 text-white px-6 py-3 rounded shadow hover:bg-green-700 transition font-semibold"
+        onClick={() => onChoose('form')}
+      >
+        Fill Out Company Form
+      </button>
+    </div>
+  </div>
+);
+
 const Summary = (props) => {
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
@@ -31,6 +52,7 @@ const Summary = (props) => {
   const [suppliersData, setSuppliersData] = useState(null);
   const [complianceData, setComplianceData] = useState(null);
   const [riskScoresData, setRiskScoresData] = useState(null);
+  const [inputMode, setInputMode] = useState(null);
 
   // Sincroniza el dashboard global con el local al montar o cuando cambie
   useEffect(() => {
@@ -328,84 +350,132 @@ const Summary = (props) => {
     dashboardVisuals = getRandomItems(possibleVisuals, 4);
   }
 
-  return (
-    <div className="p-6">
-      <div className="flex items-center mb-6">
-        <Map className="text-blue-500 mr-2" size={28} />
-        <h2 className="font-bold text-2xl text-gray-800">Summary</h2>
+  // If user hasn't chosen, show the choice component
+  if (!inputMode) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center mb-6">
+          <Map className="text-blue-500 mr-2" size={28} />
+          <h2 className="font-bold text-2xl text-gray-800">Summary</h2>
+        </div>
+        <div className="bg-white rounded-lg shadow p-4 mb-6">
+          <DataInputChoice onChoose={setInputMode} />
+        </div>
       </div>
-      <div className="bg-white rounded-lg shadow p-4 mb-6">
-        <h3 className="font-bold text-gray-700 mb-4">Upload a Document</h3>
-        <form onSubmit={handleFileUpload} className="flex flex-col gap-4">
-          <input
-            type="file"
-            ref={fileInputRef}
-            accept=".pdf,.csv,.doc,.docx,.json,.txt"
-            className="border rounded p-2"
-          />
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition"
-            disabled={uploading}
-          >
-            {uploading ? 'Uploading...' : 'Upload Document'}
-          </button>
-        </form>
-        {uploadResult && (
-          <div className="mt-4">
-            {uploadResult.success ? (
-              <div className="text-green-600 font-semibold">
-                {uploadResult.message}
-              </div>
-            ) : (
-              <div className="text-red-500">{uploadResult.error}</div>
-            )}
-            {uploadResult.success && (
-              <button
-                onClick={handleProcessAll}
-                className="mt-4 bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition"
-                disabled={processing}
-              >
-                {processing ? 'Processing...' : 'Generate Insights'}
-              </button>
-            )}
+    );
+  }
+
+  // If user chooses upload, show the original upload/process UI and summaries
+  if (inputMode === 'upload') {
+    return (
+      <div className="p-6">
+        <div className="flex items-center mb-6">
+          <Map className="text-blue-500 mr-2" size={28} />
+          <h2 className="font-bold text-2xl text-gray-800">Summary</h2>
+        </div>
+        <div className="bg-white rounded-lg shadow p-4 mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-bold text-gray-700">Upload a Document</h3>
+            <button
+              className="bg-gray-200 text-gray-700 px-4 py-2   rounded hover:bg-gray-300"
+              onClick={() => setInputMode(null)}
+            >
+              Back
+            </button>
           </div>
-        )}
-        {/* Mostrar 4 visualizaciones random del dashboard arriba */}
-        {!processing && dashboardVisuals.length > 0 && (
-          <div className="mt-6">
-            <h3 className="font-bold text-lg text-gray-800 mb-2">Dashboard Insights</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {dashboardVisuals.map((Visual, idx) => (
-                <Visual key={idx} />
-              ))}
+          <form onSubmit={handleFileUpload} className="flex flex-col gap-4">
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept=".pdf,.csv,.doc,.docx,.json,.txt"
+              className="border rounded p-2"
+            />
+            <button
+              type="submit"
+              className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition"
+              disabled={uploading}
+            >
+              {uploading ? 'Uploading...' : 'Upload Document'}
+            </button>
+          </form>
+          {uploadResult && (
+            <div className="mt-4">
+              {uploadResult.success ? (
+                <div className="text-green-600 font-semibold">
+                  {uploadResult.message}
+                </div>
+              ) : (
+                <div className="text-red-500">{uploadResult.error}</div>
+              )}
+              {uploadResult.success && (
+                <button
+                  onClick={handleProcessAll}
+                  className="mt-4 bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition"
+                  disabled={processing}
+                >
+                  {processing ? 'Processing...' : 'Generate Insights'}
+                </button>
+              )}
             </div>
-          </div>
-        )}
-        {/* Mostrar todos los componentes como antes, excepto Dashboard */}
-        {!processing && alertsSummary && (
-          <div className="mt-8">
-            <Alerts data={alertsSummary} loading={processing} />
-          </div>
-        )}
-        {!processing && suppliersSummary && (
-          <div className="mt-8">
-            <Suppliers data={suppliersSummary} loading={processing} />
-          </div>
-        )}
-        {!processing && complianceSummary && (
-          <div className="mt-8">
-            <Compilance data={{ summary: complianceSummary }} loading={processing} />
-          </div>
-        )}
-        {!processing && riskScoresSummary && (
-          <div className="mt-8">
-            <RiskScores data={{ risk_scores: riskScoresSummary }} loading={processing} />
-          </div>
-        )}
+          )}
+          {/* Mostrar 4 visualizaciones random del dashboard arriba */}
+          {!processing && dashboardVisuals.length > 0 && (
+            <div className="mt-6">
+              <h3 className="font-bold text-lg text-gray-800 mb-2">Dashboard Insights</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {dashboardVisuals.map((Visual, idx) => (
+                  <Visual key={idx} />
+                ))}
+              </div>
+            </div>
+          )}
+          {/* Mostrar todos los componentes como antes, excepto Dashboard */}
+          {!processing && alertsSummary && (
+            <div className="mt-8">
+              <Alerts data={alertsSummary} loading={processing} />
+            </div>
+          )}
+          {!processing && suppliersSummary && (
+            <div className="mt-8">
+              <Suppliers data={suppliersSummary} loading={processing} />
+            </div>
+          )}
+          {!processing && complianceSummary && (
+            <div className="mt-8">
+              <Compilance data={{ summary: complianceSummary }} loading={processing} />
+            </div>
+          )}
+          {!processing && riskScoresSummary && (
+            <div className="mt-8">
+              <RiskScores data={{ risk_scores: riskScoresSummary }} loading={processing} />
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  // If user chooses form, show a placeholder for now (to be implemented)
+  if (inputMode === 'form') {
+    return (
+      <div className="p-6">
+        <div className="flex items-center mb-6">
+          <Map className="text-blue-500 mr-2" size={28} />
+          <h2 className="font-bold text-2xl text-gray-800">Summary</h2>
+        </div>
+        <div className="bg-white rounded-lg shadow p-4 mb-6 flex flex-col items-center">
+          <h3 className="font-bold text-lg text-gray-800 mb-4">Company Information Form</h3>
+          <div className="text-gray-600">Form functionality coming soon...</div>
+          <button
+            className="mt-6 bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300"
+            onClick={() => setInputMode(null)}
+          >
+            Back
+          </button>
+        </div>
+      </div>
+    );
+  }
 };
 
 export default Summary;

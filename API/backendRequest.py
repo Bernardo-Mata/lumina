@@ -177,38 +177,83 @@ def dashboard_insights(filename: str = Query(..., description="Nombre del archiv
         "raw": llm_response
     }
 
-def get_alerts_summary():
+@app.get("/api/alerts")
+def alerts_insights(filename: str = Query(..., description="Nombre del archivo previamente subido")):
     """
-    Lee el archivo CSV y genera un resumen de alertas clasificadas por prioridad usando el LLM.
+    Endpoint que genera alertas usando el LLM y retorna el JSON estructurado,
+    usando el documento cargado identificado por filename.
     """
-    with open(CSV_PATH, "r", encoding="utf-8") as f:
-        csv_content = f.read()
+    text, error = read_uploaded_document(filename)
+    if error:
+        return {"error": error}
 
     prompt = (
-        "Eres un asistente experto en gestión de riesgos de cadena de suministro. "
-        "Analiza el siguiente archivo CSV y extrae todas las alertas, clasificándolas por prioridad: "
-        "alta (roja), media (amarilla), baja (verde). "
-        "Devuelve la respuesta en formato JSON con los siguientes campos: "
-        "high_priority (lista de alertas), medium_priority (lista), low_priority (lista). "
-        "Cada alerta debe tener: type, location, timestamp, y una breve descripción.\n\n"
-        "Devuelve la respuesta en Ingles.\n\n"
-        f"Archivo CSV:\n{csv_content}"
+    "You are a supply chain risk management expert. "
+    "Analyze the following document (which may be a CSV or table with varying column names) and extract all relevant alerts. "
+    "Column names may differ (e.g., 'Stock levels', 'stock', 'Inventory', 'Availability', 'Lead times', 'Lead time', etc.). "
+    "For each row, intelligently map the columns to the following fields if possible: "
+    "sku, product_type, availability, stock_levels, lead_time. "
+    "If a column is missing, try to infer the value or leave it null. "
+    "If you do not fully understand the table or the data is ambiguous, make a reasonable prediction or estimation based on what you see in the document and generate the JSON with what you believe should be there. "
+    "Classify the alerts into high_priority, medium_priority, and low_priority according to their risk level. "
+    "Return the response as a JSON object with the structure: "
+    "{'problem_summary': string, 'high_priority': [...], 'medium_priority': [...], 'low_priority': [...]}.\n"
+    "Each alert must be a JSON object with the following fields: "
+    "sku, product_type, availability, stock_levels, lead_time, description, solutions. "
+    "The 'solutions' field must be a list of one or more specific recommendations to mitigate the risk. "
+    "If a field does not apply, leave it empty or null. "
+    "Do NOT return alerts as plain text, only as JSON objects. "
+    "All output must be in English.\n"
+    "Example of mapping:\n"
+    "- 'Stock levels', 'stock', or 'Inventory' → stock_levels\n"
+    "- 'Lead times' or 'Lead time' → lead_time\n"
+    "- 'Product type' or 'Type' → product_type\n"
+    "- 'SKU' or 'Code' → sku\n"
+    "- 'Availability' or 'Available' → availability\n"
+    "Example of an alert:\n"
+    "{"
+    "\"sku\": \"DISH0\","
+    "\"product_type\": \"Main Course\","
+    "\"availability\": 7,"
+    "\"stock_levels\": 3,"
+    "\"lead_time\": 12,"
+    "\"description\": \"Very low stock and high lead time. Risk of supply disruption.\","
+    "\"solutions\": [\"Increase inventory levels\", \"Negotiate faster deliveries with suppliers\"]"
+    "}\n"
+    f"Document:\n{text}"
     )
 
-    response = client.models.generate_content(
+    try:
+        response = client.models.generate_content(
     model='gemini-2.0-flash-001',
     contents=prompt,config=types.GenerateContentConfig(
         top_p=0.2,
     ),
     )
-    return response.text
+        llm_response = response.text
+        try:
+            data = json.loads(llm_response)
+            return data
+        except Exception:
+            json_match = re.search(r'\{[\s\S]*\}|\[[\s\S]*\]', llm_response)
+            if json_match:
+                json_str = json_match.group(0)
+                try:
+                    data = json.loads(json_str)
+                    return data
+                except Exception:
+                    pass
+            return {"error": "El LLM no generó un JSON válido. Revisa el texto generado.", "raw": llm_response}
+    except Exception as e:
+        return {"error": f"Error procesando con LLM: {str(e)}"}
 
-@app.get("/api/alerts-summary")
-def alerts_summary():
+
+
+def alerts_summary(filename: str = Query(..., description="Nombre del archivo previamente subido")):
     """
     Endpoint que genera un resumen de alertas clasificadas por prioridad usando el LLM.
     """
-    llm_response = get_alerts_summary()
+    llm_response = alerts_insights(filename)
 
     # Intento 1: Parsear directamente
     try:
@@ -671,66 +716,6 @@ async def process_document(filename: str = Form(...)):
     except Exception as e:
         return {"error": f"Error procesando con LLM: {str(e)}"}
 
-@app.get("/api/alerts")
-def alerts_insights(filename: str = Query(..., description="Nombre del archivo previamente subido")):
-    """
-    Endpoint que genera alertas usando el LLM y retorna el JSON estructurado,
-    usando el documento cargado identificado por filename.
-    """
-    text, error = read_uploaded_document(filename)
-    if error:
-        return {"error": error}
-
-    prompt = (
-        "You are a supply chain risk management expert. "
-        "Analyze the following document and extract all relevant alerts. "
-        "Classify the alerts into high_priority, medium_priority, and low_priority according to their risk level. "
-        "Return the response as a JSON object with the structure: "
-        "{'problem_summary': string, 'high_priority': [...], 'medium_priority': [...], 'low_priority': [...]}.\n"
-        "Each alert must be a JSON object with the following fields: "
-        "sku, product_type, availability, stock_levels, lead_time, description, solutions. "
-        "The 'solutions' field must be a list of one or more specific recommendations to mitigate the risk. "
-        "For example, if the risk is low stock, suggest actions like 'Increase inventory', 'Find alternative suppliers', etc. "
-        "If a field does not apply, leave it empty or null. "
-        "Do NOT return alerts as plain text, only as JSON objects. "
-        "All output must be in English.\n"
-        "Example of an alert:\n"
-        "{"
-        "Example of problem_summary: \"Several SKUs have critically low stock, risking production delays.\"\n"
-        "\"sku\": \"AUTO0\","
-        "\"product_type\": \"Hatchback\","
-        "\"availability\": 7,"
-        "\"stock_levels\": 3,"
-        "\"lead_time\": 2,"
-        "\"description\": \"Critical low stock level. Potential production halt or inability to fulfill orders.\","
-        "\"solutions\": [\"Increase inventory levels\", \"Negotiate faster deliveries with suppliers\"]"
-        "}\n"
-        f"Document:\n{text}"
-    )
-
-    try:
-        response = client.models.generate_content(
-    model='gemini-2.0-flash-001',
-    contents=prompt,config=types.GenerateContentConfig(
-        top_p=0.2,
-    ),
-    )
-        llm_response = response.text
-        try:
-            data = json.loads(llm_response)
-            return data
-        except Exception:
-            json_match = re.search(r'\{[\s\S]*\}|\[[\s\S]*\]', llm_response)
-            if json_match:
-                json_str = json_match.group(0)
-                try:
-                    data = json.loads(json_str)
-                    return data
-                except Exception:
-                    pass
-            return {"error": "El LLM no generó un JSON válido. Revisa el texto generado.", "raw": llm_response}
-    except Exception as e:
-        return {"error": f"Error procesando con LLM: {str(e)}"}
 
 
 # print(read_uploaded_document(r"uploaded_docs\\marcas_autos_mexico.csv"))
