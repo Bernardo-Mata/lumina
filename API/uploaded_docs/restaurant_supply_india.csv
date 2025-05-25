@@ -1,0 +1,151 @@
+Product type,SKU,Price,Availability,Number of products sold,Revenue generated,Customer demographics,Stock levels,Lead times,Order quantities,Shipping times,Shipping carriers,Shipping costs,Supplier name,Location,Lead time,Production volumes,Manufacturing lead time,Manufacturing costs,Inspection results,Defect rates,Transportation modes,Routes,Costs
+Main Course,DISH0,203.58,90,970,867677.98,Male,98,4,40,8,Delhivery,230.58,FreshFoods India,Kolkata,13,300,9,5570.53,Fail,0.60611,Air,Route A,7583.68
+Dessert,DISH1,673.6,40,1433,109861.1,Male,16,9,64,7,Delhivery,944.54,Tandoori Supplies,Delhi,2,54,2,6045.73,Pending,0.590799,Rail,Route C,8158.26
+Dessert,DISH2,66.66,69,829,830747.98,Non-binary,63,4,44,8,Blue Dart,261.77,SpiceHub,Delhi,13,271,6,5492.14,Pending,9.145015,Rail,Route A,5113.85
+Appetizer,DISH3,284.32,74,973,210220.47,Non-binary,39,1,81,2,Blue Dart,250.24,Local Farmers,Bangalore,8,217,10,1532.68,Pass,0.421167,Rail,Route A,2255.35
+Appetizer,DISH4,291.46,37,800,558824.93,Male,34,7,32,4,Blue Dart,619.48,Local Farmers,Delhi,12,78,4,5506.36,Fail,7.513159,Air,Route C,8104.86
+Dessert,DISH5,588.68,15,267,626277.88,Unknown,77,6,26,5,Delhivery,740.39,Local Farmers,Hyderabad,3,442,6,3994.74,Fail,9.58951,Rail,Route C,8064.07
+Main Course,DISH6,573.89,80,4,421886.63,Unknown,60,2,98,6,Delhivery,722.57,FreshFoods India,Mumbai,2,313,5,2487.54,Pending,6.653364,Air,Route C,6047.79
+Beverage,DISH7,425.51,55,1680,55049.73,Female,94,9,95,1,India Post,149.45,Local Farmers,Mumbai,3,395,4,2175.12,Fail,4.486621,Air,Route B,4947.7
+Appetizer,DISH8,222.1,12,33,876373.64,Non-binary,76,14,54,5,India Post,720.47,Local Farmers,Chennai,2,73,7,8129.77,Pass,9.970327,Road,Route A,5100.86
+Main Course,DISH9,380.53,30,877,365911.66,Male,9,10,97,8,Delhivery,258.89,SpiceHub,Bangalore,14,318,7,9379.34,Pending,0.94932,Air,Route B,1581.31
+Beverage,DISH10,628.32,51,1800,482527.46,Unknown,52,14,98,9,Ecom Express,594.99,SpiceHub,Bangalore,9,67,9,8121.13,Pending,9.491897,Rail,Route B,3340.03
+Appetizer,DISH11,378.57,81,1610,543622.49,Female,1,8,11,3,India Post,475.31,SpiceHub,Kolkata,4,127,4,9697.11,Fail,2.678314,Air,Route B,7182.01
+Appetizer,DISH12,250.26,53,828,756929.46,Male,29,9,55,7,Delhivery,547.0,Local Farmers,Delhi,2,373,12,5355.23,Pass,0.733409,Road,Route A,3455.7
+Beverage,DISH13,623.3,16,304,268818.46,Female,80,13,37,9,India Post,535.17,Tandoori Supplies,Mumbai,13,165,10,1269.3,Fail,5.546206,Rail,Route C,9897.39
+Dessert,DISH14,387.79,66,980,204368.03,Female,97,8,56,9,Blue Dart,475.3,FreshFoods India,Hyderabad,11,194,11,7971.81,Pass,3.104465,Rail,Route B,9110.62
+Dessert,DISH15,176.33,47,490,359519.0,Unknown,2,10,10,6,Blue Dart,836.49,FreshFoods India,Mumbai,1,259,6,7629.22,Pass,8.312071,Air,Route A,7087.93
+Dessert,DISH16,138.48,52,1835,543632.91,Non-binary,95,1,68,3,Blue Dart,609.91,Tandoori Supplies,Bangalore,7,256,4,8481.85,Pending,2.022341,Rail,Route C,4955.49
+Main Course,DISH17,367.95,19,252,514837.77,Unknown,97,1,25,7,India Post,755.54,SpiceHub,Delhi,9,263,7,4933.65,Fail,7.566757,Rail,Route A,7505.78
+Beverage,DISH18,508.81,51,602,100325.13,Non-binary,70,4,94,7,Delhivery,435.35,SpiceHub,Mumbai,4,71,1,2748.37,Pending,3.780144,Road,Route C,7004.5
+Beverage,DISH19,641.92,70,340,263643.78,Male,15,6,94,1,Blue Dart,127.09,Local Farmers,Chennai,12,199,11,2347.08,Pass,0.321901,Rail,Route B,4719.35
+Dessert,DISH20,461.97,96,376,920819.06,Female,35,10,90,8,Blue Dart,714.09,Local Farmers,Chennai,12,83,11,4250.06,Pass,3.977726,Rail,Route C,8351.12
+Appetizer,DISH21,555.57,87,867,620776.2,Unknown,23,7,31,4,Ecom Express,767.84,Tandoori Supplies,Kolkata,2,60,9,5482.2,Pass,5.63499,Air,Route A,7172.36
+Beverage,DISH22,159.08,81,1323,100725.28,Male,34,14,86,8,Ecom Express,542.62,Tandoori Supplies,Delhi,6,446,6,4223.13,Pass,2.78112,Air,Route B,5495.78
+Dessert,DISH23,53.39,67,307,66353.72,Male,58,11,9,9,Ecom Express,707.08,Local Farmers,Hyderabad,7,314,3,6572.95,Pass,0.53292,Air,Route B,8682.5
+Appetizer,DISH24,387.56,84,449,826325.83,Male,14,14,34,2,Ecom Express,721.83,FreshFoods India,Mumbai,5,95,12,5190.24,Fail,3.07426,Air,Route B,9598.97
+Main Course,DISH25,181.4,15,730,150913.44,Female,70,13,83,2,Delhivery,427.23,FreshFoods India,Bangalore,1,400,6,8565.23,Pass,6.323981,Road,Route A,1331.87
+Beverage,DISH26,164.63,55,310,820670.55,Female,58,10,9,3,Blue Dart,120.86,Tandoori Supplies,Hyderabad,12,67,10,5176.21,Pass,6.714055,Air,Route C,4315.26
+Beverage,DISH27,263.14,40,1290,899580.25,Female,87,6,65,2,Blue Dart,466.71,FreshFoods India,Hyderabad,10,37,4,9760.36,Pass,8.754538,Rail,Route B,1489.81
+Appetizer,DISH28,172.05,97,659,745621.71,Male,42,10,72,1,Ecom Express,473.38,FreshFoods India,Bangalore,8,25,11,5583.74,Pending,5.095069,Rail,Route C,1443.18
+Main Course,DISH29,61.23,67,1868,561876.0,Unknown,23,8,4,3,India Post,128.01,Local Farmers,Delhi,8,473,6,7969.5,Pass,9.374903,Rail,Route B,5056.45
+Dessert,DISH30,179.56,86,634,311723.72,Male,42,10,69,4,India Post,362.6,FreshFoods India,Mumbai,9,160,12,5287.48,Pass,4.218791,Road,Route C,7920.87
+Appetizer,DISH31,516.9,61,752,817135.76,Unknown,28,11,32,5,Ecom Express,324.5,FreshFoods India,Bangalore,5,178,11,2191.85,Fail,7.011885,Rail,Route B,7886.7
+Main Course,DISH32,474.45,39,217,51580.25,Unknown,29,9,4,5,Delhivery,224.88,Local Farmers,Hyderabad,6,50,7,5710.26,Pass,2.335944,Road,Route C,2719.8
+Main Course,DISH33,533.64,96,40,322450.49,Female,51,8,62,1,Ecom Express,687.84,Tandoori Supplies,Mumbai,3,419,9,3853.11,Fail,3.943615,Air,Route B,9058.75
+Appetizer,DISH34,179.63,69,155,950631.91,Female,86,5,28,1,Ecom Express,582.38,Tandoori Supplies,Hyderabad,2,46,10,5959.38,Fail,2.690204,Air,Route B,7057.9
+Appetizer,DISH35,443.05,24,1058,380666.73,Female,48,1,14,8,Blue Dart,622.54,FreshFoods India,Mumbai,1,263,14,6178.33,Pending,4.467656,Road,Route B,9825.21
+Beverage,DISH36,391.4,78,1554,964532.98,Unknown,23,1,25,8,India Post,143.1,Tandoori Supplies,Bangalore,9,25,5,9379.16,Pending,9.92968,Rail,Route A,8028.65
+Dessert,DISH37,477.1,75,706,129023.04,Non-binary,96,9,74,4,Ecom Express,767.92,SpiceHub,Chennai,10,74,4,3559.15,Fail,5.023822,Air,Route B,5196.07
+Beverage,DISH38,105.84,66,557,513449.07,Female,63,11,69,5,Ecom Express,670.49,FreshFoods India,Kolkata,6,297,4,1409.21,Fail,3.235614,Road,Route C,6680.82
+Beverage,DISH39,386.07,24,1987,591861.59,Male,13,14,95,6,Blue Dart,464.5,Tandoori Supplies,Mumbai,6,47,14,6464.08,Pending,5.113128,Air,Route B,9976.82
+Appetizer,DISH40,266.34,37,997,855074.56,Non-binary,39,11,15,4,India Post,595.28,FreshFoods India,Chennai,6,264,4,8916.85,Pass,3.547016,Rail,Route B,4723.01
+Dessert,DISH41,665.2,19,1409,381646.79,Non-binary,42,11,76,6,India Post,189.55,FreshFoods India,Chennai,5,140,13,5880.11,Pass,9.390774,Rail,Route C,5783.44
+Main Course,DISH42,764.31,96,1823,546203.41,Non-binary,89,5,1,8,Blue Dart,746.53,Local Farmers,Bangalore,9,30,10,7440.01,Pending,1.971304,Road,Route A,6343.85
+Main Course,DISH43,502.11,76,1316,473249.74,Male,18,2,34,9,Blue Dart,861.31,SpiceHub,Chennai,8,279,12,6435.54,Pass,9.033302,Road,Route B,8622.15
+Beverage,DISH44,317.67,13,1272,353686.96,Unknown,68,8,53,4,Blue Dart,346.62,SpiceHub,Kolkata,1,153,14,2364.71,Pending,1.025277,Rail,Route B,6511.24
+Appetizer,DISH45,215.51,17,1533,376421.31,Unknown,47,13,74,1,Ecom Express,595.65,Tandoori Supplies,Chennai,5,474,13,1510.58,Pending,4.493829,Air,Route B,7237.85
+Beverage,DISH46,799.12,59,839,974325.98,Non-binary,83,11,39,8,Ecom Express,468.66,FreshFoods India,Mumbai,14,239,12,4884.15,Pending,5.043193,Air,Route B,3038.67
+Dessert,DISH47,482.75,7,1491,553962.14,Non-binary,2,14,32,5,Ecom Express,315.2,Tandoori Supplies,Kolkata,9,293,11,3784.31,Pending,0.684062,Road,Route B,1181.36
+Appetizer,DISH48,730.02,65,410,138869.38,Female,61,13,20,9,India Post,325.89,SpiceHub,Bangalore,13,113,9,3091.41,Fail,5.095394,Rail,Route B,2314.59
+Appetizer,DISH49,246.34,36,858,143177.4,Non-binary,8,5,23,7,Blue Dart,748.94,SpiceHub,Kolkata,3,353,7,5780.45,Fail,4.698167,Road,Route A,1896.32
+Beverage,DISH50,359.95,6,1577,151376.58,Female,22,12,51,6,Ecom Express,740.15,Local Farmers,Mumbai,13,262,1,9997.08,Fail,7.907395,Rail,Route B,9905.2
+Appetizer,DISH51,492.22,8,1118,889888.67,Female,92,10,49,2,Blue Dart,668.47,Local Farmers,Delhi,13,313,6,6879.26,Fail,3.472843,Rail,Route B,7999.38
+Dessert,DISH52,276.17,17,492,121034.86,Unknown,81,6,74,6,Ecom Express,456.31,Tandoori Supplies,Hyderabad,6,90,7,1418.56,Pass,3.464794,Air,Route C,1948.12
+Beverage,DISH53,154.34,5,1856,888357.1,Female,5,3,41,7,Ecom Express,561.06,SpiceHub,Bangalore,5,407,2,8983.78,Fail,7.477713,Road,Route C,3723.51
+Beverage,DISH54,669.42,70,1714,840030.08,Female,21,4,26,1,Ecom Express,934.97,FreshFoods India,Hyderabad,9,482,1,6453.76,Pending,7.8384,Rail,Route C,9315.23
+Main Course,DISH55,568.76,45,466,556192.05,Male,59,6,45,8,Blue Dart,477.04,FreshFoods India,Delhi,7,143,5,1331.8,Pending,5.338477,Rail,Route B,7257.17
+Appetizer,DISH56,747.18,28,359,644192.05,Male,31,4,67,4,India Post,445.11,Local Farmers,Delhi,6,43,1,9153.35,Pending,5.974122,Rail,Route C,5634.52
+Appetizer,DISH57,353.01,12,1918,208771.27,Male,3,9,36,3,Blue Dart,196.22,Tandoori Supplies,Hyderabad,13,323,2,7559.84,Fail,3.854266,Rail,Route A,1873.67
+Main Course,DISH58,404.3,99,1789,868322.11,Unknown,13,10,81,4,Blue Dart,296.17,Tandoori Supplies,Delhi,4,388,8,1391.49,Fail,6.586057,Road,Route A,3832.37
+Dessert,DISH59,790.76,14,489,129011.78,Female,4,8,35,6,Blue Dart,861.66,Tandoori Supplies,Hyderabad,12,444,4,4172.86,Pending,3.499273,Air,Route C,5869.35
+Dessert,DISH60,145.92,12,162,937973.87,Female,11,2,35,1,Delhivery,874.54,FreshFoods India,Delhi,14,226,10,9901.53,Pending,3.916299,Air,Route A,2667.24
+Appetizer,DISH61,656.68,55,991,569043.77,Female,16,12,79,6,India Post,745.73,SpiceHub,Kolkata,7,271,7,8437.96,Fail,7.347933,Rail,Route C,4287.29
+Beverage,DISH62,289.66,73,642,949326.47,Female,52,2,27,1,India Post,883.81,FreshFoods India,Hyderabad,11,74,11,2240.44,Fail,1.941217,Road,Route B,7972.21
+Main Course,DISH63,203.11,96,1733,235621.09,Female,38,3,25,8,Delhivery,702.23,FreshFoods India,Chennai,1,377,6,1893.34,Pending,2.951804,Road,Route B,2721.03
+Beverage,DISH64,625.01,57,1035,846784.99,Unknown,48,8,25,1,Delhivery,184.05,SpiceHub,Delhi,8,243,1,5603.64,Pending,3.362877,Road,Route C,6199.25
+Beverage,DISH65,606.41,56,1515,654839.78,Female,90,9,34,2,India Post,677.44,Tandoori Supplies,Bangalore,5,18,14,2876.38,Pending,3.60973,Air,Route C,5535.03
+Dessert,DISH66,475.24,39,367,575232.05,Female,62,8,71,2,India Post,763.29,Tandoori Supplies,Hyderabad,5,459,4,8940.08,Pending,9.442848,Air,Route A,8725.28
+Beverage,DISH67,793.09,92,1790,169008.03,Unknown,77,5,27,8,Ecom Express,324.18,Local Farmers,Kolkata,9,203,9,4868.07,Fail,1.874543,Rail,Route B,7709.97
+Main Course,DISH68,671.28,32,294,727371.37,Female,52,13,40,1,Ecom Express,737.1,FreshFoods India,Hyderabad,7,371,10,5538.53,Fail,9.40998,Road,Route A,7501.55
+Beverage,DISH69,483.61,87,335,188296.4,Non-binary,42,14,89,6,Ecom Express,977.02,Tandoori Supplies,Hyderabad,14,466,3,2617.05,Pass,1.151043,Road,Route B,2712.28
+Appetizer,DISH70,788.62,61,1970,269691.16,Male,31,7,54,9,Ecom Express,156.4,Local Farmers,Hyderabad,5,162,4,6066.51,Pass,3.468295,Rail,Route C,8659.6
+Beverage,DISH71,154.81,5,1258,73496.74,Female,35,10,42,1,Delhivery,479.1,Tandoori Supplies,Bangalore,7,174,12,6176.17,Pending,6.897024,Road,Route A,5539.07
+Appetizer,DISH72,300.52,2,626,403862.81,Male,78,10,40,6,Blue Dart,224.74,Tandoori Supplies,Bangalore,12,69,7,8535.4,Fail,3.221081,Air,Route B,4017.7
+Appetizer,DISH73,318.41,11,71,968640.86,Unknown,67,4,71,2,Ecom Express,534.77,FreshFoods India,Bangalore,6,248,13,1427.91,Pass,8.809638,Road,Route A,3243.44
+Dessert,DISH74,622.91,45,1282,627931.07,Non-binary,26,14,79,7,Ecom Express,616.76,Local Farmers,Chennai,11,217,2,1379.91,Fail,0.527696,Rail,Route B,2599.01
+Beverage,DISH75,126.48,84,364,161237.38,Unknown,45,10,63,1,Blue Dart,349.2,FreshFoods India,Bangalore,11,200,10,5602.09,Pending,6.848635,Air,Route C,6491.07
+Appetizer,DISH76,219.88,16,1085,380259.48,Non-binary,17,5,54,6,Delhivery,281.84,SpiceHub,Mumbai,14,231,9,5632.82,Pass,9.311208,Road,Route B,6006.86
+Main Course,DISH77,198.65,74,556,943436.37,Unknown,6,1,42,9,Delhivery,234.63,FreshFoods India,Chennai,8,198,12,4673.57,Pass,2.675965,Rail,Route A,1561.15
+Dessert,DISH78,300.5,19,20,760975.93,Male,83,6,4,9,India Post,552.31,Tandoori Supplies,Mumbai,2,60,6,2771.56,Pending,4.053212,Road,Route A,9865.34
+Main Course,DISH79,789.53,35,311,850933.3,Female,87,11,27,3,Blue Dart,922.14,FreshFoods India,Kolkata,6,16,8,5679.95,Fail,4.464403,Air,Route B,9673.32
+Appetizer,DISH80,775.09,81,1416,163391.04,Non-binary,54,3,29,5,Delhivery,288.69,SpiceHub,Kolkata,13,206,12,2215.06,Fail,5.451009,Road,Route A,4219.34
+Appetizer,DISH81,116.59,64,1886,368538.04,Female,92,6,7,6,Blue Dart,259.45,Tandoori Supplies,Hyderabad,5,397,2,9517.68,Pass,0.974332,Road,Route A,8435.28
+Dessert,DISH82,591.48,25,284,885501.35,Non-binary,81,10,90,2,Delhivery,367.67,Local Farmers,Bangalore,10,106,13,1228.48,Fail,7.734573,Air,Route A,8695.52
+Dessert,DISH83,74.94,35,464,474091.04,Non-binary,20,1,35,1,Delhivery,980.34,Local Farmers,Mumbai,3,157,2,6078.24,Fail,0.742439,Rail,Route C,3304.34
+Appetizer,DISH84,85.21,63,1215,693278.81,Female,56,2,76,3,Delhivery,601.18,SpiceHub,Chennai,2,273,1,7775.7,Pending,1.346127,Air,Route B,2086.86
+Beverage,DISH85,379.04,92,734,907454.11,Male,44,7,21,8,Ecom Express,504.12,SpiceHub,Bangalore,5,340,6,8256.49,Fail,7.121766,Road,Route B,5949.98
+Beverage,DISH86,785.22,68,643,207454.23,Unknown,75,11,11,5,Blue Dart,361.12,SpiceHub,Bangalore,6,206,5,9046.71,Fail,1.464529,Road,Route A,1872.36
+Appetizer,DISH87,746.81,41,734,383938.44,Non-binary,0,2,36,7,India Post,111.66,Tandoori Supplies,Bangalore,9,460,7,6271.12,Pass,2.031238,Rail,Route B,8138.19
+Appetizer,DISH88,263.29,65,934,354413.11,Unknown,91,4,13,3,Blue Dart,956.98,FreshFoods India,Bangalore,4,238,7,9885.05,Pass,1.866676,Air,Route C,5559.88
+Dessert,DISH89,774.22,42,627,543404.71,Non-binary,74,10,4,4,Delhivery,936.78,Local Farmers,Kolkata,7,144,14,4630.63,Fail,3.044272,Air,Route B,2849.75
+Dessert,DISH90,384.77,88,733,747213.79,Male,30,8,42,8,Ecom Express,991.59,Local Farmers,Hyderabad,1,285,5,8660.61,Pass,0.194243,Road,Route B,7605.34
+Beverage,DISH91,333.59,75,1974,748935.26,Female,41,12,11,7,Ecom Express,138.48,SpiceHub,Mumbai,6,49,3,6003.85,Fail,3.407162,Air,Route C,8835.06
+Dessert,DISH92,492.74,98,94,480559.51,Male,60,2,28,5,Ecom Express,618.28,SpiceHub,Mumbai,12,199,14,2041.75,Pass,5.82454,Air,Route C,7420.15
+Appetizer,DISH93,693.66,65,1330,368727.72,Female,60,12,17,7,India Post,385.57,FreshFoods India,Chennai,2,14,14,1904.58,Fail,9.910351,Air,Route A,9733.31
+Appetizer,DISH94,718.5,8,1818,578374.72,Non-binary,62,4,38,4,Delhivery,848.44,FreshFoods India,Mumbai,12,127,7,5482.05,Pass,8.036647,Air,Route B,7206.64
+Main Course,DISH95,673.37,36,312,873400.67,Non-binary,94,1,52,4,Blue Dart,102.73,FreshFoods India,Mumbai,5,259,2,3134.87,Fail,2.798153,Air,Route C,5330.2
+Main Course,DISH96,704.88,60,1308,730357.54,Male,8,7,72,7,Delhivery,498.27,Tandoori Supplies,Kolkata,12,137,9,6019.46,Pass,8.06804,Air,Route C,1321.84
+Appetizer,DISH97,225.69,64,1618,169532.98,Male,59,8,95,8,Delhivery,854.14,FreshFoods India,Mumbai,6,181,9,4410.74,Pending,6.904338,Rail,Route C,4636.61
+Dessert,DISH98,720.87,77,1989,718020.59,Male,39,9,82,9,Blue Dart,843.71,FreshFoods India,Chennai,6,137,4,8398.29,Pass,0.650352,Road,Route A,4200.64
+Appetizer,DISH99,754.57,63,1633,233776.52,Unknown,25,6,59,2,Ecom Express,115.29,Local Farmers,Chennai,2,222,6,9543.64,Pending,4.100507,Rail,Route A,4930.99
+Dessert,DISH100,344.5,86,1195,759039.33,Female,33,9,13,4,Ecom Express,483.44,SpiceHub,Bangalore,5,211,6,5569.02,Fail,9.382663,Rail,Route B,1625.7
+Main Course,DISH101,662.54,7,295,686835.04,Non-binary,87,7,74,9,India Post,751.65,Local Farmers,Chennai,4,415,1,9502.67,Pass,7.924608,Rail,Route B,1004.13
+Dessert,DISH102,126.11,44,1250,296957.71,Female,86,4,18,7,Ecom Express,724.07,Tandoori Supplies,Mumbai,2,167,5,3249.03,Pass,7.76207,Road,Route A,7417.88
+Dessert,DISH103,434.42,18,1989,453336.18,Non-binary,13,10,75,1,Ecom Express,267.84,SpiceHub,Bangalore,4,347,6,8280.86,Fail,8.073323,Road,Route B,9221.77
+Beverage,DISH104,142.01,95,1777,964159.4,Unknown,54,10,13,3,India Post,243.37,FreshFoods India,Hyderabad,13,481,11,2668.28,Fail,6.782051,Road,Route A,7081.14
+Beverage,DISH105,546.53,37,1410,795893.99,Female,43,11,73,2,Ecom Express,811.84,Tandoori Supplies,Kolkata,8,131,9,7278.34,Fail,0.828031,Air,Route A,8923.79
+Main Course,DISH106,518.73,3,201,219836.68,Female,4,12,75,2,Delhivery,361.41,SpiceHub,Delhi,4,389,13,9957.12,Fail,0.243174,Air,Route B,7479.27
+Appetizer,DISH107,616.43,70,1341,704335.76,Non-binary,42,5,2,7,Blue Dart,196.9,FreshFoods India,Chennai,14,288,2,3751.47,Fail,3.862055,Road,Route C,1572.35
+Dessert,DISH108,102.76,31,738,506012.09,Non-binary,3,3,52,5,Ecom Express,159.07,Tandoori Supplies,Delhi,14,475,13,3959.13,Pending,5.431652,Rail,Route B,5477.39
+Beverage,DISH109,213.2,54,1713,274916.3,Female,72,8,35,9,Delhivery,116.27,Local Farmers,Delhi,10,178,3,1141.02,Pass,5.905738,Air,Route C,9075.98
+Dessert,DISH110,292.23,19,1330,796657.16,Unknown,25,5,56,5,Delhivery,555.58,SpiceHub,Bangalore,2,106,1,9621.92,Pending,3.992131,Road,Route B,3435.54
+Dessert,DISH111,333.91,15,1874,633225.87,Non-binary,8,6,92,4,India Post,449.69,FreshFoods India,Hyderabad,7,54,8,3158.58,Pending,4.499449,Air,Route A,6100.59
+Beverage,DISH112,622.35,69,288,965857.74,Unknown,15,3,3,8,Delhivery,532.74,SpiceHub,Hyderabad,7,101,6,9529.37,Pass,0.405522,Rail,Route B,4146.77
+Appetizer,DISH113,93.47,88,1826,223389.83,Non-binary,84,5,36,1,Ecom Express,593.02,Local Farmers,Kolkata,9,204,8,7063.61,Pending,0.762179,Air,Route C,7741.62
+Dessert,DISH114,709.14,63,1441,325746.97,Male,54,13,8,1,Ecom Express,200.7,SpiceHub,Mumbai,6,184,3,2521.34,Pending,7.658208,Road,Route A,3535.94
+Beverage,DISH115,322.96,50,717,161663.49,Male,83,1,70,8,Ecom Express,671.97,SpiceHub,Chennai,12,29,5,1337.03,Pass,0.745885,Air,Route B,9245.34
+Dessert,DISH116,116.4,64,1305,831644.83,Non-binary,51,2,20,8,Blue Dart,358.39,Local Farmers,Kolkata,3,115,1,7360.35,Fail,1.14015,Rail,Route A,8913.44
+Appetizer,DISH117,230.57,86,760,368497.89,Unknown,25,7,89,4,Ecom Express,804.46,Tandoori Supplies,Chennai,8,21,5,5095.8,Pass,8.565234,Air,Route A,6096.47
+Main Course,DISH118,698.71,59,1684,696983.47,Unknown,26,13,62,3,Delhivery,899.29,SpiceHub,Kolkata,7,117,5,8803.93,Pending,3.332491,Rail,Route C,3864.73
+Appetizer,DISH119,471.01,9,650,199824.0,Female,76,9,99,9,Blue Dart,764.73,Tandoori Supplies,Mumbai,11,266,8,9454.04,Fail,7.185726,Rail,Route C,6187.98
+Appetizer,DISH120,376.71,23,1743,340469.65,Unknown,0,12,83,3,Delhivery,487.64,Local Farmers,Mumbai,6,89,3,4724.5,Fail,7.909098,Road,Route A,2961.25
+Main Course,DISH121,796.41,90,103,383358.79,Female,29,9,32,2,Ecom Express,825.9,Local Farmers,Hyderabad,9,424,10,4846.8,Pass,2.623065,Air,Route C,4529.57
+Beverage,DISH122,702.86,78,1286,574675.46,Female,71,2,94,4,India Post,224.32,SpiceHub,Mumbai,8,220,8,3758.44,Pending,1.537207,Air,Route A,2567.31
+Beverage,DISH123,557.21,84,358,814417.95,Male,76,11,38,4,Delhivery,958.17,Tandoori Supplies,Chennai,7,18,10,4349.34,Fail,8.066662,Air,Route B,3977.72
+Appetizer,DISH124,197.48,18,1883,496340.61,Non-binary,78,8,26,7,India Post,798.1,SpiceHub,Chennai,3,498,8,2334.11,Pending,2.026425,Air,Route B,3799.03
+Beverage,DISH125,665.37,33,679,624801.73,Non-binary,91,14,14,8,India Post,331.62,Local Farmers,Bangalore,2,86,13,6263.35,Pending,3.508569,Road,Route C,9262.89
+Beverage,DISH126,717.27,43,726,878344.67,Female,32,3,62,7,Blue Dart,497.81,FreshFoods India,Mumbai,11,358,3,1630.89,Pass,3.365285,Rail,Route C,4161.77
+Appetizer,DISH127,205.42,98,393,236136.19,Non-binary,79,4,37,3,Delhivery,573.29,Local Farmers,Bangalore,13,36,6,9414.06,Fail,0.1259,Road,Route B,1422.12
+Beverage,DISH128,792.56,90,1254,196286.11,Unknown,13,8,69,2,Ecom Express,605.89,SpiceHub,Bangalore,13,85,3,7082.84,Fail,9.847004,Rail,Route A,4794.54
+Appetizer,DISH129,551.01,80,1293,880998.54,Female,71,13,89,1,Blue Dart,932.73,FreshFoods India,Hyderabad,6,337,2,1811.77,Pass,0.4165,Air,Route B,9012.74
+Dessert,DISH130,280.21,17,781,460499.29,Non-binary,73,8,74,2,Delhivery,697.35,FreshFoods India,Delhi,6,280,1,9308.51,Pass,8.780782,Road,Route B,9542.05
+Appetizer,DISH131,492.4,42,132,334767.25,Male,81,4,6,8,Ecom Express,713.51,SpiceHub,Hyderabad,10,278,3,6692.85,Pending,1.405772,Rail,Route A,3501.59
+Main Course,DISH132,612.8,62,1418,122974.63,Non-binary,42,2,88,1,Blue Dart,560.76,Tandoori Supplies,Hyderabad,3,128,5,6997.72,Pending,3.118363,Rail,Route A,2944.95
+Appetizer,DISH133,710.53,41,618,149184.52,Female,62,6,13,1,India Post,448.94,Tandoori Supplies,Bangalore,11,13,12,2216.0,Fail,3.942453,Rail,Route A,2870.06
+Main Course,DISH134,174.23,56,113,885339.3,Unknown,45,5,44,6,Blue Dart,965.91,SpiceHub,Mumbai,4,373,3,9844.06,Pending,3.690083,Rail,Route C,2275.32
+Appetizer,DISH135,424.86,97,1255,234666.77,Female,43,4,38,3,Delhivery,702.54,Tandoori Supplies,Hyderabad,7,140,2,5386.37,Pass,0.404237,Rail,Route B,2068.97
+Beverage,DISH136,374.3,52,1793,236069.46,Male,7,9,44,1,Delhivery,460.88,FreshFoods India,Delhi,8,401,1,9725.37,Pass,6.601012,Road,Route B,4426.43
+Beverage,DISH137,77.52,65,1568,271674.07,Female,4,4,35,8,Delhivery,150.75,Local Farmers,Kolkata,8,13,14,8937.37,Pending,0.318435,Road,Route B,9608.53
+Appetizer,DISH138,361.33,93,1554,989285.3,Unknown,60,3,46,3,Ecom Express,478.07,Tandoori Supplies,Chennai,4,241,9,3544.77,Pass,7.047771,Rail,Route B,9147.74
+Beverage,DISH139,734.27,36,1230,214464.39,Non-binary,74,3,80,8,Delhivery,337.84,SpiceHub,Chennai,14,322,12,5724.96,Pass,5.017075,Road,Route B,2388.07
+Dessert,DISH140,392.52,60,684,922943.85,Female,50,8,11,1,Ecom Express,782.05,Local Farmers,Delhi,6,470,9,2317.85,Pending,7.988411,Rail,Route C,1535.22
+Dessert,DISH141,735.62,58,511,732865.78,Female,75,12,11,9,India Post,612.46,Tandoori Supplies,Hyderabad,6,339,8,4062.09,Pending,7.422593,Rail,Route C,2546.35
+Appetizer,DISH142,201.65,24,418,619262.45,Male,42,7,93,3,Blue Dart,958.68,SpiceHub,Chennai,2,125,3,7551.17,Pass,9.945657,Road,Route C,8446.63
+Dessert,DISH143,632.54,93,1832,381473.25,Female,70,3,67,2,Blue Dart,122.82,Local Farmers,Kolkata,14,149,5,9434.81,Pass,5.529509,Air,Route A,8904.56
+Main Course,DISH144,616.24,1,556,736384.67,Non-binary,65,6,68,8,Ecom Express,221.12,FreshFoods India,Kolkata,7,12,7,7097.83,Pass,7.510715,Air,Route A,7325.69
+Beverage,DISH145,625.47,64,474,665779.05,Female,0,2,25,2,Ecom Express,574.28,SpiceHub,Bangalore,7,469,8,9449.99,Fail,7.814397,Road,Route A,4790.38
+Appetizer,DISH146,392.36,31,1259,141491.89,Unknown,97,1,19,3,Delhivery,235.36,Tandoori Supplies,Delhi,1,402,9,1041.84,Pass,2.982163,Road,Route A,1055.49
+Main Course,DISH147,226.13,18,391,259923.93,Non-binary,48,1,89,1,Ecom Express,870.99,Tandoori Supplies,Hyderabad,4,473,8,8102.49,Pending,2.91232,Air,Route A,3523.03
+Dessert,DISH148,423.72,31,289,386317.67,Male,84,3,17,7,India Post,883.31,FreshFoods India,Mumbai,2,288,8,7392.15,Pending,5.977653,Rail,Route C,6470.2
+Main Course,DISH149,255.23,12,1834,310356.86,Non-binary,22,9,93,4,Blue Dart,593.88,FreshFoods India,Delhi,14,142,8,7451.37,Pass,1.301784,Air,Route A,7441.18
