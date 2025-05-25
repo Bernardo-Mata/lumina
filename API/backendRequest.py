@@ -20,6 +20,7 @@ Functions:
 
 from typing import List, Dict, Any
 from google import genai
+from google.genai import types
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import UploadFile, File, Form, Query
@@ -97,17 +98,28 @@ def get_structured_dashboard_response(filename):
         return {"error": error}
 
     prompt = (
-        "Eres un asistente experto en gestión de riesgos de cadena de suministro. "
-        "Analiza el siguiente documento y genera un resumen estructurado para mostrar en un dashboard ejecutivo. "
-        "Incluye valores cuantitativos claros y precisos como: promedios, totales, porcentajes, conteos y métricas clave. "
-        "Por ejemplo: total de proveedores, promedio de riesgo, porcentaje de entregas a tiempo, número de incidencias de cumplimiento, etc. "
-        "Devuelve la respuesta en formato JSON con los siguientes campos: "
-        "total_suppliers, average_risk_score, compliance_issues_count, on_time_delivery_percentage, recent_alerts (lista)\n\n"
-        f"Documento:\n{text}"
+    "You are an expert assistant in supply chain risk management. "
+    "Analyze the following document and generate a structured summary to be displayed on an executive dashboard. "
+    "Include clear and precise quantitative values such as: averages, totals, percentages, counts, and key performance indicators (KPIs). "
+    "If any of the requested fields are not explicitly available in the document, intelligently estimate or predict reasonable values based on the available data and your expertise. "
+    "If the information is present, use the actual value. "
+    "Provide your response in JSON format using the following fields: "
+    "total_suppliers, average_risk_score, compliance_issues_count, on_time_delivery_percentage, recent_alerts (list), "
+    "high_risk_suppliers_count, average_delivery_delay_days, critical_materials_shortage (list or boolean), "
+    "supplier_region_distribution (dictionary with region names and counts), supplier_dependency_index, last_incident_date, "
+    "esg_non_compliance_count, financial_risk_score, supply_chain_disruption_events, inventory_turnover_rate, "
+    "suppliers (array of objects, each with: name, location, risk_score, status). "
+    "If you cannot find a value in the document, make a reasonable prediction or estimation based on your expertise. "
+    "Example for suppliers:\n"
+    "[{\"name\": \"Supplier A\", \"location\": \"USA\", \"risk_score\": 80, \"status\": \"Active\"}, ...]\n\n"
+    "Document to analyze:\n"
+    f"{text}"
     )
-
     response = client.models.generate_content(
-        model='gemini-2.0-flash-001', contents=prompt
+    model='gemini-2.0-flash-001',
+    contents=prompt,config=types.GenerateContentConfig(
+        top_p=0.2,
+    ),
     )
     return response.text
 
@@ -184,7 +196,10 @@ def get_alerts_summary():
     )
 
     response = client.models.generate_content(
-        model='gemini-2.0-flash-001', contents=prompt
+    model='gemini-2.0-flash-001',
+    contents=prompt,config=types.GenerateContentConfig(
+        top_p=0.2,
+    ),
     )
     return response.text
 
@@ -247,7 +262,10 @@ def get_suppliers_llm(filename):
     )
 
     response = client.models.generate_content(
-        model='gemini-2.0-flash-001', contents=prompt
+    model='gemini-2.0-flash-001',
+    contents=prompt,config=types.GenerateContentConfig(
+        top_p=0.2,
+    ),
     )
     return response.text
 
@@ -315,16 +333,46 @@ def get_compliance_summary():
     )
 
     response = client.models.generate_content(
-        model='gemini-2.0-flash-001', contents=prompt
+    model='gemini-2.0-flash-001',
+    contents=prompt,config=types.GenerateContentConfig(
+        top_p=0.2,
+    ),
     )
     return response.text
 
 @app.get("/api/compliance")
-def compliance_endpoint():
+def compliance_endpoint(filename: str = Query(..., description="Previously uploaded file name")):
     """
-    Endpoint that uses the LLM to extract a compliance summary from the CSV and returns it as a JSON array of strings.
+    Endpoint that uses the LLM to extract a compliance summary from the uploaded document and returns it as a JSON array of strings.
     """
-    llm_response = get_compliance_summary()
+    text, error = read_uploaded_document(filename)
+    if error:
+        return {"error": error}
+
+    prompt = (
+        "You are an expert assistant in supply chain compliance. "
+        "Analyze the following document and generate a concise compliance summary for an executive dashboard. "
+        "Return a JSON array of 2-5 short bullet points (as strings) summarizing the compliance status. "
+        "Focus on facts such as: if all suppliers have submitted required documents, "
+        "how many suppliers have expiring certifications this month, "
+        "and if there are any major compliance issues detected. "
+        "Example:\n"
+        "["
+        "\"All suppliers have submitted required documents.\", "
+        "\"2 suppliers have expiring certifications this month.\", "
+        "\"No major compliance issues detected.\""
+        "]\n\n"
+        "Document:\n"
+        f"{text}"
+    )
+
+    response = client.models.generate_content(
+    model='gemini-2.0-flash-001',
+    contents=prompt,config=types.GenerateContentConfig(
+        top_p=0.2,
+    ),
+    )
+    llm_response = response.text
 
     # Try to parse the LLM response as JSON
     try:
@@ -392,7 +440,10 @@ def get_reports_summary():
     )
 
     response = client.models.generate_content(
-        model='gemini-2.0-flash-001', contents=prompt
+    model='gemini-2.0-flash-001',
+    contents=prompt,config=types.GenerateContentConfig(
+        top_p=0.2,
+    ),
     )
     return response.text
 
@@ -459,16 +510,40 @@ def get_risk_scores_summary():
     )
 
     response = client.models.generate_content(
-        model='gemini-2.0-flash-001', contents=prompt
+    model='gemini-2.0-flash-001',
+    contents=prompt,config=types.GenerateContentConfig(
+        top_p=0.2,
+    ),
     )
     return response.text
 
 @app.get("/api/risk-scores")
-def risk_scores_endpoint():
+def risk_scores_endpoint(filename: str = Query(..., description="Previously uploaded file name")):
     """
-    Endpoint that uses the LLM to extract supplier risk scores from the CSV and returns them as a JSON array.
+    Endpoint that uses the LLM to extract supplier risk scores from the uploaded document and returns them as a JSON array.
     """
-    llm_response = get_risk_scores_summary()
+    text, error = read_uploaded_document(filename)
+    if error:
+        return {"error": error}
+
+    prompt = (
+        "You are an expert assistant in supply chain risk management. "
+        "Analyze the following document and extract a table of all suppliers with their risk scores. "
+        "For each supplier, provide the following fields: name, risk_score (number from 1 to 100, where 100 is highest risk), and a short risk_reason. "
+        "Return the result as a JSON array, where each element is an object with these fields. "
+        "Example:\n"
+        "[{\"name\": \"Supplier A\", \"risk_score\": 85, \"risk_reason\": \"Frequent delivery delays\"}, ...]\n\n"
+        "Document:\n"
+        f"{text}"
+    )
+
+    response = client.models.generate_content(
+    model='gemini-2.0-flash-001',
+    contents=prompt,config=types.GenerateContentConfig(
+        top_p=0.2,
+    ),
+    )
+    llm_response = response.text
 
     # Try to parse the LLM response as JSON
     try:
@@ -514,7 +589,7 @@ async def upload_document(file: UploadFile = File(...)):
         with open(save_path, "wb") as f:
             contents = await file.read()
             f.write(contents)
-        return {"success": True, "filename": file.filename, "message": "El documento fue cargado exitosamente."}
+        return {"success": True, "filename": file.filename, "message": "the file has been saved successfully."}
     except Exception as e:
         return {"success": False, "error": f"Error al guardar el archivo: {str(e)}"}
 
@@ -572,8 +647,11 @@ async def process_document(filename: str = Form(...)):
 
     try:
         response = client.models.generate_content(
-            model='gemini-2.0-flash-001', contents=prompt
-        )
+    model='gemini-2.0-flash-001',
+    contents=prompt,config=types.GenerateContentConfig(
+        top_p=0.2,
+    ),
+    )
         llm_response = response.text
         # Intenta parsear el JSON generado
         try:
@@ -632,8 +710,11 @@ def alerts_insights(filename: str = Query(..., description="Nombre del archivo p
 
     try:
         response = client.models.generate_content(
-            model='gemini-2.0-flash-001', contents=prompt
-        )
+    model='gemini-2.0-flash-001',
+    contents=prompt,config=types.GenerateContentConfig(
+        top_p=0.2,
+    ),
+    )
         llm_response = response.text
         try:
             data = json.loads(llm_response)
@@ -652,4 +733,4 @@ def alerts_insights(filename: str = Query(..., description="Nombre del archivo p
         return {"error": f"Error procesando con LLM: {str(e)}"}
 
 
-print(read_uploaded_document(r"uploaded_docs\\marcas_autos_mexico.csv"))
+# print(read_uploaded_document(r"uploaded_docs\\marcas_autos_mexico.csv"))

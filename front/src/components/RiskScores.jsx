@@ -1,6 +1,14 @@
 import React from 'react';
 import { Shield } from 'lucide-react';
 
+// Helper para formatear el risk score y color
+const getRiskColor = (score) => {
+  if (typeof score !== 'number') return 'bg-gray-200 text-gray-700 border-gray-300';
+  if (score >= 80) return 'bg-red-100 text-red-700 border-red-300';
+  if (score >= 50) return 'bg-yellow-100 text-yellow-700 border-yellow-300';
+  return 'bg-green-100 text-green-700 border-green-300';
+};
+
 // Recibe data y loading como props
 const RiskScores = ({ data, loading }) => {
   if (loading) {
@@ -32,7 +40,7 @@ const RiskScores = ({ data, loading }) => {
     );
   }
 
-  const scores = Array.isArray(data?.risk_scores) ? data.risk_scores : [];
+  const scores = data && Array.isArray(data.risk_scores) ? data.risk_scores : [];
 
   return (
     <div className="p-6">
@@ -48,28 +56,31 @@ const RiskScores = ({ data, loading }) => {
           ) : (
             <table className="min-w-full text-sm text-left">
               <thead>
-                <tr>
-                  <th className="px-4 py-2 text-gray-600">Supplier</th>
-                  <th className="px-4 py-2 text-gray-600">Category</th>
-                  <th className="px-4 py-2 text-gray-600">Risk Score</th>
-                  <th className="px-4 py-2 text-gray-600">Level</th>
+                <tr className="bg-blue-50">
+                  <th className="px-4 py-2 text-blue-700 font-semibold rounded-tl">Supplier</th>
+                  <th className="px-4 py-2 text-blue-700 font-semibold">Risk Score</th>
+                  <th className="px-4 py-2 text-blue-700 font-semibold rounded-tr">Reason</th>
                 </tr>
               </thead>
               <tbody>
-                {scores.map((row, idx) => (
-                  <tr className="border-t" key={idx}>
-                    <td className="px-4 py-2">{row.supplier}</td>
-                    <td className="px-4 py-2">{row.category}</td>
-                    <td className="px-4 py-2">{row.risk_score}</td>
-                    <td className={`px-4 py-2 ${
-                      row.level === 'High'
-                        ? 'text-red-600'
-                        : row.level === 'Medium'
-                        ? 'text-yellow-600'
-                        : 'text-green-600'
-                    }`}>
-                      {row.level}
+                {scores.map((item, idx) => (
+                  <tr
+                    className={`border-t hover:bg-blue-50 transition ${
+                      idx % 2 === 0 ? 'bg-white' : 'bg-blue-100'
+                    }`}
+                    key={idx}
+                  >
+                    <td className="px-4 py-2 font-medium text-gray-800">{item.name}</td>
+                    <td className="px-4 py-2">
+                      <span
+                        className={`inline-block px-2 py-1 rounded border text-xs font-semibold ${getRiskColor(item.risk_score)}`}
+                      >
+                        {typeof item.risk_score === 'number'
+                          ? `${item.risk_score.toFixed(2)}%`
+                          : '-'}
+                      </span>
                     </td>
+                    <td className="px-4 py-2 text-gray-700">{item.risk_reason}</td>
                   </tr>
                 ))}
               </tbody>

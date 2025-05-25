@@ -1,7 +1,6 @@
 import React from 'react';
 import { CheckSquare } from 'lucide-react';
 
-// Recibe data y loading como props
 const Compilance = ({ data, loading }) => {
   if (loading) {
     return (
@@ -32,7 +31,6 @@ const Compilance = ({ data, loading }) => {
     );
   }
 
-  // Mostrar el resumen si existe
   const summary = data && Array.isArray(data.summary) ? data.summary : [];
 
   return (
@@ -41,18 +39,24 @@ const Compilance = ({ data, loading }) => {
         <CheckSquare className="text-blue-500 mr-2" size={28} />
         <h2 className="font-bold text-2xl text-gray-800">Compliance</h2>
       </div>
-      <div className="bg-white rounded-lg shadow p-4">
-        <h3 className="font-bold text-gray-700 mb-4">Compliance Overview</h3>
+      <div className="bg-gradient-to-br from-blue-50 to-green-50 rounded-lg shadow p-6">
+        <h3 className="font-bold text-gray-700 mb-4 text-lg">Compliance Overview</h3>
         {summary.length === 0 ? (
           <div className="p-4 text-gray-500">No compliance summary available.</div>
         ) : (
-          <ul className="list-disc pl-6 text-gray-700">
+          <ul className="space-y-3">
             {summary.map((item, idx) => (
-              <li key={idx}>{item}</li>
+              <li
+                key={idx}
+                className="flex items-center bg-green-100 border border-green-200 rounded px-4 py-2 text-green-900 shadow-sm"
+              >
+                <CheckSquare className="text-green-500 mr-2" size={18} />
+                <span>{item}</span>
+              </li>
             ))}
           </ul>
         )}
-        <div className="mt-4 text-sm text-gray-500">
+        <div className="mt-6 text-sm text-gray-500 italic">
           For more details, check the documents and audits section.
         </div>
       </div>

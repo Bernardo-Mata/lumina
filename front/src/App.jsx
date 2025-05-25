@@ -93,6 +93,20 @@ const App = () => {
     }));
   }
 
+  function setComplianceDataFromSummary(complianceJson) {
+    setData(prev => ({
+      ...prev,
+      [ENDPOINTS['/compliance']]: complianceJson
+    }));
+  }
+
+  function setRiskScoresDataFromSummary(riskScoresJson) {
+    setData(prev => ({
+      ...prev,
+      [ENDPOINTS['/risk-scores']]: riskScoresJson
+    }));
+  }
+
   return (
     <Router>
       <div className="flex flex-col h-screen bg-gray-100">
@@ -177,10 +191,14 @@ const App = () => {
                       data={data[ENDPOINTS['/dashboard']]}
                       alertsData={data[ENDPOINTS['/alerts']]}
                       suppliersData={data[ENDPOINTS['/suppliers']]}
+                      complianceData={data[ENDPOINTS['/compliance']]}
+                      riskScoresData={data[ENDPOINTS['/risk-scores']]}
                       loading={loading[ENDPOINTS['/dashboard']]}
                       setDashboardDataFromSummary={setDashboardDataFromSummary}
                       setAlertsDataFromSummary={setAlertsDataFromSummary}
                       setSuppliersDataFromSummary={setSuppliersDataFromSummary}
+                      setComplianceDataFromSummary={setComplianceDataFromSummary}
+                      setRiskScoresDataFromSummary={setRiskScoresDataFromSummary}
                     />
                   }
                 />
