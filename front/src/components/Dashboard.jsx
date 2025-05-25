@@ -14,12 +14,21 @@ import {
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
   
 const Dashboard = ({ data, loading }) => {
+  // NUEVO: Si no hay data, intenta cargar de localStorage
+  let dashboardData = data;
+  if (!dashboardData) {
+    try {
+      const stored = localStorage.getItem('dashboardData');
+      if (stored) dashboardData = JSON.parse(stored);
+    } catch {}
+  }
+
   if (loading) return <div>Generating insights...</div>;
-  if (!data) return <div>Press "Generating insights" to make a response.</div>;
-  if (data.error) return (
+  if (!dashboardData) return <div>Press "Generating insights" to make a response.</div>;
+  if (dashboardData.error) return (
     <div className="max-w-2xl mx-auto p-6">
-      <div className="text-red-500">{data.error}</div>
-      <pre className="bg-white text-black p-2 rounded mt-2">{data.raw}</pre>
+      <div className="text-red-500">{dashboardData.error}</div>
+      <pre className="bg-white text-black p-2 rounded mt-2">{dashboardData.raw}</pre>
     </div>
   );
 
@@ -27,7 +36,7 @@ const Dashboard = ({ data, loading }) => {
   const showValue = (val) => val !== undefined && val !== null ? val : '-';
 
   // Bar chart for region distribution
-  const regionDist = data.supplier_region_distribution || {};
+  const regionDist = dashboardData.supplier_region_distribution || {};
   const regionBarData = {
     labels: Object.keys(regionDist),
     datasets: [
@@ -40,7 +49,7 @@ const Dashboard = ({ data, loading }) => {
   };
 
   // Pie chart for supplier status
-  const suppliers = Array.isArray(data.suppliers) ? data.suppliers : [];
+  const suppliers = Array.isArray(dashboardData.suppliers) ? dashboardData.suppliers : [];
   const statusCounts = suppliers.reduce((acc, s) => {
     acc[s.status] = (acc[s.status] || 0) + 1;
     return acc;
@@ -91,19 +100,19 @@ const Dashboard = ({ data, loading }) => {
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         <div className="bg-blue-50 rounded shadow p-4 flex flex-col items-center">
-          <span className="text-3xl font-bold text-blue-700">{showValue(data.total_suppliers)}</span>
+          <span className="text-3xl font-bold text-blue-700">{showValue(dashboardData.total_suppliers)}</span>
           <span className="text-gray-700 mt-2">Total Suppliers</span>
         </div>
         <div className="bg-green-50 rounded shadow p-4 flex flex-col items-center">
-          <span className="text-3xl font-bold text-green-700">{showValue(data.average_risk_score)}</span>
+          <span className="text-3xl font-bold text-green-700">{showValue(dashboardData.average_risk_score)}</span>
           <span className="text-gray-700 mt-2">Average Risk Score</span>
         </div>
         <div className="bg-yellow-50 rounded shadow p-4 flex flex-col items-center">
-          <span className="text-3xl font-bold text-yellow-700">{showValue(data.on_time_delivery_percentage)}%</span>
+          <span className="text-3xl font-bold text-yellow-700">{showValue(dashboardData.on_time_delivery_percentage)}%</span>
           <span className="text-gray-700 mt-2">On-Time Delivery %</span>
         </div>
         <div className="bg-red-50 rounded shadow p-4 flex flex-col items-center">
-          <span className="text-3xl font-bold text-red-700">{showValue(data.compliance_issues_count)}</span>
+          <span className="text-3xl font-bold text-red-700">{showValue(dashboardData.compliance_issues_count)}</span>
           <span className="text-gray-700 mt-2">Compliance Issues</span>
         </div>
       </div>
@@ -111,19 +120,19 @@ const Dashboard = ({ data, loading }) => {
       {/* High Risk Suppliers & Financial Risk */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         <div className="bg-red-100 rounded shadow p-4 flex flex-col items-center">
-          <span className="text-3xl font-bold text-red-700">{showValue(data.high_risk_suppliers_count)}</span>
+          <span className="text-3xl font-bold text-red-700">{showValue(dashboardData.high_risk_suppliers_count)}</span>
           <span className="text-gray-700 mt-2">High Risk Suppliers</span>
         </div>
         <div className="bg-purple-50 rounded shadow p-4 flex flex-col items-center">
-          <span className="text-3xl font-bold text-purple-700">{showValue(data.average_delivery_delay_days)}</span>
+          <span className="text-3xl font-bold text-purple-700">{showValue(dashboardData.average_delivery_delay_days)}</span>
           <span className="text-gray-700 mt-2">Avg. Delivery Delay (days)</span>
         </div>
         <div className="bg-pink-50 rounded shadow p-4 flex flex-col items-center">
-          <span className="text-3xl font-bold text-pink-700">{showValue(data.financial_risk_score)}</span>
+          <span className="text-3xl font-bold text-pink-700">{showValue(dashboardData.financial_risk_score)}</span>
           <span className="text-gray-700 mt-2">Financial Risk Score</span>
         </div>
         <div className="bg-indigo-50 rounded shadow p-4 flex flex-col items-center">
-          <span className="text-3xl font-bold text-indigo-700">{showValue(data.inventory_turnover_rate)}</span>
+          <span className="text-3xl font-bold text-indigo-700">{showValue(dashboardData.inventory_turnover_rate)}</span>
           <span className="text-gray-700 mt-2">Inventory Turnover Rate</span>
         </div>
       </div>
@@ -131,15 +140,15 @@ const Dashboard = ({ data, loading }) => {
       {/* Supplier Dependency Index, ESG Non-Compliance, Last Incident */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-orange-50 rounded shadow p-4 flex flex-col items-center">
-          <span className="text-3xl font-bold text-orange-700">{showValue(data.supplier_dependency_index)}</span>
+          <span className="text-3xl font-bold text-orange-700">{showValue(dashboardData.supplier_dependency_index)}</span>
           <span className="text-gray-700 mt-2">Supplier Dependency Index</span>
         </div>
         <div className="bg-emerald-50 rounded shadow p-4 flex flex-col items-center">
-          <span className="text-3xl font-bold text-emerald-700">{showValue(data.esg_non_compliance_count)}</span>
+          <span className="text-3xl font-bold text-emerald-700">{showValue(dashboardData.esg_non_compliance_count)}</span>
           <span className="text-gray-700 mt-2">ESG Non-Compliance</span>
         </div>
         <div className="bg-gray-50 rounded shadow p-4 flex flex-col items-center">
-          <span className="text-3xl font-bold text-gray-700">{showValue(data.last_incident_date)}</span>
+          <span className="text-3xl font-bold text-gray-700">{showValue(dashboardData.last_incident_date)}</span>
           <span className="text-gray-700 mt-2">Last Incident Date</span>
         </div>
       </div>
@@ -190,7 +199,7 @@ const Dashboard = ({ data, loading }) => {
       <div>
         <h3 className="font-bold text-lg text-gray-800 mb-2">Recent Alerts</h3>
         <ul className="bg-white rounded shadow text-sm mb-6 divide-y">
-          {renderList(data.recent_alerts)}
+          {renderList(dashboardData.recent_alerts)}
         </ul>
       </div>
 
@@ -198,7 +207,7 @@ const Dashboard = ({ data, loading }) => {
       <div>
         <h3 className="font-bold text-lg text-gray-800 mb-2">Critical Materials Shortage</h3>
         <ul className="bg-white rounded shadow text-sm mb-6 divide-y">
-          {renderList(data.critical_materials_shortage)}
+          {renderList(dashboardData.critical_materials_shortage)}
         </ul>
       </div>
 
@@ -206,12 +215,12 @@ const Dashboard = ({ data, loading }) => {
       <div>
         <h3 className="font-bold text-lg text-gray-800 mb-2">Supply Chain Disruption Events</h3>
         <ul className="bg-white rounded shadow text-sm mb-6 divide-y">
-          {renderList(data.supply_chain_disruption_events)}
+          {renderList(dashboardData.supply_chain_disruption_events)}
         </ul>
       </div>
 
       {/* Suppliers Table */}
-      {Array.isArray(data.suppliers) && data.suppliers.length > 0 && (
+      {Array.isArray(dashboardData.suppliers) && dashboardData.suppliers.length > 0 && (
         <div>
           <h3 className="font-bold text-lg text-gray-800 mb-2">Suppliers Table</h3>
           <table className="min-w-max bg-white rounded shadow text-sm mb-6">
@@ -224,7 +233,7 @@ const Dashboard = ({ data, loading }) => {
               </tr>
             </thead>
             <tbody>
-              {data.suppliers.map((s, idx) => (
+              {dashboardData.suppliers.map((s, idx) => (
                 <tr key={idx}>
                   <td className="px-4 py-2 border">{s.name}</td>
                   <td className="px-4 py-2 border">{s.location}</td>
