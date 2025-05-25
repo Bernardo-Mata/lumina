@@ -1,0 +1,38 @@
+```csv
+sku,product_type,unit_price,supplier_name,location,stock,lead_time,units_per_order,shipping_company,average_shipping_cost,manufacturing_days,manufacturing_cost,last_quality_inspection,defective_percentage,main_transport_mode,main_route,total_cost,shipping_days,total_delivery_days,units_per_batch,units_sold,total_revenue,main_demographic,batch_id,production_date,warehouse_location,storage_temperature,humidity_level,packaging_type,supplier_rating,payment_terms,order_frequency,return_rate,demand_forecast,safety_stock_level,reorder_point
+AUTO002,Berevage,23400,DeltaInf,Bangalore,35,2,34,DHL,32454,2,23,234,2.5,Air,Route13,23424,2,4,44,500,120000,"Women and mens",B1,2024-01-20,Warehouse A,22,60,Cardboard,4.5,Net 30,Monthly,0.01,600,5,40
+AUTO002,Berevage,23400,DeltaInf,Bangalore,35,2,34,DHL,32454,2,23,234,2.5,Air,Route13,23424,2,4,44,500,120000,"Women and mens",B1,2024-01-20,Warehouse A,22,60,Cardboard,4.5,Net 30,Monthly,0.01,600,5,40
+AUTO002,Berevage,23400,DeltaInf,Bangalore,35,2,34,DHL,32454,2,23,234,2.5,Air,Route13,23424,2,4,44,500,120000,"Women and mens",B1,2024-01-20,Warehouse A,22,60,Cardboard,4.5,Net 30,Monthly,0.01,600,5,40
+AUTO002,Berevage,23400,DeltaInf,Bangalore,35,2,34,DHL,32454,2,23,234,2.5,Air,Route13,23424,2,4,44,500,120000,"Women and mens",B1,2024-01-20,Warehouse A,22,60,Cardboard,4.5,Net 30,Monthly,0.01,600,5,40
+AUTO002,Berevage,23400,DeltaInf,Bangalore,35,2,34,DHL,32454,2,23,234,2.5,Air,Route13,23424,2,4,44,500,120000,"Women and mens",B1,2024-01-20,Warehouse A,22,60,Cardboard,4.5,Net 30,Monthly,0.01,600,5,40
+AUTO002,Berevage,23400,DeltaInf,Bangalore,35,2,34,DHL,32454,2,23,234,2.5,Air,Route13,23424,2,4,44,500,120000,"Women and mens",B1,2024-01-20,Warehouse A,22,60,Cardboard,4.5,Net 30,Monthly,0.01,600,5,40
+AUTO002,Berevage,23400,DeltaInf,Bangalore,35,2,34,DHL,32454,2,23,234,2.5,Air,Route13,23424,2,4,44,500,120000,"Women and mens",B1,2024-01-20,Warehouse A,22,60,Cardboard,4.5,Net 30,Monthly,0.01,600,5,40
+AUTO002,Berevage,23400,DeltaInf,Bangalore,35,2,34,DHL,32454,2,23,234,2.5,Air,Route13,23424,2,4,44,500,120000,"Women and mens",B1,2024-01-20,Warehouse A,22,60,Cardboard,4.5,Net 30,Monthly,0.01,600,5,40
+AUTO002,Berevage,23400,DeltaInf,Bangalore,35,2,34,DHL,32454,2,23,234,2.5,Air,Route13,23424,2,4,44,500,120000,"Women and mens",B1,2024-01-20,Warehouse A,22,60,Cardboard,4.5,Net 30,Monthly,0.01,600,5,40
+AUTO002,Berevage,23400,DeltaInf,Bangalore,35,2,34,DHL,32454,2,23,234,2.5,Air,Route13,23424,2,4,44,500,120000,"Women and mens",B1,2024-01-20,Warehouse A,22,60,Cardboard,4.5,Net 30,Monthly,0.01,600,5,40
+AUTO002,Berevage,23400,SigmaSolutions,Mumbai,35,3,30,FedEx,35000,3,25,235,2.0,Sea,Route22,23500,3,6,50,510,125000,"Women and mens",B2,2024-01-21,Warehouse B,23,62,Plastic,4.2,Net 45,Bi-Monthly,0.015,610,6,45
+AUTO002,Berevage,23400,SigmaSolutions,Mumbai,35,3,30,FedEx,35000,3,25,235,2.0,Sea,Route22,23500,3,6,50,510,125000,"Women and mens",B2,2024-01-21,Warehouse B,23,62,Plastic,4.2,Net 45,Bi-Monthly,0.015,610,6,45
+AUTO002,Berevage,23400,SigmaSolutions,Mumbai,35,3,30,FedEx,35000,3,25,235,2.0,Sea,Route22,23500,3,6,50,510,125000,"Women and mens",B2,2024-01-21,Warehouse B,23,62,Plastic,4.2,Net 45,Bi-Monthly,0.015,610,6,45
+AUTO002,Berevage,23400,SigmaSolutions,Mumbai,35,3,30,FedEx,35000,3,25,235,2.0,Sea,Route22,23500,3,6,50,510,125000,"Women and mens",B2,2024-01-21,Warehouse B,23,62,Plastic,4.2,Net 45,Bi-Monthly,0.015,610,6,45
+AUTO002,Berevage,23400,SigmaSolutions,Mumbai,35,3,30,FedEx,35000,3,25,235,2.0,Sea,Route22,23500,3,6,50,510,125000,"Women and mens",B2,2024-01-21,Warehouse B,23,62,Plastic,4.2,Net 45,Bi-Monthly,0.015,610,6,45
+AUTO002,Berevage,23400,SigmaSolutions,Mumbai,35,3,30,FedEx,35000,3,25,235,2.0,Sea,Route22,23500,3,6,50,510,125000,"Women and mens",B2,2024-01-21,Warehouse B,23,62,Plastic,4.2,Net 45,Bi-Monthly,0.015,610,6,45
+AUTO002,Berevage,23400,SigmaSolutions,Mumbai,35,3,30,FedEx,35000,3,25,235,2.0,Sea,Route22,23500,3,6,50,510,125000,"Women and mens",B2,2024-01-21,Warehouse B,23,62,Plastic,4.2,Net 45,Bi-Monthly,0.015,610,6,45
+AUTO002,Berevage,23400,SigmaSolutions,Mumbai,35,3,30,FedEx,35000,3,25,235,2.0,Sea,Route22,23500,3,6,50,510,125000,"Women and mens",B2,2024-01-21,Warehouse B,23,62,Plastic,4.2,Net 45,Bi-Monthly,0.015,610,6,45
+AUTO002,Berevage,23400,SigmaSolutions,Mumbai,35,3,30,FedEx,35000,3,25,235,2.0,Sea,Route22,23500,3,6,50,510,125000,"Women and mens",B2,2024-01-21,Warehouse B,23,62,Plastic,4.2,Net 45,Bi-Monthly,0.015,610,6,45
+AUTO002,Berevage,23400,SigmaSolutions,Mumbai,35,3,30,FedEx,35000,3,25,235,2.0,Sea,Route22,23500,3,6,50,510,125000,"Women and mens",B2,2024-01-21,Warehouse B,23,62,Plastic,4.2,Net 45,Bi-Monthly,0.015,610,6,45
+AUTO002,Berevage,23400,GlobalLogistics,Shanghai,35,4,25,UPS,38000,4,28,236,1.5,Road,Route31,23600,4,8,55,520,130000,"Women and mens",B3,2024-01-22,Warehouse C,24,64,Glass,4.8,Net 60,Quarterly,0.01,620,7,50
+AUTO002,Berevage,23400,GlobalLogistics,Shanghai,35,4,25,UPS,38000,4,28,236,1.5,Road,Route31,23600,4,8,55,520,130000,"Women and mens",B3,2024-01-22,Warehouse C,24,64,Glass,4.8,Net 60,Quarterly,0.01,620,7,50
+AUTO002,Berevage,23400,GlobalLogistics,Shanghai,35,4,25,UPS,38000,4,28,236,1.5,Road,Route31,23600,4,8,55,520,130000,"Women and mens",B3,2024-01-22,Warehouse C,24,64,Glass,4.8,Net 60,Quarterly,0.01,620,7,50
+AUTO002,Berevage,23400,GlobalLogistics,Shanghai,35,4,25,UPS,38000,4,28,236,1.5,Road,Route31,23600,4,8,55,520,130000,"Women and mens",B3,2024-01-22,Warehouse C,24,64,Glass,4.8,Net 60,Quarterly,0.01,620,7,50
+AUTO002,Berevage,23400,GlobalLogistics,Shanghai,35,4,25,UPS,38000,4,28,236,1.5,Road,Route31,23600,4,8,55,520,130000,"Women and mens",B3,2024-01-22,Warehouse C,24,64,Glass,4.8,Net 60,Quarterly,0.01,620,7,50
+AUTO002,Berevage,23400,GlobalLogistics,Shanghai,35,4,25,UPS,38000,4,28,236,1.5,Road,Route31,23600,4,8,55,520,130000,"Women and mens",B3,2024-01-22,Warehouse C,24,64,Glass,4.8,Net 60,Quarterly,0.01,620,7,50
+AUTO002,Berevage,23400,GlobalLogistics,Shanghai,35,4,25,UPS,38000,4,28,236,1.5,Road,Route31,23600,4,8,55,520,130000,"Women and mens",B3,2024-01-22,Warehouse C,24,64,Glass,4.8,Net 60,Quarterly,0.01,620,7,50
+AUTO002,Berevage,23400,GlobalLogistics,Shanghai,35,4,25,UPS,38000,4,28,236,1.5,Road,Route31,23600,4,8,55,520,130000,"Women and mens",B3,2024-01-22,Warehouse C,24,64,Glass,4.8,Net 60,Quarterly,0.01,620,7,50
+AUTO002,Berevage,23400,GlobalLogistics,Shanghai,35,4,25,UPS,38000,4,28,236,1.5,Road,Route31,23600,4,8,55,520,130000,"Women and mens",B3,2024-01-22,Warehouse C,24,64,Glass,4.8,Net 60,Quarterly,0.01,620,7,50
+AUTO002,Berevage,23400,GlobalLogistics,Shanghai,35,4,25,UPS,38000,4,28,236,1.5,Road,Route31,23600,4,8,55,520,130000,"Women and mens",B3,2024-01-22,Warehouse C,24,64,Glass,4.8,Net 60,Quarterly,0.01,620,7,50
+AUTO002,Berevage,23400,ApexSolutions,London,35,5,20,TNT,40000,5,30,237,1.0,Rail,Route44,23700,5,10,60,530,135000,"Women and mens",B4,2024-01-23,Warehouse D,25,66,Aluminum,4.9,Net 90,Annually,0.005,630,8,55
+AUTO002,Berevage,23400,ApexSolutions,London,35,5,20,TNT,40000,5,30,237,1.0,Rail,Route44,23700,5,10,60,530,135000,"Women and mens",B4,2024-01-23,Warehouse D,25,66,Aluminum,4.9,Net 90,Annually,0.005,630,8,55
+AUTO002,Berevage,23400,ApexSolutions,London,35,5,20,TNT,40000,5,30,237,1.0,Rail,Route44,23700,5,10,60,530,135000,"Women and mens",B4,2024-01-23,Warehouse D,25,66,Aluminum,4.9,Net 90,Annually,0.005,630,8,55
+AUTO002,Berevage,23400,ApexSolutions,London,35,5,20,TNT,40000,5,30,237,1.0,Rail,Route44,23700,5,10,60,530,135000,"Women and mens",B4,2024-01-23,Warehouse D,25,66,Aluminum,4.9,Net 90,Annually,0.005,630,8,55
+AUTO002,Berevage,23400,ApexSolutions,London,35,5,20,TNT,40000,5,30,237,1.0,Rail,Route44,23700,5,10,60,530,135000,"Women and mens",B4,2024-01-23,Warehouse D,25,66,Aluminum,4.9,Net 90,Annually,0.005,630,8,55
+```

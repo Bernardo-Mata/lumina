@@ -76,6 +76,18 @@ const Summary = (props) => {
   const [suppliersLoading, setSuppliersLoading] = useState(false);
   const [randomSuppliers, setRandomSuppliers] = useState([]);
 
+  // RiskScores global para persistencia
+  const [riskScoresData, setRiskScoresData] = useState(() => {
+    try {
+      const stored = localStorage.getItem('riskScoresData');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [riskScoresLoading, setRiskScoresLoading] = useState(false);
+  const [randomRiskScores, setRandomRiskScores] = useState([]);
+
   // Subir documento
   const handleFileUpload = async (e) => {
     e.preventDefault();
@@ -107,17 +119,19 @@ const Summary = (props) => {
     setInputMode(null); // Regresa al menú principal para poder presionar Generate Insights
   };
 
-  // Lógica para el botón de "Generate Insights" (dashboard, alerts, compliance, suppliers)
+  // Lógica para el botón de "Generate Insights" (dashboard, alerts, compliance, suppliers, riskScores)
   const handleGenerateInsights = async () => {
     if (!csvFilename) return;
     setDashboardLoading(true);
     setAlertsLoading(true);
     setComplianceLoading(true);
     setSuppliersLoading(true);
+    setRiskScoresLoading(true);
     setDashboardData(null);
     setAlertsData(null);
     setComplianceData(null);
     setSuppliersData(null);
+    setRiskScoresData(null);
     try {
       // Dashboard
       const dashboardRes = await fetch(`http://127.0.0.1:8000/api/dashboard?filename=${encodeURIComponent(csvFilename)}`);
@@ -156,22 +170,33 @@ const Summary = (props) => {
       setSuppliersData(suppliersJson);
       localStorage.setItem('suppliersData', JSON.stringify(suppliersJson));
       if (props.setSuppliersDataFromSummary) props.setSuppliersDataFromSummary(suppliersJson);
-      // suppliersJson.suppliers debe ser un array
       setRandomSuppliers(getRandomItems(suppliersJson.suppliers, 3));
+
+      // RiskScores
+      const riskScoresRes = await fetch(`http://127.0.0.1:8000/api/risk-scores?filename=${encodeURIComponent(csvFilename)}`);
+      const riskScoresJson = await riskScoresRes.json();
+      setRiskScoresData(riskScoresJson);
+      localStorage.setItem('riskScoresData', JSON.stringify(riskScoresJson));
+      if (props.setRiskScoresDataFromSummary) props.setRiskScoresDataFromSummary(riskScoresJson);
+      // riskScoresJson.scores debe ser un array
+      setRandomRiskScores(getRandomItems(riskScoresJson.scores, 3));
     } catch (err) {
       setDashboardData({ error: 'Error generating dashboard insights.' });
       setAlertsData({ error: 'Error generating alerts insights.' });
       setComplianceData({ error: 'Error generating compliance insights.' });
       setSuppliersData({ error: 'Error generating suppliers insights.' });
+      setRiskScoresData({ error: 'Error generating risk scores insights.' });
       setRandomDashboardKeys([]);
       setRandomAlerts({ high: [], medium: [], low: [] });
       setRandomCompliance([]);
       setRandomSuppliers([]);
+      setRandomRiskScores([]);
     }
     setDashboardLoading(false);
     setAlertsLoading(false);
     setComplianceLoading(false);
     setSuppliersLoading(false);
+    setRiskScoresLoading(false);
   };
 
   // Cuando cambias de sección (Summary), elige insights random nuevos
@@ -195,7 +220,10 @@ const Summary = (props) => {
     if (!inputMode && suppliersData && Array.isArray(suppliersData.suppliers)) {
       setRandomSuppliers(getRandomItems(suppliersData.suppliers, 3));
     }
-  }, [inputMode, dashboardData, alertsData, complianceData, suppliersData]);
+    if (!inputMode && riskScoresData && Array.isArray(riskScoresData.scores)) {
+      setRandomRiskScores(getRandomItems(riskScoresData.scores, 3));
+    }
+  }, [inputMode, dashboardData, alertsData, complianceData, suppliersData, riskScoresData]);
 
   // Render principal
   if (!inputMode) {
@@ -288,6 +316,21 @@ const Summary = (props) => {
                         ? `${supplier.name} (${supplier.location || 'Unknown'}) - Risk: ${supplier.risk_score ?? '-'}`
                         : JSON.stringify(supplier))
                     : String(supplier)}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {/* Mostrar 3 random de risk scores */}
+        {riskScoresData && randomRiskScores.length > 0 && (
+          <div className="mt-8">
+            <h3 className="font-bold text-lg text-gray-800 mb-2">Risk Scores Summary</h3>
+            <ul className="bg-purple-50 rounded p-4 space-y-2">
+              {randomRiskScores.map((score, idx) => (
+                <li key={idx} className="text-purple-900 font-semibold">
+                  {typeof score === 'object'
+                    ? JSON.stringify(score)
+                    : String(score)}
                 </li>
               ))}
             </ul>

@@ -35,25 +35,26 @@ const ProductForm = ({ onSubmit, onBack, onCsvCreated }) => {
 
   const handleChange = (key, value) => setForm(prev => ({ ...prev, [key]: value }));
 
-  // Solo genera el CSV y lo sube, no genera insights
+  // Genera el CSV y lo sube al endpoint de upload_document
   const handleCreateCsv = async (e) => {
     e.preventDefault();
     setLoading(true);
     setErrorMsg('');
     setCsvFilename(null);
     try {
-      // 1. Genera el CSV y obtiene el filename
+      // 1. Genera el CSV y obtiene el blob
       const res = await fetch('http://127.0.0.1:8000/api/generate-csv-from-json', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
       if (!res.ok) throw new Error('Error generating CSV from JSON');
-      const filename = res.headers.get('X-Generated-Filename');
-      if (!filename) throw new Error('No filename returned from backend');
-
-      // 2. Sube el CSV generado al endpoint de upload_document (simula upload)
       const csvBlob = await res.blob();
+
+      // 2. Usa un nombre de archivo generado (puedes mejorarlo si backend lo soporta)
+      const filename = `product_${Date.now()}.csv`;
+
+      // 3. Sube el CSV generado al endpoint de upload_document
       const file = new File([csvBlob], filename, { type: 'text/csv' });
       const uploadFormData = new FormData();
       uploadFormData.append('file', file);
