@@ -1,63 +1,103 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Server } from 'lucide-react';
 
-// Accept data and loading as props
+// Helper para formatear el risk score como porcentaje
+const formatRiskScore = (score) => {
+  if (typeof score !== 'number') return '-';
+  return `${(score).toFixed(2)}%`;
+};
+
+const riskColor = (score) => {
+  if (typeof score !== 'number') return '';
+  if (score >= 80) return 'bg-red-100 text-red-700 border-red-300';
+  if (score >= 50) return 'bg-yellow-100 text-yellow-700 border-yellow-300';
+  return 'bg-green-100 text-green-700 border-green-300';
+};
+
+const statusColor = (status) => {
+  if (!status) return '';
+  return status.toLowerCase() === 'active'
+    ? 'bg-green-200 text-green-800 border-green-400'
+    : 'bg-red-200 text-red-800 border-red-400';
+};
+
+// Recibe data y loading como props
 const Suppliers = ({ data, loading }) => {
-  // If data is not passed as prop, fallback to fetching (for direct access)
-  const [suppliers, setSuppliers] = useState([]);
-  const [localLoading, setLocalLoading] = useState(true);
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center mb-6">
+          <Server className="text-blue-500 mr-2" size={28} />
+          <h2 className="font-bold text-2xl text-gray-800">Suppliers</h2>
+        </div>
+        <div className="bg-white rounded-lg shadow p-4">
+          <div className="p-4">Loading suppliers...</div>
+        </div>
+      </div>
+    );
+  }
 
-  useEffect(() => {
-    if (data) {
-      setSuppliers(data);
-      setLocalLoading(false);
-    } else {
-      // Fallback: fetch if no data prop (optional)
-      fetch('http://127.0.0.1:8000/api/suppliers')
-        .then(res => res.json())
-        .then(data => {
-          setSuppliers(data);
-          setLocalLoading(false);
-        })
-        .catch(() => setLocalLoading(false));
-    }
-  }, [data]);
+  if (data && data.error) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center mb-6">
+          <Server className="text-blue-500 mr-2" size={28} />
+          <h2 className="font-bold text-2xl text-gray-800">Suppliers</h2>
+        </div>
+        <div className="bg-white rounded-lg shadow p-4">
+          <div className="p-4 text-red-500">{data.error}</div>
+          <pre className="bg-white text-black p-2 rounded mt-2">{data.raw}</pre>
+        </div>
+      </div>
+    );
+  }
 
-  const isLoading = loading || localLoading;
+  const suppliers = Array.isArray(data) ? data : [];
 
   return (
     <div className="p-6">
-      {/* Title */}
       <div className="flex items-center mb-6">
         <Server className="text-blue-500 mr-2" size={28} />
         <h2 className="font-bold text-2xl text-gray-800">Suppliers</h2>
       </div>
-      {/* Supplier Table */}
       <div className="bg-white rounded-lg shadow p-4">
         <h3 className="font-bold text-gray-700 mb-4">Supplier List</h3>
         <div className="overflow-x-auto">
-          {isLoading ? (
-            <div className="p-4">Loading suppliers...</div>
-          ) : suppliers?.error ? (
-            <div className="p-4 text-red-500">{suppliers.error}</div>
+          {suppliers.length === 0 ? (
+            <div className="p-4 text-gray-500">No suppliers available.</div>
           ) : (
             <table className="min-w-full text-sm text-left">
               <thead>
-                <tr>
-                  <th className="px-4 py-2 text-gray-600">Name</th>
-                  <th className="px-4 py-2 text-gray-600">Location</th>
-                  <th className="px-4 py-2 text-gray-600">Risk Score</th>
-                  <th className="px-4 py-2 text-gray-600">Status</th>
+                <tr className="bg-blue-50">
+                  <th className="px-4 py-2 text-blue-700 font-semibold rounded-tl">Name</th>
+                  <th className="px-4 py-2 text-blue-700 font-semibold">Location</th>
+                  <th className="px-4 py-2 text-blue-700 font-semibold">Risk Score</th>
+                  <th className="px-4 py-2 text-blue-700 font-semibold rounded-tr">Status</th>
                 </tr>
               </thead>
               <tbody>
-                {Array.isArray(suppliers) && suppliers.map((supplier, idx) => (
-                  <tr className="border-t" key={idx}>
-                    <td className="px-4 py-2">{supplier.name}</td>
-                    <td className="px-4 py-2">{supplier.location}</td>
-                    <td className="px-4 py-2">{supplier.risk_score}</td>
-                    <td className={`px-4 py-2 ${supplier.status === 'Active' ? 'text-green-600' : 'text-red-600'}`}>
-                      {supplier.status}
+                {suppliers.map((supplier, idx) => (
+                  <tr
+                    className={`border-t hover:bg-blue-50 transition ${
+                      idx % 2 === 0 ? 'bg-white' : 'bg-blue-100'
+                    }`}
+                    key={idx}
+                  >
+                    <td className="px-4 py-2 font-medium text-gray-800">{supplier.name}</td>
+                    <td className="px-4 py-2 text-gray-700">{supplier.location}</td>
+                    <td className="px-4 py-2">
+                      <span
+                        className={`inline-block px-2 py-1 rounded border text-xs font-semibold ${riskColor(supplier.risk_score)}`}
+                      >
+                        {formatRiskScore(supplier.risk_score)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-2">
+                      <span
+                        className={`inline-block px-2 py-1 rounded border text-xs font-semibold ${statusColor(supplier.status)}`}
+                      >
+                        {supplier.status}
+                      </span>
                     </td>
                   </tr>
                 ))}
