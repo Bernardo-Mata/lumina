@@ -15,6 +15,80 @@ function getRandomItems(arr, n) {
   return shuffled.slice(0, n);
 }
 
+// Helper para renderizar valores complejos de forma más amigable
+const renderValue = (value) => {
+  if (typeof value === 'undefined' || value === null) return '-';
+  
+  if (typeof value === 'object') {
+    // Si es un array o un objeto, lo formateamos mejor
+    if (Array.isArray(value)) {
+      return (
+        <ul className="list-disc list-inside text-sm">
+          {value.map((item, i) => (
+            <li key={i}>{renderValue(item)}</li>
+          ))}
+        </ul>
+      );
+    }
+    
+    // Si es un objeto con name, lo mostramos de forma especial
+    if (value.name) {
+      return (
+        <div className="text-blue-700">
+          {value.name} 
+          {value.location ? <span className="text-gray-600"> ({value.location})</span> : ''}
+          {value.risk_score ? <span className="text-red-600 ml-1">Risk: {value.risk_score}</span> : ''}
+        </div>
+      );
+    }
+    
+    // Otros objetos, formateamos bonito
+    return (
+      <div className="text-sm bg-gray-50 p-1 rounded">
+        {Object.entries(value).map(([key, val], i) => (
+          <div key={i} className="flex">
+            <span className="font-semibold mr-1">{key}:</span>
+            <span>{renderValue(val)}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  
+  // Para valores simples
+  return String(value);
+};
+
+// Helper para renderizar una alerta individual de forma estructurada (similar a Alerts.jsx)
+const renderAlert = (alert, level) => {
+  if (typeof alert !== 'object') return String(alert);
+  
+  return (
+    <div className={`p-2 rounded ${
+      level === 'high' ? 'bg-red-100' : 
+      level === 'medium' ? 'bg-yellow-100' : 'bg-green-100'
+    } mb-2`}>
+      <div className="flex items-center mb-1">
+        <span className="font-semibold text-sm">
+          {alert.sku || '-'}
+        </span>
+        {alert.product_type && (
+          <span className="text-xs ml-2 bg-gray-200 px-1 rounded">{alert.product_type}</span>
+        )}
+      </div>
+      {alert.description && (
+        <div className="text-xs italic">{alert.description}</div>
+      )}
+      {alert.solutions && alert.solutions.length > 0 && (
+        <div className="text-xs mt-1">
+          <span className="font-semibold">Suggested: </span>
+          {alert.solutions[0]}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const Summary = (props) => {
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
@@ -245,11 +319,11 @@ const Summary = (props) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
             {randomDashboardKeys.map((key) => (
               <div key={key} className="bg-gray-100 rounded p-4 shadow">
-                <div className="font-semibold text-gray-700">{key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</div>
-                <div className="text-xl text-blue-700 font-bold mt-2">
-                  {typeof dashboardData[key] === 'object'
-                    ? JSON.stringify(dashboardData[key])
-                    : String(dashboardData[key])}
+                <div className="font-semibold text-gray-700">
+                  {key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                </div>
+                <div className="mt-2">
+                  {renderValue(dashboardData[key])}
                 </div>
               </div>
             ))}
@@ -262,33 +336,39 @@ const Summary = (props) => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <div className="font-semibold text-red-700 mb-1">High Risk</div>
-                <ul className="bg-red-50 rounded p-2">
+                <div className="bg-red-50 rounded p-2">
                   {randomAlerts.high.length > 0
                     ? randomAlerts.high.map((alert, idx) => (
-                        <li key={idx} className="text-sm text-red-900 mb-1">{typeof alert === 'object' ? JSON.stringify(alert) : String(alert)}</li>
+                        <div key={idx}>
+                          {renderAlert(alert, 'high')}
+                        </div>
                       ))
-                    : <li className="text-gray-500 text-sm">No high risk alerts</li>}
-                </ul>
+                    : <div className="text-gray-500 text-sm">No high risk alerts</div>}
+                </div>
               </div>
               <div>
                 <div className="font-semibold text-yellow-700 mb-1">Medium Risk</div>
-                <ul className="bg-yellow-50 rounded p-2">
+                <div className="bg-yellow-50 rounded p-2">
                   {randomAlerts.medium.length > 0
                     ? randomAlerts.medium.map((alert, idx) => (
-                        <li key={idx} className="text-sm text-yellow-900 mb-1">{typeof alert === 'object' ? JSON.stringify(alert) : String(alert)}</li>
+                        <div key={idx}>
+                          {renderAlert(alert, 'medium')}
+                        </div>
                       ))
-                    : <li className="text-gray-500 text-sm">No medium risk alerts</li>}
-                </ul>
+                    : <div className="text-gray-500 text-sm">No medium risk alerts</div>}
+                </div>
               </div>
               <div>
                 <div className="font-semibold text-green-700 mb-1">Low Risk</div>
-                <ul className="bg-green-50 rounded p-2">
+                <div className="bg-green-50 rounded p-2">
                   {randomAlerts.low.length > 0
                     ? randomAlerts.low.map((alert, idx) => (
-                        <li key={idx} className="text-sm text-green-900 mb-1">{typeof alert === 'object' ? JSON.stringify(alert) : String(alert)}</li>
+                        <div key={idx}>
+                          {renderAlert(alert, 'low')}
+                        </div>
                       ))
-                    : <li className="text-gray-500 text-sm">No low risk alerts</li>}
-                </ul>
+                    : <div className="text-gray-500 text-sm">No low risk alerts</div>}
+                </div>
               </div>
             </div>
           </div>
@@ -311,11 +391,7 @@ const Summary = (props) => {
             <ul className="bg-blue-50 rounded p-4 space-y-2">
               {randomSuppliers.map((supplier, idx) => (
                 <li key={idx} className="text-blue-900 font-semibold">
-                  {typeof supplier === 'object'
-                    ? (supplier.name
-                        ? `${supplier.name} (${supplier.location || 'Unknown'}) - Risk: ${supplier.risk_score ?? '-'}`
-                        : JSON.stringify(supplier))
-                    : String(supplier)}
+                  {renderValue(supplier)}
                 </li>
               ))}
             </ul>
@@ -328,9 +404,7 @@ const Summary = (props) => {
             <ul className="bg-purple-50 rounded p-4 space-y-2">
               {randomRiskScores.map((score, idx) => (
                 <li key={idx} className="text-purple-900 font-semibold">
-                  {typeof score === 'object'
-                    ? JSON.stringify(score)
-                    : String(score)}
+                  {renderValue(score)}
                 </li>
               ))}
             </ul>
