@@ -4,9 +4,10 @@ import Dashboard from './components/Dashboard';
 import Alerts from './components/Alerts';
 import Suppliers from './components/Suppliers';
 import Summary from './components/Summary';
-import RiskScores from './components/RiskScores';
+import RiskScores from './components/Disruption';
 import Compilance from './components/Compilance';
-import Reports from './components/Reports';
+import ChatBot from './components/chatbot';
+import Disruption from './components/Disruption';
 import { Bell, Settings, User, Home, Map, List, CheckSquare, Shield, Activity, Server, Box, Table } from 'lucide-react';
 import { Chart } from 'chart.js';
 
@@ -16,10 +17,10 @@ const ENDPOINTS = {
   '/alerts': 'http://127.0.0.1:8000/api/alerts-summary',
   '/suppliers': 'http://127.0.0.1:8000/api/suppliers',
   '/compliance': 'http://127.0.0.1:8000/api/compliance',
-  '/reports': 'http://127.0.0.1:8000/api/reports',
-  '/risk-scores': 'http://127.0.0.1:8000/api/risk-scores',
-  '/summary': 'http://127.0.0.1:8000/api/summary', // <-- Add this line
-  // Add more as needed
+  '/chatbot': 'http://127.0.0.1:8000/api/chatbot',
+  '/disruption': 'http://127.0.0.1:8000/api/disruption',
+  '/summary': 'http://127.0.0.1:8000/api/summary',
+ 
 };
 
 // Custom hook to get current location
@@ -103,7 +104,7 @@ const App = () => {
   function setRiskScoresDataFromSummary(riskScoresJson) {
     setData(prev => ({
       ...prev,
-      [ENDPOINTS['/risk-scores']]: riskScoresJson
+      [ENDPOINTS['/disruption']]: riskScoresJson
     }));
   }
 
@@ -166,15 +167,15 @@ const App = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/risk-scores" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition-all">
+                  <Link to="/disruption" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition-all">
                     <Shield size={18} />
-                    <span>Risk Scores</span>
+                    <span>Disruptions</span>
                   </Link>
                 </li>
                 <li>
-                  <Link to="/reports" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition-all">
+                  <Link to="/chatbot" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition-all">
                     <Activity size={18} />
-                    <span>Reports</span>
+                    <span>ChatBot</span>
                   </Link>
                 </li>
               </ul>
@@ -192,7 +193,7 @@ const App = () => {
                       alertsData={data[ENDPOINTS['/alerts']]}
                       suppliersData={data[ENDPOINTS['/suppliers']]}
                       complianceData={data[ENDPOINTS['/compliance']]}
-                      riskScoresData={data[ENDPOINTS['/risk-scores']]}
+                      riskScoresData={data[ENDPOINTS['/disrupts']]}
                       loading={loading[ENDPOINTS['/dashboard']]}
                       setDashboardDataFromSummary={setDashboardDataFromSummary}
                       setAlertsDataFromSummary={setAlertsDataFromSummary}
@@ -230,22 +231,24 @@ const App = () => {
                   }
                 />
               {/* <Route path="/risk-map" element={<RiskMap />} /> */}
-              <Route path="/risk-scores" element={
-                <RiskScores
-                  data={getDataForRoute('/risk-scores')}
-                  loading={getLoadingForRoute('/risk-scores')}
-                />
-              } />
               <Route path="/compliance" element={
                 <Compilance
                   data={getDataForRoute('/compliance')}
                   loading={getLoadingForRoute('/compliance')}
                 />
               } />
-              <Route path="/reports" element={
-                <Reports
-                  data={getDataForRoute('/reports')}
-                  loading={getLoadingForRoute('/reports')}
+              <Route path="/chatbot" element={
+                <ChatBot
+                  data={getDataForRoute('/chatbot')}
+                  loading={getLoadingForRoute('/chatbot')}
+                />
+              } />
+              <Route path="/disruption" element={
+                <Disruption
+                  message={
+                    getDataForRoute('/disruption')?.disruption?.summary ||
+                    (getDataForRoute('/disruption')?.error ? getDataForRoute('/disruption').error : undefined)
+                  }
                 />
               } />
             </Routes>
