@@ -247,7 +247,7 @@ const Summary = (props) => {
       setRandomSuppliers(getRandomItems(suppliersJson.suppliers, 3));
 
       // RiskScores
-      const riskScoresRes = await fetch(`http://127.0.0.1:8000/api/risk-scores?filename=${encodeURIComponent(csvFilename)}`);
+      const riskScoresRes = await fetch(`http://127.0.0.1:8000/api/disruption?filename=${encodeURIComponent(csvFilename)}`);
       const riskScoresJson = await riskScoresRes.json();
       setRiskScoresData(riskScoresJson);
       localStorage.setItem('riskScoresData', JSON.stringify(riskScoresJson));

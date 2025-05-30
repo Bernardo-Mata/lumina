@@ -172,6 +172,38 @@ def get_unified_llm_response(filename):
         "- Return ONLY the JSON object, with all sections as top-level fields. Do NOT include explanations or extra text.\n"
         "- All output must be in English.\n\n"
 
+        "6. disruption: An object describing any detected supply chain disruption. "
+        "Identify and summarize disruptions based on the following parameters (if present):\n"
+        "- Significant delivery delays or transit times much longer than usual.\n"
+        "- Lack of availability of key products or critically low inventory levels.\n"
+        "- Unexpected increases in transportation, raw material, or production costs.\n"
+        "- Supplier alerts about operational, financial, or logistical problems.\n"
+        "- External incidents: natural disasters, strikes, geopolitical conflicts, border closures, etc.\n"
+        "- Contract or compliance breaches.\n"
+        "- Sudden demand changes that cannot be met by supply.\n"
+        "- Quality issues or mass returns.\n"
+        "Return the disruption section as a JSON object with these fields:\n"
+        "   - detected (boolean)\n"
+        "   - summary (string, concise description of the disruption or 'No disruption detected')\n"
+        "   - causes (array of strings, listing the main causes found)\n"
+        "   - affected_suppliers (array of supplier names or empty array)\n"
+        "   - recommendations (array of strings with mitigation actions)\n"
+        "Example:\n"
+        "{"
+        "\"detected\": true,"
+        "\"summary\": \"Significant delays and low inventory detected due to supplier strike.\","
+        "\"causes\": [\"Supplier strike\", \"Low inventory\", \"Delayed shipments\"],"
+        "\"affected_suppliers\": [\"Supplier A\", \"Supplier B\"],"
+        "\"recommendations\": [\"Increase safety stock\", \"Diversify suppliers\", \"Negotiate alternative logistics\"]"
+        "}\n\n"
+
+        "Instructions:\n"
+        "- If a field is missing in the document, estimate or predict a reasonable value based on the available data and your expertise.\n"
+        "- Use consistent field names as specified above.\n"
+        "- Map column names intelligently (e.g., 'Stock levels', 'stock', 'Inventory' → stock_levels; 'Lead times' or 'Lead time' → lead_time; etc.).\n"
+        "- Return ONLY the JSON object, with all sections as top-level fields. Do NOT include explanations or extra text.\n"
+        "- All output must be in English.\n\n"
+
         f"Document to analyze:\n{text}"
         
     )
@@ -320,14 +352,14 @@ def reports_endpoint(filename: str = Query(...)):
 
 
 
-@app.get("/api/risk-scores")
-def risk_scores_endpoint(filename: str = Query(...)):
+@app.get("/api/disruption")
+def risk_scores_endpoint(filename: str = Query(...)):   
     llm_response = get_unified_llm_response(filename)
     data = robust_json_parse(llm_response)
-    if data and "risk_scores" in data:
-        return {"risk_scores": data["risk_scores"]}
+    if data and "disruption" in data:
+        return {"disruption": data["disruption"]}
     elif data:
-        return {"error": "risk_scores not found", "raw": data}
+        return {"error": "disruption not found", "raw": data}
     else:
         return {"error": "Invalid JSON", "raw": llm_response}
 
