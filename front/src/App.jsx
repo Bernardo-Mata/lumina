@@ -4,9 +4,9 @@ import Dashboard from './components/Dashboard';
 import Alerts from './components/Alerts';
 import Suppliers from './components/Suppliers';
 import Summary from './components/Summary';
-import RiskScores from './components/RiskScores';
+import RiskScores from './components/Disruption';
 import Compilance from './components/Compilance';
-import Reports from './components/Reports';
+import ChatBot from './components/chatbot';
 import { Bell, Settings, User, Home, Map, List, CheckSquare, Shield, Activity, Server, Box, Table } from 'lucide-react';
 import { Chart } from 'chart.js';
 
@@ -16,7 +16,7 @@ const ENDPOINTS = {
   '/alerts': 'http://127.0.0.1:8000/api/alerts-summary',
   '/suppliers': 'http://127.0.0.1:8000/api/suppliers',
   '/compliance': 'http://127.0.0.1:8000/api/compliance',
-  '/reports': 'http://127.0.0.1:8000/api/reports',
+  '/chatbot': 'http://127.0.0.1:8000/api/chatbot',
   '/risk-scores': 'http://127.0.0.1:8000/api/risk-scores',
   '/summary': 'http://127.0.0.1:8000/api/summary', // <-- Add this line
   // Add more as needed
@@ -168,13 +168,13 @@ const App = () => {
                 <li>
                   <Link to="/risk-scores" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition-all">
                     <Shield size={18} />
-                    <span>Risk Scores</span>
+                    <span>Disruptions</span>
                   </Link>
                 </li>
                 <li>
-                  <Link to="/reports" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition-all">
+                  <Link to="/chatbot" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition-all">
                     <Activity size={18} />
-                    <span>Reports</span>
+                    <span>ChatBot</span>
                   </Link>
                 </li>
               </ul>
@@ -242,10 +242,10 @@ const App = () => {
                   loading={getLoadingForRoute('/compliance')}
                 />
               } />
-              <Route path="/reports" element={
-                <Reports
-                  data={getDataForRoute('/reports')}
-                  loading={getLoadingForRoute('/reports')}
+              <Route path="/chatbot" element={
+                <ChatBot
+                  data={getDataForRoute('/chatbot')}
+                  loading={getLoadingForRoute('/chatbot')}
                 />
               } />
             </Routes>

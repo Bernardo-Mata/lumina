@@ -3,7 +3,7 @@ import { Map } from 'lucide-react';
 import Alerts from './Alerts';
 import Suppliers from './Suppliers';
 import Compilance from './Compilance';
-import RiskScores from './RiskScores';
+import RiskScores from './Disruption';
 import ProductForm from './ProductForm';
 import DataInputChoice from './DataInputChoice';
 import Dashboard from './Dashboard';
