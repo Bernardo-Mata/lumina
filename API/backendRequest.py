@@ -21,8 +21,8 @@ Functions:
 from typing import List, Dict, Any
 from google import genai
 from google.genai import types
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import APIRouter
+
 from fastapi import UploadFile, File, Form, Query
 from fastapi.responses import StreamingResponse
 import json
@@ -34,6 +34,17 @@ import docx
 import time
 # Configura tu API Key de Google GenAI
 client = genai.Client(api_key='AIzaSyBS0ERWhkYDIaMifZD1IWpFWGNtSyfZUPo')
+# FastAPI app initialization
+router = APIRouter()
+
+# # Permitir CORS para desarrollo local (ajusta origins en producción)
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 # Ruta del archivo CSV
 CSV_PATH = ""
@@ -239,20 +250,9 @@ def robust_json_parse(llm_response):
 
 
 
-# FastAPI app initialization
-app = FastAPI()
-
-# Permitir CORS para desarrollo local (ajusta origins en producción)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 
-@app.get("/api/dashboard")
+@router.get("/api/dashboard")
 def dashboard_insights(filename: str = Query(...)):
     llm_response = get_unified_llm_response(filename)
     data = robust_json_parse(llm_response)
@@ -263,7 +263,7 @@ def dashboard_insights(filename: str = Query(...)):
     else:
         return {"error": "Invalid JSON", "raw": llm_response}
 
-@app.get("/api/alerts")
+@router.get("/api/alerts")
 def alerts_insights(filename: str = Query(...)):
     llm_response = get_unified_llm_response(filename)
     data = robust_json_parse(llm_response)
@@ -275,7 +275,7 @@ def alerts_insights(filename: str = Query(...)):
         return {"error": "Invalid JSON", "raw": llm_response}
 
 
-@app.get("/api/suppliers")
+@router.get("/api/suppliers")
 def suppliers_endpoint(filename: str = Query(...)):
     llm_response = get_unified_llm_response(filename)
     data = robust_json_parse(llm_response)
@@ -287,7 +287,7 @@ def suppliers_endpoint(filename: str = Query(...)):
         return {"error": "Invalid JSON", "raw": llm_response}
 
 
-@app.get("/api/compliance")
+@router.get("/api/compliance")
 def compliance_endpoint(filename: str = Query(...)):
     llm_response = get_unified_llm_response(filename)
     data = robust_json_parse(llm_response)
@@ -339,7 +339,7 @@ def get_reports_summary():
     )
     return response.text
 
-@app.get("/api/reports")
+@router.get("/api/reports")
 def reports_endpoint(filename: str = Query(...)):
     llm_response = get_unified_llm_response(filename)
     data = robust_json_parse(llm_response)
@@ -352,7 +352,7 @@ def reports_endpoint(filename: str = Query(...)):
 
 
 
-@app.get("/api/disruption")
+@router.get("/api/disruption")
 def risk_scores_endpoint(filename: str = Query(...)):   
     llm_response = get_unified_llm_response(filename)
     data = robust_json_parse(llm_response)
@@ -364,7 +364,7 @@ def risk_scores_endpoint(filename: str = Query(...)):
         return {"error": "Invalid JSON", "raw": llm_response}
 
 # 1. Endpoint para cargar el documento
-@app.post("/api/upload-document")
+@router.post("/api/upload-document")
 async def upload_document(file: UploadFile = File(...)):
     """
     Sube el documento y lo guarda en disco. No llama al LLM.
@@ -408,7 +408,7 @@ def read_uploaded_document(filename):
         return None, f"Error leyendo el archivo: {str(e)}"
 
 # 3. Endpoint para procesar el documento con el LLM
-@app.post("/api/process-document")
+@router.post("/api/process-document")
 async def process_document(filename: str = Form(...)):
     """
     Lee el documento cargado y lo procesa con el LLM para generar un JSON.
@@ -459,7 +459,7 @@ async def process_document(filename: str = Form(...)):
 
 
 
-@app.post("/api/generate-csv-from-json")
+@router.post("/api/generate-csv-from-json")
 async def generate_csv_from_json(form_json: dict = None):
     """
     Recibe un JSON con la información del formulario, usa el LLM para generar un CSV
