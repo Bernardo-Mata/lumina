@@ -37,4 +37,4 @@ env
 **/env/
 **/.env/
 .env
-
+.env.examples
