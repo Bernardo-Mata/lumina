@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Server } from 'lucide-react';
 
 // Helper para formatear el risk score como porcentaje
@@ -21,8 +21,26 @@ const statusColor = (status) => {
     : 'bg-red-200 text-red-800 border-red-400';
 };
 
-// Recibe data y loading como props
-const Suppliers = ({ data, loading }) => {
+// Este componente ahora se encarga de hacer fetch al endpoint de suppliers
+const Suppliers = () => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    // Cambia la URL al endpoint real de tu backend que devuelve los suppliers en JSON
+    fetch('http://127.0.0.1:8000/suppliers')
+      .then(res => res.json())
+      .then(json => {
+        setData(json);
+        setLoading(false);
+      })
+      .catch(err => {
+        setError('Error loading suppliers');
+        setLoading(false);
+      });
+  }, []);
+
   if (loading) {
     return (
       <div className="p-6">
@@ -37,7 +55,7 @@ const Suppliers = ({ data, loading }) => {
     );
   }
 
-  if (data && data.error) {
+  if (error) {
     return (
       <div className="p-6">
         <div className="flex items-center mb-6">
@@ -45,8 +63,7 @@ const Suppliers = ({ data, loading }) => {
           <h2 className="font-bold text-2xl text-gray-800">Suppliers</h2>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
-          <div className="p-4 text-red-500">{data.error}</div>
-          <pre className="bg-white text-black p-2 rounded mt-2">{data.raw}</pre>
+          <div className="p-4 text-red-500">{error}</div>
         </div>
       </div>
     );

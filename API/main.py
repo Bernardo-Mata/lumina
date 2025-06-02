@@ -3,6 +3,7 @@ from API.auth import router as auth_router
 from API.backendRequest import router as backend_router
 from API.reporting import router as reporting_router
 from API.services.email_service import router as email_router
+from API.services.chatbot import router as chatbot_router
 from fastapi.middleware.cors import CORSMiddleware
 from .database import Base, engine
 
@@ -21,3 +22,4 @@ app.include_router(auth_router)
 app.include_router(backend_router)
 app.include_router(reporting_router)
 app.include_router(email_router)
+app.include_router(chatbot_router)

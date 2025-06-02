@@ -35,6 +35,9 @@ from google import genai
 from google.genai import types
 import re
 
+from dotenv import load_dotenv
+load_dotenv(dotenv_path=".env.examples")  
+
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 UPLOAD_FOLDER = "uploaded_docs"
@@ -129,7 +132,7 @@ def read_uploaded_document(filename):
 
 # ----------- FUNCIÓN get_unified_llm_response -----------
 
-client = genai.Client(api_key='AIzaSyBS0ERWhkYDIaMifZD1IWpFWGNtSyfZUPo')
+client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 
 def get_unified_llm_response(filename):
     text, error = read_uploaded_document(filename)
