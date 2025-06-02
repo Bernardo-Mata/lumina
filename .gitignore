@@ -1,7 +1,3 @@
-/*env
-/*__pycache__
-/API/__pycache__
-
 # Logs
 logs
 *.log
@@ -10,7 +6,8 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
+API\uploaded_docs
+API\__pycache__
 node_modules
 node_modules
 dist
@@ -28,3 +25,15 @@ dist-ssr
 *.sln
 *.sw?
 
+
+__pycache__
+__pycache__
+env
+
+# Ignora todos los __pycache__ en cualquier subcarpeta
+**/__pycache__/
+
+# Ignora cualquier carpeta llamada env o .env en cualquier parte del proyecto
+**/env/
+**/.env/
+.env

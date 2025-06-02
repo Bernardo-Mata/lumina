@@ -18,617 +18,80 @@ Functions:
 """
 
 
-from typing import List, Dict, Any
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Query
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
+from pydantic import BaseModel
+from passlib.context import CryptContext
+from .models import User, Insight, Dashboard, Alert, Supplier, Compliance, RiskScore, Disruption
+from .database import SessionLocal
+from .auth import get_current_user, create_access_token
+import os
+import json
+import docx
+import PyPDF2
+import time
 from google import genai
 from google.genai import types
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi import UploadFile, File, Form, Query
-from fastapi.responses import StreamingResponse
-import json
 import re
-import io
-import os
-import PyPDF2
-import docx
-import time
-# Configura tu API Key de Google GenAI
-client = genai.Client(api_key='AIzaSyBS0ERWhkYDIaMifZD1IWpFWGNtSyfZUPo')
 
-# Ruta del archivo CSV
-CSV_PATH = ""
+router = APIRouter()
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 UPLOAD_FOLDER = "uploaded_docs"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Clase para estructurar la respuesta para los dashboards
-class DashboardData:
-    def __init__(self, records: List[Dict[str, Any]]):
-        self.total_suppliers = len(records)
-        self.risk_scores = self._extract_risk_scores(records)
-        self.compliance_issues = self._extract_compliance_issues(records)
-        self.recent_alerts = self._extract_recent_alerts(records)
-        self.on_time_delivery = self._extract_on_time_delivery(records)
 
-    def _extract_risk_scores(self, records):
-        # Ejemplo: extraer promedios o lista de puntajes de riesgo
-        scores = [float(r.get("risk_score", 0)) for r in records if "risk_score" in r]
-        return {
-            "average": sum(scores) / len(scores) if scores else 0,
-            "scores": scores
-        }
-
-    def _extract_compliance_issues(self, records):
-        # Ejemplo: contar issues de cumplimiento
-        return sum(1 for r in records if r.get("compliance_issue", "").lower() == "yes")
-
-    def _extract_recent_alerts(self, records):
-        # Ejemplo: filtrar alertas recientes
-        return [
-            {
-                "type": r.get("alert_type", ""),
-                "location": r.get("location", ""),
-                "timestamp": r.get("timestamp", "")
-            }
-            for r in records if r.get("alert_type")
-        ]
-
-    def _extract_on_time_delivery(self, records):
-        # Ejemplo: calcular porcentaje de entregas a tiempo
-        deliveries = [r.get("on_time_delivery", "0") for r in records]
-        deliveries = [float(d) for d in deliveries if d.replace('.', '', 1).isdigit()]
-        return sum(deliveries) / len(deliveries) if deliveries else 0
-
-    def as_dict(self):
-        return {
-            "total_suppliers": self.total_suppliers,
-            "risk_scores": self.risk_scores,
-            "compliance_issues": self.compliance_issues,
-            "recent_alerts": self.recent_alerts,
-            "on_time_delivery": self.on_time_delivery
-        }
-
-
-def get_structured_dashboard_response(filename):
-    """
-    Lee el documento cargado (usando read_uploaded_document) y genera un resumen estructurado para dashboards ejecutivos.
-    """
-    # Lee el documento como texto usando la función existente
-    text, error = read_uploaded_document(filename)
-    if error:
-        return {"error": error}
-
-    prompt = (
-    "You are an expert assistant in supply chain risk management. "
-    "Analyze the following document and generate a structured summary to be displayed on an executive dashboard. "
-    "Include clear and precise quantitative values such as: averages, totals, percentages, counts, and key performance indicators (KPIs). "
-    "If any of the requested fields are not explicitly available in the document, intelligently estimate or predict reasonable values based on the available data and your expertise. "
-    "If the information is present, use the actual value. "
-    "Provide your response in JSON format using the following fields: "
-    "total_suppliers, average_risk_score, compliance_issues_count, on_time_delivery_percentage, recent_alerts (list), "
-    "high_risk_suppliers_count, average_delivery_delay_days, critical_materials_shortage (list or boolean), "
-    "supplier_region_distribution (dictionary with region names and counts), supplier_dependency_index, last_incident_date, "
-    "esg_non_compliance_count, financial_risk_score, supply_chain_disruption_events, inventory_turnover_rate, "
-    "suppliers (array of objects, each with: name, location, risk_score, status). "
-    "If you cannot find a value in the document, make a reasonable prediction or estimation based on your expertise. "
-    "Example for suppliers:\n"
-    "[{\"name\": \"Supplier A\", \"location\": \"USA\", \"risk_score\": 80, \"status\": \"Active\"}, ...]\n\n"
-    "Document to analyze:\n"
-    f"{text}"
-    )
-    response = client.models.generate_content(
-    model='gemini-2.0-flash-001',
-    contents=prompt,config=types.GenerateContentConfig(
-        top_p=0.2,
-    ),
-    )
-    return response.text
-
-
-# FastAPI app initialization
-app = FastAPI()
-
-# Permitir CORS para desarrollo local (ajusta origins en producción)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-@app.get("/api/dashboard")
-def dashboard_insights(filename: str = Query(..., description="Nombre del archivo previamente subido")):
-    """
-    Endpoint que genera insights usando el LLM y retorna el JSON estructurado,
-    usando el documento cargado identificado por filename.
-    Si el LLM no devuelve un JSON válido, intenta extraerlo del texto.
-    """
-    llm_response = get_structured_dashboard_response(filename)
-
-    # Intento 1: Parsear directamente
+def get_db():
+    db = SessionLocal()
     try:
-        data = json.loads(llm_response)
-        return data
-    except Exception:
-        pass
+        yield db
+    finally:
+        db.close()
+# Duplicate get_db() definition removed to avoid redefinition error.
 
-    # Intento 2: Buscar el primer bloque JSON en el texto usando regex
-    json_match = re.search(r'\{[\s\S]*\}', llm_response)
-    if json_match:
-        json_str = json_match.group(0)
-        try:
-            data = json.loads(json_str)
-            return data
-        except Exception:
-            pass
+# ----------- MODELOS -----------
 
-    # Intento 3: Reemplazar comillas simples por dobles y volver a intentar
-    if json_match:
-        json_str_fixed = json_match.group(0).replace("'", '"')
-        try:
-            data = json.loads(json_str_fixed)
-            return data
-        except Exception:
-            pass
+class RegisterRequest(BaseModel):
+    username: str
+    email: str
+    password: str
 
-    # Si todo falla, retorna el texto plano y un mensaje de error
-    return {
-        "error": "El LLM no generó un JSON válido. Revisa el texto generado.",
-        "raw": llm_response
-    }
+# ----------- REGISTRO -----------
 
-@app.get("/api/alerts")
-def alerts_insights(filename: str = Query(..., description="Nombre del archivo previamente subido")):
-    """
-    Endpoint que genera alertas usando el LLM y retorna el JSON estructurado,
-    usando el documento cargado identificado por filename.
-    """
-    text, error = read_uploaded_document(filename)
-    if error:
-        return {"error": error}
-
-    prompt = (
-    "You are a supply chain risk management expert. "
-    "Analyze the following document (which may be a CSV or table with varying column names) and extract all relevant alerts. "
-    "Column names may differ (e.g., 'Stock levels', 'stock', 'Inventory', 'Availability', 'Lead times', 'Lead time', etc.). "
-    "For each row, intelligently map the columns to the following fields if possible: "
-    "sku, product_type, availability, stock_levels, lead_time. "
-    "If a column is missing, try to infer the value or leave it null. "
-    "If you do not fully understand the table or the data is ambiguous, make a reasonable prediction or estimation based on what you see in the document and generate the JSON with what you believe should be there. "
-    "Classify the alerts into high_priority, medium_priority, and low_priority according to their risk level. "
-    "Return the response as a JSON object with the structure: "
-    "{'problem_summary': string, 'high_priority': [...], 'medium_priority': [...], 'low_priority': [...]}.\n"
-    "Each alert must be a JSON object with the following fields: "
-    "sku, product_type, availability, stock_levels, lead_time, description, solutions. "
-    "The 'solutions' field must be a list of one or more specific recommendations to mitigate the risk. "
-    "If a field does not apply, leave it empty or null. "
-    "Do NOT return alerts as plain text, only as JSON objects. "
-    "All output must be in English.\n"
-    "Example of mapping:\n"
-    "- 'Stock levels', 'stock', or 'Inventory' → stock_levels\n"
-    "- 'Lead times' or 'Lead time' → lead_time\n"
-    "- 'Product type' or 'Type' → product_type\n"
-    "- 'SKU' or 'Code' → sku\n"
-    "- 'Availability' or 'Available' → availability\n"
-    "Example of an alert:\n"
-    "{"
-    "\"sku\": \"DISH0\","
-    "\"product_type\": \"Main Course\","
-    "\"availability\": 7,"
-    "\"stock_levels\": 3,"
-    "\"lead_time\": 12,"
-    "\"description\": \"Very low stock and high lead time. Risk of supply disruption.\","
-    "\"solutions\": [\"Increase inventory levels\", \"Negotiate faster deliveries with suppliers\"]"
-    "}\n"
-    f"Document:\n{text}"
+@router.post("/register-user")
+async def register_user(
+    user: RegisterRequest,
+    db: Session = Depends(get_db)
+):
+    if db.query(User).filter(User.username == user.username).first():
+        raise HTTPException(status_code=400, detail="Username already exists")
+    if db.query(User).filter(User.email == user.email).first():
+        raise HTTPException(status_code=400, detail="Email already exists")
+    hashed_password = pwd_context.hash(user.password)
+    db_user = User(
+        username=user.username,
+        email=user.email,
+        hashed_password=hashed_password
     )
-
-    try:
-        response = client.models.generate_content(
-    model='gemini-2.0-flash-001',
-    contents=prompt,config=types.GenerateContentConfig(
-        top_p=0.2,
-    ),
-    )
-        llm_response = response.text
-        try:
-            data = json.loads(llm_response)
-            return data
-        except Exception:
-            json_match = re.search(r'\{[\s\S]*\}|\[[\s\S]*\]', llm_response)
-            if json_match:
-                json_str = json_match.group(0)
-                try:
-                    data = json.loads(json_str)
-                    return data
-                except Exception:
-                    pass
-            return {"error": "El LLM no generó un JSON válido. Revisa el texto generado.", "raw": llm_response}
-    except Exception as e:
-        return {"error": f"Error procesando con LLM: {str(e)}"}
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return {"message": "User registered", "user_id": db_user.id}
 
 
+@router.post("/login")
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.username == form_data.username).first()
+    if not user or not pwd_context.verify(form_data.password, user.hashed_password):
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
+    access_token = create_access_token(data={"sub": user.username})
+    return {"access_token": access_token, "token_type": "bearer"}
 
-def alerts_summary(filename: str = Query(..., description="Nombre del archivo previamente subido")):
-    """
-    Endpoint que genera un resumen de alertas clasificadas por prioridad usando el LLM.
-    """
-    llm_response = alerts_insights(filename)
 
-    # Intento 1: Parsear directamente
-    try:
-        data = json.loads(llm_response)
-        return data
-    except Exception:
-        pass
+# ----------- CARGAR DOCUMENTO -----------
 
-    # Intento 2: Buscar el primer bloque JSON en el texto usando regex
-    json_match = re.search(r'\{[\s\S]*\}', llm_response)
-    if json_match:
-        json_str = json_match.group(0)
-        try:
-            data = json.loads(json_str)
-            return data
-        except Exception:
-            pass
-
-    # Intento 3: Reemplazar comillas simples por dobles y volver a intentar
-    if json_match:
-        json_str_fixed = json_match.group(0).replace("'", '"')
-        try:
-            data = json.loads(json_str_fixed)
-            return data
-        except Exception:
-            pass
-
-    # Si todo falla, retorna el texto plano y un mensaje de error
-    return {
-        "error": "El LLM no generó un JSON válido. Revisa el texto generado.",
-        "raw": llm_response
-    }
-
-def get_suppliers_llm(filename):
-    """
-    Uses the LLM to analyze the uploaded document and generate a JSON table with supplier name, location, risk_score, and status.
-    """
-    text, error = read_uploaded_document(filename)
-    if error:
-        return {"error": error}
-
-    prompt = (
-        "You are an expert assistant in supply chain risk management. "
-        "Analyze the following document and extract a table of all suppliers. "
-        "For each supplier, provide the following fields: name, location, risk_score (number), and status (Active/Inactive or similar). "
-        "Return the result as a JSON array, where each element is an object with these fields. "
-        "Example:\n"
-        "[{\"name\": \"Supplier A\", \"location\": \"USA\", \"risk_score\": 80, \"status\": \"Active\"}, ...]\n\n"
-        "Document:\n"
-        f"{text}"
-    )
-
-    response = client.models.generate_content(
-    model='gemini-2.0-flash-001',
-    contents=prompt,config=types.GenerateContentConfig(
-        top_p=0.2,
-    ),
-    )
-    return response.text
-
-@app.get("/api/suppliers")
-def suppliers_endpoint(filename: str = Query(..., description="Previously uploaded file name")):
-    """
-    Endpoint that uses the LLM to extract supplier data from the uploaded document and returns it as a JSON array.
-    """
-    llm_response = get_suppliers_llm(filename)
-
-    # Try to parse the LLM response as JSON
-    try:
-        data = json.loads(llm_response)
-        return data
-    except Exception:
-        pass
-
-    # Try to extract the first JSON array from the response using regex
-    json_match = re.search(r'\[.*\]', llm_response, re.DOTALL)
-    if json_match:
-        json_str = json_match.group(0)
-        try:
-            data = json.loads(json_str)
-            return data
-        except Exception:
-            pass
-
-    # Try to fix single quotes and parse again
-    if json_match:
-        json_str_fixed = json_match.group(0).replace("'", '"')
-        try:
-            data = json.loads(json_str_fixed)
-            return data
-        except Exception:
-            pass
-
-    # If everything fails, return the raw response and an error
-    return {
-        "error": "The LLM did not generate a valid JSON array. Check the generated text.",
-        "raw": llm_response
-    }
-
-def get_compliance_summary():
-    """
-    Uses the LLM to analyze the supply chain CSV and generate a compliance summary as a JSON list of strings.
-    """
-    with open(CSV_PATH, "r", encoding="utf-8") as f:
-        csv_content = f.read()
-
-    prompt = (
-        "You are an expert assistant in supply chain compliance. "
-        "Analyze the following CSV file and generate a concise compliance summary for an executive dashboard. "
-        "Return a JSON array of 2-5 short bullet points (as strings) summarizing the compliance status. "
-        "Focus on facts such as: if all suppliers have submitted required documents, "
-        "how many suppliers have expiring certifications this month, "
-        "and if there are any major compliance issues detected. "
-        "Example:\n"
-        "["
-        "\"All suppliers have submitted required documents.\", "
-        "\"2 suppliers have expiring certifications this month.\", "
-        "\"No major compliance issues detected.\""
-        "]\n\n"
-        "CSV file:\n"
-        f"{csv_content}"
-    )
-
-    response = client.models.generate_content(
-    model='gemini-2.0-flash-001',
-    contents=prompt,config=types.GenerateContentConfig(
-        top_p=0.2,
-    ),
-    )
-    return response.text
-
-@app.get("/api/compliance")
-def compliance_endpoint(filename: str = Query(..., description="Previously uploaded file name")):
-    """
-    Endpoint that uses the LLM to extract a compliance summary from the uploaded document and returns it as a JSON array of strings.
-    """
-    text, error = read_uploaded_document(filename)
-    if error:
-        return {"error": error}
-
-    prompt = (
-        "You are an expert assistant in supply chain compliance. "
-        "Analyze the following document and generate a concise compliance summary for an executive dashboard. "
-        "Return a JSON array of 2-5 short bullet points (as strings) summarizing the compliance status. "
-        "Focus on facts such as: if all suppliers have submitted required documents, "
-        "how many suppliers have expiring certifications this month, "
-        "and if there are any major compliance issues detected. "
-        "Example:\n"
-        "["
-        "\"All suppliers have submitted required documents.\", "
-        "\"2 suppliers have expiring certifications this month.\", "
-        "\"No major compliance issues detected.\""
-        "]\n\n"
-        "Document:\n"
-        f"{text}"
-    )
-
-    response = client.models.generate_content(
-    model='gemini-2.0-flash-001',
-    contents=prompt,config=types.GenerateContentConfig(
-        top_p=0.2,
-    ),
-    )
-    llm_response = response.text
-
-    # Try to parse the LLM response as JSON
-    try:
-        data = json.loads(llm_response)
-        return {"summary": data}
-    except Exception:
-        pass
-
-    # Try to extract the first JSON array from the response using regex
-    json_match = re.search(r'\[.*\]', llm_response, re.DOTALL)
-    if json_match:
-        json_str = json_match.group(0)
-        try:
-            data = json.loads(json_str)
-            return {"summary": data}
-        except Exception:
-            pass
-
-    # Try to fix single quotes and parse again
-    if json_match:
-        json_str_fixed = json_match.group(0).replace("'", '"')
-        try:
-            data = json.loads(json_str_fixed)
-            return {"summary": data}
-        except Exception:
-            pass
-
-    # If everything fails, return the raw response and an error
-    return {
-        "error": "The LLM did not generate a valid JSON array. Check the generated text.",
-        "raw": llm_response
-    }
-
-import re
-import json
-
-def get_reports_summary():
-    """
-    Uses the LLM to analyze the supply chain CSV and generate a JSON object with:
-    - Monthly risk trend analysis
-    - Supplier performance summary
-    - Compliance audit logs
-    - Custom exportable reports (summary)
-    """
-    with open(CSV_PATH, "r", encoding="utf-8") as f:
-        csv_content = f.read()
-
-    prompt = (
-        "You are an expert assistant in supply chain analytics. "
-        "Analyze the following CSV file and generate a JSON object with the following fields: "
-        "\"monthly_risk_trend_analysis\" (string), "
-        "\"supplier_performance_summary\" (string), "
-        "\"compliance_audit_logs\" (string), "
-        "\"custom_exportable_reports\" (string). "
-        "Each field should contain a concise summary or insight for an executive report. "
-        "Example:\n"
-        "{"
-        "\"monthly_risk_trend_analysis\": \"Risk scores have increased slightly over the past month, with a spike in week 3.\", "
-        "\"supplier_performance_summary\": \"Most suppliers met KPIs, but 2 had delayed shipments.\", "
-        "\"compliance_audit_logs\": \"No major compliance issues detected. 2 minor documentation delays.\", "
-        "\"custom_exportable_reports\": \"All data is available for export in CSV and PDF formats.\""
-        "}\n\n"
-        "CSV file:\n"
-        f"{csv_content}"
-    )
-
-    response = client.models.generate_content(
-    model='gemini-2.0-flash-001',
-    contents=prompt,config=types.GenerateContentConfig(
-        top_p=0.2,
-    ),
-    )
-    return response.text
-
-@app.get("/api/reports")
-def reports_endpoint():
-    """
-    Endpoint that uses the LLM to extract analytics and reports from the CSV and returns them as a JSON object.
-    """
-    llm_response = get_reports_summary()
-
-    # Try to parse the LLM response as JSON
-    try:
-        data = json.loads(llm_response)
-        return data
-    except Exception:
-        pass
-
-    # Try to extract the first JSON object from the response using regex
-    json_match = re.search(r'\{[\s\S]*\}', llm_response)
-    if json_match:
-        json_str = json_match.group(0)
-        try:
-            data = json.loads(json_str)
-            return data
-        except Exception:
-            pass
-
-    # Try to fix single quotes and parse again
-    if json_match:
-        json_str_fixed = json_match.group(0).replace("'", '"')
-        try:
-            data = json.loads(json_str_fixed)
-            return data
-        except Exception:
-            pass
-
-    # If everything fails, return the raw response and an error
-    return {
-        "error": "The LLM did not generate a valid JSON object. Check the generated text.",
-        "raw": llm_response
-    }
-
-def get_risk_scores_summary():
-    """
-    Uses the LLM to analyze the supply chain CSV and generate a JSON array of supplier risk scores.
-    Each object should have: supplier, category, risk_score, level.
-    """
-    with open(CSV_PATH, "r", encoding="utf-8") as f:
-        csv_content = f.read()
-
-    prompt = (
-        "You are an expert assistant in supply chain risk management. "
-        "Analyze the following CSV file and generate a JSON array for a risk score table. "
-        "Each element should be an object with the following fields: "
-        "\"supplier\" (string), \"category\" (string), \"risk_score\" (number), \"level\" (string: Low, Medium, or High). "
-        "Example:\n"
-        "["
-        "{\"supplier\": \"Supplier A\", \"category\": \"Logistics\", \"risk_score\": 78, \"level\": \"Medium\"}, "
-        "{\"supplier\": \"Supplier B\", \"category\": \"Raw Materials\", \"risk_score\": 92, \"level\": \"High\"}, "
-        "{\"supplier\": \"Supplier C\", \"category\": \"Manufacturing\", \"risk_score\": 60, \"level\": \"Low\"}"
-        "]\n\n"
-        "CSV file:\n"
-        f"{csv_content}"
-    )
-
-    response = client.models.generate_content(
-    model='gemini-2.0-flash-001',
-    contents=prompt,config=types.GenerateContentConfig(
-        top_p=0.2,
-    ),
-    )
-    return response.text
-
-@app.get("/api/risk-scores")
-def risk_scores_endpoint(filename: str = Query(..., description="Previously uploaded file name")):
-    """
-    Endpoint that uses the LLM to extract supplier risk scores from the uploaded document and returns them as a JSON array.
-    """
-    text, error = read_uploaded_document(filename)
-    if error:
-        return {"error": error}
-
-    prompt = (
-        "You are an expert assistant in supply chain risk management. "
-        "Analyze the following document and extract a table of all suppliers with their risk scores. "
-        "For each supplier, provide the following fields: name, risk_score (number from 1 to 100, where 100 is highest risk), and a short risk_reason. "
-        "Return the result as a JSON array, where each element is an object with these fields. "
-        "Example:\n"
-        "[{\"name\": \"Supplier A\", \"risk_score\": 85, \"risk_reason\": \"Frequent delivery delays\"}, ...]\n\n"
-        "Document:\n"
-        f"{text}"
-    )
-
-    response = client.models.generate_content(
-    model='gemini-2.0-flash-001',
-    contents=prompt,config=types.GenerateContentConfig(
-        top_p=0.2,
-    ),
-    )
-    llm_response = response.text
-
-    # Try to parse the LLM response as JSON
-    try:
-        data = json.loads(llm_response)
-        return {"risk_scores": data}
-    except Exception:
-        pass
-
-    # Try to extract the first JSON array from the response using regex
-    json_match = re.search(r'\[.*\]', llm_response, re.DOTALL)
-    if json_match:
-        json_str = json_match.group(0)
-        try:
-            data = json.loads(json_str)
-            return {"risk_scores": data}
-        except Exception:
-            pass
-
-    # Try to fix single quotes and parse again
-    if json_match:
-        json_str_fixed = json_match.group(0).replace("'", '"')
-        try:
-            data = json.loads(json_str_fixed)
-            return {"risk_scores": data}
-        except Exception:
-            pass
-
-    # If everything fails, return the raw response and an error
-    return {
-        "error": "The LLM did not generate a valid JSON array. Check the generated text.",
-        "raw": llm_response
-    }
-
-# 1. Endpoint para cargar el documento
-@app.post("/api/upload-document")
+@router.post("/api/upload-document")
 async def upload_document(file: UploadFile = File(...)):
-    """
-    Sube el documento y lo guarda en disco. No llama al LLM.
-    """
-    suffix = os.path.splitext(file.filename)[-1]
     save_path = os.path.join(UPLOAD_FOLDER, file.filename)
     try:
         with open(save_path, "wb") as f:
@@ -638,14 +101,12 @@ async def upload_document(file: UploadFile = File(...)):
     except Exception as e:
         return {"success": False, "error": f"Error al guardar el archivo: {str(e)}"}
 
-# 2. Función para leer el documento cargado
+# ----------- FUNCIÓN PARA LEER DOCUMENTO -----------
+
 def read_uploaded_document(filename):
-    # Solo el nombre base, sin rutas
     filename = os.path.basename(filename)
-    path = os.path.join("uploaded_docs",filename)
-    
+    path = os.path.join(UPLOAD_FOLDER, filename)
     suffix = os.path.splitext(filename)[-1].lower()
-    
     try:
         if suffix == ".pdf":
             with open(path, "rb") as f:
@@ -666,101 +127,280 @@ def read_uploaded_document(filename):
     except Exception as e:
         return None, f"Error leyendo el archivo: {str(e)}"
 
-# 3. Endpoint para procesar el documento con el LLM
-@app.post("/api/process-document")
-async def process_document(filename: str = Form(...)):
-    """
-    Lee el documento cargado y lo procesa con el LLM para generar un JSON.
-    """
+# ----------- FUNCIÓN get_unified_llm_response -----------
+
+client = genai.Client(api_key='AIzaSyBS0ERWhkYDIaMifZD1IWpFWGNtSyfZUPo')
+
+def get_unified_llm_response(filename):
     text, error = read_uploaded_document(filename)
     if error:
         return {"error": error}
-
     prompt = (
-        "Eres un asistente experto en análisis de documentos de cadena de suministro. "
-        "Convierte el siguiente documento a un formato JSON estructurado, extrayendo los datos clave relevantes. "
-        "Incluye valores cuantitativos claros y precisos como: promedios, totales, porcentajes, conteos y métricas clave. "
-        "Por ejemplo: total de proveedores, promedio de riesgo, porcentaje de entregas a tiempo, número de incidencias de cumplimiento, etc. "
-        "Devuelve la respuesta en formato JSON con los siguientes campos: "
-        "total_suppliers, average_risk_score, compliance_issues_count, on_time_delivery_percentage, recent_alerts (lista)\n\n"
-        "Si es un CSV, JSON o tabla, estructura los datos como una lista de objetos JSON. "
-        "Si es un PDF o Word, resume y extrae los datos cuantitativos en formato JSON. "
-        "ejemplo de lo que puede ir en el JSON:\n"
-        "Documento:\n"
-        f"{text}"
-    )
+    "You are an expert assistant in supply chain risk management. "
+    "Analyze the following document and return a JSON object with the following fields. "
+    "For each section, return the data as an array of objects, where each object matches a row in the corresponding database table. "
+    "Use the exact field names and types as specified below. "
+    "If a field is missing, use null or an empty string. "
+    "Return ONLY the JSON object, with all sections as top-level fields. Do NOT include explanations or extra text.\n\n"
 
-    try:
-        response = client.models.generate_content(
-    model='gemini-2.0-flash-001',
-    contents=prompt,config=types.GenerateContentConfig(
-        top_p=0.2,
-    ),
-    )
-        llm_response = response.text
-        # Intenta parsear el JSON generado
-        try:
-            data = json.loads(llm_response)
-            return data
-        except Exception:
-            # Busca el primer bloque JSON en el texto usando regex
-            json_match = re.search(r'\{[\s\S]*\}|\[[\s\S]*\]', llm_response)
-            if json_match:
-                json_str = json_match.group(0)
-                try:
-                    data = json.loads(json_str)
-                    return data
-                except Exception:
-                    pass
-            return {"error": "El LLM no generó un JSON válido. Revisa el texto generado.", "raw": llm_response}
-    except Exception as e:
-        return {"error": f"Error procesando con LLM: {str(e)}"}
+    "1. dashboard: Array of objects, each with:\n"
+    "   - total_suppliers (integer)\n"
+    "   - average_risk_score (number)\n"
+    "   - compliance_issues_count (integer)\n"
+    "   - on_time_delivery_percentage (number, 0-100)\n"
+    "   - recent_alerts (string)\n"
+    "   - high_risk_suppliers_count (integer)\n"
+    "   - average_delivery_delay_days (number)\n"
+    "   - critical_materials_shortage (string)\n"
+    "   - supplier_region_distribution (string)\n"
+    "   - supplier_dependency_index (number)\n"
+    "   - last_incident_date (string, ISO format)\n"
+    "   - esg_non_compliance_count (integer)\n"
+    "   - financial_risk_score (number)\n"
+    "   - supply_chain_disruption_events (integer)\n"
+    "   - inventory_turnover_rate (number)\n"
+    "Example:\n"
+    "[{\"total_suppliers\": 10, \"average_risk_score\": 75.2, ...}]\n\n"
 
+    "2. alerts: Array of objects, each with:\n"
+    "   - priority (string: High, Medium, Low)\n"
+    "   - sku (string)\n"
+    "   - product_type (string)\n"
+    "   - availability (integer)\n"
+    "   - stock_levels (integer)\n"
+    "   - lead_time (integer)\n"
+    "   - description (string)\n"
+    "   - solutions (string)\n"
+    "Example:\n"
+    "[{\"priority\": \"High\", \"sku\": \"DISH0\", \"product_type\": \"Main Course\", \"availability\": 7, \"stock_levels\": 3, \"lead_time\": 12, \"description\": \"Very low stock and high lead time. Risk of supply disruption.\", \"solutions\": \"Increase inventory levels; Negotiate faster deliveries with suppliers\"}]\n\n"
 
+    "3. suppliers: Array of objects, each with:\n"
+    "   - name (string)\n"
+    "   - location (string)\n"
+    "   - risk_score (number)\n"
+    "   - status (string)\n"
+    "Example:\n"
+    "[{\"name\": \"Supplier A\", \"location\": \"USA\", \"risk_score\": 80, \"status\": \"Active\"}]\n\n"
 
-@app.post("/api/generate-csv-from-json")
-async def generate_csv_from_json(form_json: dict = None):
-    """
-    Recibe un JSON con la información del formulario, usa el LLM para generar un CSV
-    con la cantidad de registros indicada en units_available (o similar).
-    El CSV se guarda en uploaded_docs/ y también se devuelve como archivo descargable.
-    """
-    if not form_json:
-        return {"error": "No JSON data provided."}
+    "4. compliance: Array of objects, each with:\n"
+    "   - summary (string)\n"
+    "Example:\n"
+    "[{\"summary\": \"All suppliers have submitted required documents.\"}]\n\n"
 
-    prompt = (
-        "You are an expert in supply chain data simulation. "
-        "Given the following JSON with product and company information, generate a realistic CSV file. "
-        "The CSV must have as many rows as the value in 'units_available' (or a similar field). "
-        "Each row should represent a product unit, including all relevant fields such as: "
-        "sku, product_type, unit_price, supplier_name, location, stock, lead_time, units_per_order, "
-        "shipping_company, average_shipping_cost, manufacturing_days, manufacturing_cost, "
-        "last_quality_inspection, defective_percentage, main_transport_mode, main_route, total_cost, etc. "
-        "Also, invent and include additional suppliers and other fields as needed to make the data realistic. "
-        "If the JSON mentions only one supplier, generate more suppliers with plausible data. "
-        "Return ONLY the CSV, with headers in English, and no explanations or extra text.\n\n"
-        f"JSON:\n{json.dumps(form_json, indent=2)}"
-    )
+    "5. risk_scores: Array of objects, each with:\n"
+    "   - supplier (string)\n"
+    "   - category (string)\n"
+    "   - risk_score (number)\n"
+    "   - reason (string)\n"
+    "   - level (string: Low, Medium, or High)\n"
+    "Example:\n"
+    "[{\"supplier\": \"Supplier A\", \"category\": \"Logistics\", \"risk_score\": 78, \"reason\": \"High risk due to financial instability\", \"level\": \"Medium\"}]\n\n"
 
+    "6. disruption: Array of objects, each with:\n"
+    "   - detected (boolean)\n"
+    "   - summary (string)\n"
+    "   - causes (string)\n"
+    "   - affected_suppliers (string)\n"
+    "   - recommendations (string)\n"
+    "Example:\n"
+    "[{\"detected\": true, \"summary\": \"Significant delays and low inventory detected due to supplier strike.\", \"causes\": \"Supplier strike; Low inventory; Delayed shipments\", \"affected_suppliers\": \"Supplier A; Supplier B\", \"recommendations\": \"Increase safety stock; Diversify suppliers; Negotiate alternative logistics\"}]\n\n"
+
+    "Instructions:"
+    "- If a field is missing or cannot be found in the document, ESTIMATE or PREDICT a reasonable value based on the available data and your expertise. Do NOT leave fields as null."
+    "- For numeric fields, provide your best estimate."
+    "- For categorical fields (like status), use the most likely value based on context."
+    "- For arrays, generate plausible example data if not present."
+    "- All objects in arrays must have ALL fields filled with a value (never null)."
+    "- Do NOT repeat the same supplier or alert unless the document clearly indicates duplicates."
+    "- Return ONLY the JSON object, with all sections as top-level fields. Do NOT include explanations or extra text."
+    "- All output must be in English."
+
+    f"Document to analyze:\n{text}"
+)
     response = client.models.generate_content(
         model='gemini-2.0-flash-001',
         contents=prompt,
         config=types.GenerateContentConfig(top_p=0.2),
     )
-    csv_text = response.text
+    return response.text
 
-    # Guarda el CSV en uploaded_docs con un nombre único
-    filename = f"generated_{int(time.time())}.csv"
-    save_path = os.path.join(UPLOAD_FOLDER, filename)
-    with open(save_path, "w", encoding="utf-8") as f:
-        f.write(csv_text)
 
-    # Devuelve el nombre del archivo y el CSV como descarga
-    return StreamingResponse(
-        io.StringIO(csv_text),
-        media_type="text/csv",
-        headers={
-            "Content-Disposition": f"attachment; filename={filename}",
-            "X-Generated-Filename": filename  # Puedes leer este header en el frontend
-        }
+def robust_json_parse(llm_response):
+    # Try direct parse
+    try:
+        return json.loads(llm_response)
+    except Exception:
+        pass
+    # Try to extract first JSON object or array
+    json_match = re.search(r'\{[\s\S]*\}|\[[\s\S]*\]', llm_response)
+    if json_match:
+        json_str = json_match.group(0)
+        try:
+            return json.loads(json_str)
+        except Exception:
+            pass
+        # Try fixing single quotes
+        json_str_fixed = json_str.replace("'", '"')
+        try:
+            return json.loads(json_str_fixed)
+        except Exception:
+            pass
+    return None
+
+# ----------- ENDPOINTS DASHBOARD, ALERTS, ETC -----------
+def insert_tabular_data_from_llm(llm_json, db, current_user):
+    for dashboard in llm_json.get("dashboard", []):
+        db.add(Dashboard(**filter_model_fields(Dashboard, {**dashboard, "user_id": current_user.id})))
+    for alert in llm_json.get("alerts", []):
+        db.add(Alert(**filter_model_fields(Alert, {**alert, "user_id": current_user.id})))
+    for supplier in llm_json.get("suppliers", []):
+        db.add(Supplier(**filter_model_fields(Supplier, {**supplier, "user_id": current_user.id})))
+    for compliance in llm_json.get("compliance", []):
+        db.add(Compliance(**filter_model_fields(Compliance, {**compliance, "user_id": current_user.id})))
+    for risk_score in llm_json.get("risk_scores", []):
+        db.add(RiskScore(**filter_model_fields(RiskScore, {**risk_score, "user_id": current_user.id})))
+    for disruption in llm_json.get("disruption", []):
+        db.add(Disruption(**filter_model_fields(Disruption, {**disruption, "user_id": current_user.id})))
+    db.commit()
+
+    
+@router.get("/api/dashboard")
+def dashboard_insights(
+    filename: str = Query(...),
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    llm_response = get_unified_llm_response(filename)
+    llm_json = robust_json_parse(llm_response)
+    if not llm_json or "dashboard" not in llm_json:
+        raise HTTPException(status_code=400, detail="No dashboard data found in LLM response.")
+    insert_tabular_data_from_llm(llm_json, db, current_user)
+    dashboards = db.query(Dashboard).filter(Dashboard.user_id == current_user.id).all()
+    return [d.as_dict() for d in dashboards]
+
+@router.get("/api/alerts")
+def alerts_insights(
+    filename: str = Query(...),
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    llm_response = get_unified_llm_response(filename)
+    llm_json = robust_json_parse(llm_response)
+    if not llm_json or "alerts" not in llm_json:
+        raise HTTPException(status_code=400, detail="No alerts data found in LLM response.")
+    insert_tabular_data_from_llm(llm_json, db, current_user)
+    alerts = db.query(Alert).filter(Alert.user_id == current_user.id).all()
+    return [a.as_dict() for a in alerts]
+
+@router.get("/api/suppliers")
+def suppliers_endpoint(
+    filename: str = Query(...),
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    llm_response = get_unified_llm_response(filename)
+    llm_json = robust_json_parse(llm_response)
+    if not llm_json or "suppliers" not in llm_json:
+        raise HTTPException(status_code=400, detail="No suppliers data found in LLM response.")
+    insert_tabular_data_from_llm(llm_json, db, current_user)
+    suppliers = db.query(Supplier).filter(Supplier.user_id == current_user.id).all()
+    return [s.as_dict() for s in suppliers]
+
+@router.get("/api/compliance")
+def compliance_endpoint(
+    filename: str = Query(...),
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    llm_response = get_unified_llm_response(filename)
+    llm_json = robust_json_parse(llm_response)
+    if not llm_json or "compliance" not in llm_json:
+        raise HTTPException(status_code=400, detail="No compliance data found in LLM response.")
+    insert_tabular_data_from_llm(llm_json, db, current_user)
+    compliance = db.query(Compliance).filter(Compliance.user_id == current_user.id).all()
+    return [c.as_dict() for c in compliance]
+
+@router.get("/api/risk_scores")
+def risk_scores_endpoint(
+    filename: str = Query(...),
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    llm_response = get_unified_llm_response(filename)
+    llm_json = robust_json_parse(llm_response)
+    if not llm_json or "risk_scores" not in llm_json:
+        raise HTTPException(status_code=400, detail="No risk_scores data found in LLM response.")
+    insert_tabular_data_from_llm(llm_json, db, current_user)
+    risk_scores = db.query(RiskScore).filter(RiskScore.user_id == current_user.id).all()
+    return [r.as_dict() for r in risk_scores]
+
+@router.get("/api/disruption")
+def disruption_endpoint(
+    filename: str = Query(...),
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    llm_response = get_unified_llm_response(filename)
+    llm_json = robust_json_parse(llm_response)
+    if not llm_json or "disruption" not in llm_json:
+        raise HTTPException(status_code=400, detail="No disruption data found in LLM response.")
+    insert_tabular_data_from_llm(llm_json, db, current_user)
+    disruption = db.query(Disruption).filter(Disruption.user_id == current_user.id).all()
+    return [d.as_dict() for d in disruption]
+
+# ----------- GUARDAR INSIGHTS -----------
+
+@router.post("/guardar-insight")
+async def guardar_insight(
+    data: dict,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    insight = Insight(
+        user_id=current_user.id,
+        filename=data.get("filename", ""),
+        csv_filename=data.get("csv_filename", ""),
+        dashboard_json=json.dumps(data.get("dashboard", []), ensure_ascii=False),
+        alerts_json=json.dumps(data.get("alerts", []), ensure_ascii=False),
+        suppliers_json=json.dumps(data.get("suppliers", []), ensure_ascii=False),
+        compliance_json=json.dumps(data.get("compliance", []), ensure_ascii=False),
+        risk_scores_json=json.dumps(data.get("risk_scores", []), ensure_ascii=False),
+        disruption_json=json.dumps(data.get("disruption", []), ensure_ascii=False),
     )
+    db.add(insight)
+    db.commit()
+    db.refresh(insight)
+    return {"message": "Insight guardado", "insight_id": insight.id}
+
+def filter_model_fields(model, data):
+    return {k: v for k, v in data.items() if k in model.__table__.columns.keys() and k != "id"}
+
+@router.post("/guardar-insight-tabular")
+async def guardar_insight_tabular(
+    data: dict,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    for dashboard in data.get("dashboard", []):
+        db.add(Dashboard(**filter_model_fields(Dashboard, {**dashboard, "user_id": current_user.id})))
+    for alert in data.get("alerts", []):
+        db.add(Alert(**filter_model_fields(Alert, {**alert, "user_id": current_user.id})))
+    for supplier in data.get("suppliers", []):
+        db.add(Supplier(**filter_model_fields(Supplier, {**supplier, "user_id": current_user.id})))
+    for compliance in data.get("compliance", []):
+        db.add(Compliance(**filter_model_fields(Compliance, {**compliance, "user_id": current_user.id})))
+    for risk_score in data.get("risk_scores", []):
+        db.add(RiskScore(**filter_model_fields(RiskScore, {**risk_score, "user_id": current_user.id})))
+    for disruption in data.get("disruption", []):
+        db.add(Disruption(**filter_model_fields(Disruption, {**disruption, "user_id": current_user.id})))
+    db.commit()
+    return {"message": "All sections saved successfully"}
+
+@router.get("/api/insights")
+def get_user_insights(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    insights = db.query(Insight).filter(Insight.user_id == current_user.id).all()
+    return [i.as_dict() for i in insights]
+
