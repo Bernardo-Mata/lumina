@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Logs
 logs
 *.log
@@ -7,7 +6,8 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
+API\uploaded_docs
+API\__pycache__
 node_modules
 node_modules
 dist
@@ -24,6 +24,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-=======
-/env
->>>>>>> 40cff44f0a41dbfd7f1637cde5601d1522d86c7f

@@ -1,12 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Map } from 'lucide-react';
-import Alerts from './Alerts';
-import Suppliers from './Suppliers';
-import Compilance from './Compilance';
-import RiskScores from './RiskScores';
 import ProductForm from './ProductForm';
 import DataInputChoice from './DataInputChoice';
-import Dashboard from './Dashboard';
 
 // Helper para obtener N elementos aleatorios de un array
 function getRandomItems(arr, n) {
@@ -23,28 +18,13 @@ const Summary = (props) => {
   const [csvFilename, setCsvFilename] = useState(null);
   const [uploadStatus, setUploadStatus] = useState(null);
 
-  // Dashboard global para persistencia
-  const [dashboardData, setDashboardData] = useState(() => {
-    try {
-      const stored = localStorage.getItem('dashboardData');
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
-    }
-  });
+  // Dashboard
+  const [dashboardData, setDashboardData] = useState(null);
   const [dashboardLoading, setDashboardLoading] = useState(false);
   const [randomDashboardKeys, setRandomDashboardKeys] = useState([]);
 
-  // Alerts global para persistencia
-  const [alertsData, setAlertsData] = useState(() => {
-    if (props.alertsData) return props.alertsData;
-    try {
-      const stored = localStorage.getItem('alertsData');
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
-    }
-  });
+  // Alerts
+  const [alertsData, setAlertsData] = useState(null);
   const [alertsLoading, setAlertsLoading] = useState(false);
   const [randomAlerts, setRandomAlerts] = useState({
     high: [],
@@ -52,41 +32,19 @@ const Summary = (props) => {
     low: []
   });
 
-  // Compliance global para persistencia
-  const [complianceData, setComplianceData] = useState(() => {
-    try {
-      const stored = localStorage.getItem('complianceData');
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
-    }
-  });
+  // Compliance
+  const [complianceData, setComplianceData] = useState(null);
   const [complianceLoading, setComplianceLoading] = useState(false);
   const [randomCompliance, setRandomCompliance] = useState([]);
 
-  // Suppliers global para persistencia
-  const [suppliersData, setSuppliersData] = useState(() => {
-    try {
-      const stored = localStorage.getItem('suppliersData');
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
-    }
-  });
+  // Suppliers
+  const [suppliersData, setSuppliersData] = useState(null);
   const [suppliersLoading, setSuppliersLoading] = useState(false);
   const [randomSuppliers, setRandomSuppliers] = useState([]);
 
-  // RiskScores global para persistencia
-  const [riskScoresData, setRiskScoresData] = useState(() => {
-    try {
-      const stored = localStorage.getItem('riskScoresData');
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
-    }
-  });
-  const [riskScoresLoading, setRiskScoresLoading] = useState(false);
-  const [randomRiskScores, setRandomRiskScores] = useState([]);
+  // Disruption
+  const [disruptionData, setDisruptionData] = useState(null);
+  const [disruptionLoading, setDisruptionLoading] = useState(false);
 
   // Subir documento
   const handleFileUpload = async (e) => {
@@ -116,38 +74,48 @@ const Summary = (props) => {
   const handleCsvCreated = (filename) => {
     setCsvFilename(filename);
     setUploadStatus(200);
-    setInputMode(null); // Regresa al menú principal para poder presionar Generate Insights
+    setInputMode(null);
   };
 
-  // Lógica para el botón de "Generate Insights" (dashboard, alerts, compliance, suppliers, riskScores)
+  // Lógica para el botón de "Generate Insights"
   const handleGenerateInsights = async () => {
     if (!csvFilename) return;
     setDashboardLoading(true);
     setAlertsLoading(true);
     setComplianceLoading(true);
     setSuppliersLoading(true);
-    setRiskScoresLoading(true);
-    setDashboardData(null);
-    setAlertsData(null);
-    setComplianceData(null);
-    setSuppliersData(null);
-    setRiskScoresData(null);
+    setDisruptionLoading(true);
+
     try {
+      const token = localStorage.getItem('token');
+
       // Dashboard
-      const dashboardRes = await fetch(`http://127.0.0.1:8000/api/dashboard?filename=${encodeURIComponent(csvFilename)}`);
+      const dashboardRes = await fetch(
+        `http://127.0.0.1:8000/api/dashboard?filename=${encodeURIComponent(csvFilename)}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
       const dashboardJson = await dashboardRes.json();
       setDashboardData(dashboardJson);
-      localStorage.setItem('dashboardData', JSON.stringify(dashboardJson));
-      if (props.setDashboardDataFromSummary) props.setDashboardDataFromSummary(dashboardJson);
       const dashKeys = Object.keys(dashboardJson);
       setRandomDashboardKeys(getRandomItems(dashKeys, 4));
 
       // Alerts
-      const alertsRes = await fetch(`http://127.0.0.1:8000/api/alerts?filename=${encodeURIComponent(csvFilename)}`);
+      const alertsRes = await fetch(
+        `http://127.0.0.1:8000/api/alerts?filename=${encodeURIComponent(csvFilename)}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
       const alertsJson = await alertsRes.json();
       setAlertsData(alertsJson);
-      localStorage.setItem('alertsData', JSON.stringify(alertsJson));
-      if (props.setAlertsDataFromSummary) props.setAlertsDataFromSummary(alertsJson);
       const getByRisk = (risk) =>
         Array.isArray(alertsJson[risk]) ? getRandomItems(alertsJson[risk], 2) : [];
       setRandomAlerts({
@@ -157,73 +125,126 @@ const Summary = (props) => {
       });
 
       // Compliance
-      const complianceRes = await fetch(`http://127.0.0.1:8000/api/compliance?filename=${encodeURIComponent(csvFilename)}`);
+      const complianceRes = await fetch(
+        `http://127.0.0.1:8000/api/compliance?filename=${encodeURIComponent(csvFilename)}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
       const complianceJson = await complianceRes.json();
       setComplianceData(complianceJson);
-      localStorage.setItem('complianceData', JSON.stringify(complianceJson));
-      if (props.setComplianceDataFromSummary) props.setComplianceDataFromSummary(complianceJson);
       setRandomCompliance(getRandomItems(complianceJson.summary, 3));
 
       // Suppliers
-      const suppliersRes = await fetch(`http://127.0.0.1:8000/api/suppliers?filename=${encodeURIComponent(csvFilename)}`);
+      const suppliersRes = await fetch(
+        `http://127.0.0.1:8000/api/suppliers?filename=${encodeURIComponent(csvFilename)}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
       const suppliersJson = await suppliersRes.json();
       setSuppliersData(suppliersJson);
-      localStorage.setItem('suppliersData', JSON.stringify(suppliersJson));
-      if (props.setSuppliersDataFromSummary) props.setSuppliersDataFromSummary(suppliersJson);
       setRandomSuppliers(getRandomItems(suppliersJson.suppliers, 3));
 
-      // RiskScores
-      const riskScoresRes = await fetch(`http://127.0.0.1:8000/api/risk-scores?filename=${encodeURIComponent(csvFilename)}`);
-      const riskScoresJson = await riskScoresRes.json();
-      setRiskScoresData(riskScoresJson);
-      localStorage.setItem('riskScoresData', JSON.stringify(riskScoresJson));
-      if (props.setRiskScoresDataFromSummary) props.setRiskScoresDataFromSummary(riskScoresJson);
-      // riskScoresJson.scores debe ser un array
-      setRandomRiskScores(getRandomItems(riskScoresJson.scores, 3));
+      // Disruption
+      const disruptionRes = await fetch(
+        `http://127.0.0.1:8000/api/disruption?filename=${encodeURIComponent(csvFilename)}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      const disruptionJson = await disruptionRes.json();
+      setDisruptionData(disruptionJson);
+
+      // Guardar insights en backend (opcional)
+      await guardarInsightEnBackend({
+        dashboard: dashboardJson,
+        alerts: alertsJson,
+        suppliers: suppliersJson,
+        compliance: complianceJson,
+        disruption: disruptionJson,
+      });
+
+      await guardarInsightTabularEnBackend({
+        dashboard: Array.isArray(dashboardJson) ? dashboardJson : [dashboardJson],
+        alerts: Array.isArray(alertsJson) ? alertsJson : [alertsJson],
+        suppliers: Array.isArray(suppliersJson) ? suppliersJson : [suppliersJson],
+        compliance: Array.isArray(complianceJson) ? complianceJson : [complianceJson],
+        disruption: Array.isArray(disruptionJson) ? disruptionJson : [disruptionJson],
+      });
+
     } catch (err) {
       setDashboardData({ error: 'Error generating dashboard insights.' });
       setAlertsData({ error: 'Error generating alerts insights.' });
       setComplianceData({ error: 'Error generating compliance insights.' });
       setSuppliersData({ error: 'Error generating suppliers insights.' });
-      setRiskScoresData({ error: 'Error generating risk scores insights.' });
+      setDisruptionData({ error: 'Error generating disruption insights.' });
       setRandomDashboardKeys([]);
       setRandomAlerts({ high: [], medium: [], low: [] });
       setRandomCompliance([]);
       setRandomSuppliers([]);
-      setRandomRiskScores([]);
     }
     setDashboardLoading(false);
     setAlertsLoading(false);
     setComplianceLoading(false);
     setSuppliersLoading(false);
-    setRiskScoresLoading(false);
+    setDisruptionLoading(false);
   };
 
-  // Cuando cambias de sección (Summary), elige insights random nuevos
-  useEffect(() => {
-    if (!inputMode && dashboardData) {
-      const dashKeys = Object.keys(dashboardData);
-      setRandomDashboardKeys(getRandomItems(dashKeys, 4));
-    }
-    if (!inputMode && alertsData) {
-      const getByRisk = (risk) =>
-        Array.isArray(alertsData[risk]) ? getRandomItems(alertsData[risk], 2) : [];
-      setRandomAlerts({
-        high: getByRisk('high_priority'),
-        medium: getByRisk('medium_priority'),
-        low: getByRisk('low_priority')
+  // Guardar insights en backend
+  const guardarInsightEnBackend = async (data) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('http://127.0.0.1:8000/guardar-insight', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
       });
+      const result = await res.json();
+      if (res.ok) {
+        console.log('Insight guardado:', result);
+      } else {
+        console.error('Error al guardar insight:', result);
+      }
+    } catch (err) {
+      console.error('Error de red al guardar insight:', err);
     }
-    if (!inputMode && complianceData && Array.isArray(complianceData.summary)) {
-      setRandomCompliance(getRandomItems(complianceData.summary, 3));
+  };
+
+  // Guardar insights tabulares en backend
+  const guardarInsightTabularEnBackend = async (data) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('http://127.0.0.1:8000/guardar-insight-tabular', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+      const result = await res.json();
+      if (res.ok) {
+        console.log('Datos tabulares guardados:', result);
+      } else {
+        console.error('Error al guardar datos tabulares:', result);
+      }
+    } catch (err) {
+      console.error('Error de red al guardar datos tabulares:', err);
     }
-    if (!inputMode && suppliersData && Array.isArray(suppliersData.suppliers)) {
-      setRandomSuppliers(getRandomItems(suppliersData.suppliers, 3));
-    }
-    if (!inputMode && riskScoresData && Array.isArray(riskScoresData.scores)) {
-      setRandomRiskScores(getRandomItems(riskScoresData.scores, 3));
-    }
-  }, [inputMode, dashboardData, alertsData, complianceData, suppliersData, riskScoresData]);
+  };
 
   // Render principal
   if (!inputMode) {
@@ -240,102 +261,7 @@ const Summary = (props) => {
             uploadStatus={uploadStatus}
           />
         </div>
-        {/* Mostrar solo 4 insights random del dashboard */}
-        {dashboardData && randomDashboardKeys.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-            {randomDashboardKeys.map((key) => (
-              <div key={key} className="bg-gray-100 rounded p-4 shadow">
-                <div className="font-semibold text-gray-700">{key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</div>
-                <div className="text-xl text-blue-700 font-bold mt-2">
-                  {typeof dashboardData[key] === 'object'
-                    ? JSON.stringify(dashboardData[key])
-                    : String(dashboardData[key])}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-        {/* Mostrar 2 random de cada riesgo de alerts */}
-        {alertsData && (
-          <div className="mt-8">
-            <h3 className="font-bold text-lg text-gray-800 mb-2">Alerts Summary</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <div className="font-semibold text-red-700 mb-1">High Risk</div>
-                <ul className="bg-red-50 rounded p-2">
-                  {randomAlerts.high.length > 0
-                    ? randomAlerts.high.map((alert, idx) => (
-                        <li key={idx} className="text-sm text-red-900 mb-1">{typeof alert === 'object' ? JSON.stringify(alert) : String(alert)}</li>
-                      ))
-                    : <li className="text-gray-500 text-sm">No high risk alerts</li>}
-                </ul>
-              </div>
-              <div>
-                <div className="font-semibold text-yellow-700 mb-1">Medium Risk</div>
-                <ul className="bg-yellow-50 rounded p-2">
-                  {randomAlerts.medium.length > 0
-                    ? randomAlerts.medium.map((alert, idx) => (
-                        <li key={idx} className="text-sm text-yellow-900 mb-1">{typeof alert === 'object' ? JSON.stringify(alert) : String(alert)}</li>
-                      ))
-                    : <li className="text-gray-500 text-sm">No medium risk alerts</li>}
-                </ul>
-              </div>
-              <div>
-                <div className="font-semibold text-green-700 mb-1">Low Risk</div>
-                <ul className="bg-green-50 rounded p-2">
-                  {randomAlerts.low.length > 0
-                    ? randomAlerts.low.map((alert, idx) => (
-                        <li key={idx} className="text-sm text-green-900 mb-1">{typeof alert === 'object' ? JSON.stringify(alert) : String(alert)}</li>
-                      ))
-                    : <li className="text-gray-500 text-sm">No low risk alerts</li>}
-                </ul>
-              </div>
-            </div>
-          </div>
-        )}
-        {/* Mostrar 3 random de compliance */}
-        {complianceData && randomCompliance.length > 0 && (
-          <div className="mt-8">
-            <h3 className="font-bold text-lg text-gray-800 mb-2">Compliance Summary</h3>
-            <ul className="bg-green-50 rounded p-4 space-y-2">
-              {randomCompliance.map((item, idx) => (
-                <li key={idx} className="text-green-900 font-semibold">{item}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-        {/* Mostrar 3 random de suppliers */}
-        {suppliersData && randomSuppliers.length > 0 && (
-          <div className="mt-8">
-            <h3 className="font-bold text-lg text-gray-800 mb-2">Suppliers Summary</h3>
-            <ul className="bg-blue-50 rounded p-4 space-y-2">
-              {randomSuppliers.map((supplier, idx) => (
-                <li key={idx} className="text-blue-900 font-semibold">
-                  {typeof supplier === 'object'
-                    ? (supplier.name
-                        ? `${supplier.name} (${supplier.location || 'Unknown'}) - Risk: ${supplier.risk_score ?? '-'}`
-                        : JSON.stringify(supplier))
-                    : String(supplier)}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-        {/* Mostrar 3 random de risk scores */}
-        {riskScoresData && randomRiskScores.length > 0 && (
-          <div className="mt-8">
-            <h3 className="font-bold text-lg text-gray-800 mb-2">Risk Scores Summary</h3>
-            <ul className="bg-purple-50 rounded p-4 space-y-2">
-              {randomRiskScores.map((score, idx) => (
-                <li key={idx} className="text-purple-900 font-semibold">
-                  {typeof score === 'object'
-                    ? JSON.stringify(score)
-                    : String(score)}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        {/* Aquí puedes renderizar los datos de dashboard, alerts, compliance, suppliers, disruption como gustes */}
       </div>
     );
   }
@@ -398,6 +324,116 @@ const Summary = (props) => {
   }
 
   return null;
+};
+
+const UserInsights = () => {
+  const [insights, setInsights] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchInsights = async () => {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      try {
+        const res = await fetch("http://127.0.0.1:8000/api/insights", {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setInsights(data);
+        } else {
+          setInsights([]);
+        }
+      } catch (err) {
+        setInsights([]);
+      }
+      setLoading(false);
+    };
+    fetchInsights();
+  }, []);
+
+  if (loading) return <div>Cargando insights...</div>;
+  if (!insights.length) return <div>No hay insights para este usuario.</div>;
+
+  return (
+    <div className="lumina-insights-table">
+      <h2>Mis Insights</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Archivo</th>
+            <th>Fecha</th>
+            <th>Dashboard</th>
+            <th>Alerts</th>
+            <th>Suppliers</th>
+            <th>Compliance</th>
+            <th>Risk Scores</th>
+            <th>Disruption</th>
+          </tr>
+        </thead>
+        <tbody>
+          {insights.map((insight) => (
+            <tr key={insight.id}>
+              <td>{insight.filename || insight.csv_filename}</td>
+              <td>{insight.created_at ? new Date(insight.created_at).toLocaleString() : ""}</td>
+              <td>
+                <pre style={{ maxWidth: 200, whiteSpace: "pre-wrap" }}>
+                  {insight.dashboard_json}
+                </pre>
+              </td>
+              <td>
+                <pre style={{ maxWidth: 200, whiteSpace: "pre-wrap" }}>
+                  {insight.alerts_json}
+                </pre>
+              </td>
+              <td>
+                <pre style={{ maxWidth: 200, whiteSpace: "pre-wrap" }}>
+                  {insight.suppliers_json}
+                </pre>
+              </td>
+              <td>
+                <pre style={{ maxWidth: 200, whiteSpace: "pre-wrap" }}>
+                  {insight.compliance_json}
+                </pre>
+              </td>
+              <td>
+                <pre style={{ maxWidth: 200, whiteSpace: "pre-wrap" }}>
+                  {insight.risk_scores_json}
+                </pre>
+              </td>
+              <td>
+                <pre style={{ maxWidth: 200, whiteSpace: "pre-wrap" }}>
+                  {insight.disruption_json}
+                </pre>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <style>{`
+        .lumina-insights-table table {
+          width: 100%;
+          border-collapse: collapse;
+          background: rgba(255,255,255,0.03);
+          color: #fff;
+        }
+        .lumina-insights-table th, .lumina-insights-table td {
+          border: 1px solid #40e0ff33;
+          padding: 8px;
+          text-align: left;
+        }
+        .lumina-insights-table th {
+          background: #0a1929;
+        }
+        .lumina-insights-table tr:nth-child(even) {
+          background: #1e3a52;
+        }
+      `}</style>
+    </div>
+  );
 };
 
 export default Summary;
