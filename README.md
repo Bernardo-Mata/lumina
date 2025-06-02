@@ -1,7 +1,5 @@
 # Documentación del Proyecto: Lumina
 
-Organización de Computadoras  
-Universidad Nacional del Sur  
 2025
 
 ---
