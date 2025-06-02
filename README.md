@@ -135,8 +135,9 @@ npm install tailwindcss
 
 **Backend:**
 ```sh
-cd API
-uvicorn backendRequest:app --reload
+(si estas en la carpeta de lumina, dirigete al comando uvicorn)
+cd lumina
+uvicorn API.main:app --reload
 ```
 
 **Frontend:**
