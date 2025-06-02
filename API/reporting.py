@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from .models import Dashboard, Alert, Compliance, Disruption
+from .models import Dashboard, Alert, Supplier, Compliance, Disruption
 from .database import SessionLocal
 from .auth import get_current_user
 
@@ -28,6 +28,14 @@ def get_user_alerts(
 ):
     alerts = db.query(Alert).filter(Alert.user_id == current_user.id).all()
     return [a.as_dict() for a in alerts]
+
+@router.get("/api/user_suppliers")
+def get_user_suppliers(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    suppliers = db.query(Supplier).filter(Supplier.user_id == current_user.id).all()
+    return [s.as_dict() for s in suppliers]
 
 @router.get("/api/user_compliance")
 def get_user_compliance(

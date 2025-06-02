@@ -249,77 +249,149 @@ const Summary = (props) => {
   // Render principal
   if (!inputMode) {
     return (
-      <div className="p-6">
-        <div className="flex items-center mb-6">
-          <Map className="text-blue-500 mr-2" size={28} />
-          <h2 className="font-bold text-2xl text-gray-800">Summary</h2>
+      <div className="p-6 min-h-screen bg-gradient-to-br from-[#0a1929] via-[#1e3a52] to-[#2d5a87] relative">
+        {/* Floating Orbs */}
+        <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0">
+          <div className="absolute rounded-full bg-cyan-300 opacity-10" style={{width:300, height:300, top:'10%', left:'-10%'}} />
+          <div className="absolute rounded-full bg-cyan-300 opacity-10" style={{width:200, height:200, top:'60%', right:'-5%'}} />
+          <div className="absolute rounded-full bg-cyan-300 opacity-10" style={{width:150, height:150, top:'30%', left:'50%'}} />
         </div>
-        <div className="bg-white rounded-lg shadow p-4 mb-6">
-          <DataInputChoice
-            onChoose={setInputMode}
-            onGenerateInsights={handleGenerateInsights}
-            uploadStatus={uploadStatus}
-          />
+        <div className="relative z-10">
+          <div className="flex items-center mb-8">
+            <Map className="logo-glow text-cyan-400 mr-3 text-3xl" size={32} />
+            <h2 className="font-bold text-3xl bg-gradient-to-r from-cyan-400 to-cyan-200 bg-clip-text text-transparent">
+              LUMINA Summary
+            </h2>
+          </div>
+          <div className="glass bg-white/5 backdrop-blur-lg border border-cyan-200/20 rounded-2xl shadow p-8 mb-8">
+            <DataInputChoice
+              onChoose={setInputMode}
+              onGenerateInsights={handleGenerateInsights}
+              uploadStatus={uploadStatus}
+            />
+          </div>
+          {/* Aquí puedes renderizar los datos de dashboard, alerts, compliance, suppliers, disruption como gustes */}
         </div>
-        {/* Aquí puedes renderizar los datos de dashboard, alerts, compliance, suppliers, disruption como gustes */}
+        <style>{`
+          .logo-glow {
+            filter: drop-shadow(0 0 20px #40e0ff);
+            animation: pulse-glow 2s ease-in-out infinite alternate;
+          }
+          @keyframes pulse-glow {
+            from { filter: drop-shadow(0 0 20px #40e0ff); }
+            to { filter: drop-shadow(0 0 30px #80ffff); }
+          }
+        `}</style>
       </div>
     );
   }
 
   if (inputMode === 'upload') {
     return (
-      <div className="p-6">
-        <div className="flex items-center mb-6">
-          <Map className="text-blue-500 mr-2" size={28} />
-          <h2 className="font-bold text-2xl text-gray-800">Summary</h2>
+      <div className="p-6 min-h-screen bg-gradient-to-br from-[#0a1929] via-[#1e3a52] to-[#2d5a87] relative">
+        {/* Floating Orbs */}
+        <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0">
+          <div className="absolute rounded-full bg-cyan-300 opacity-10" style={{width:300, height:300, top:'10%', left:'-10%'}} />
+          <div className="absolute rounded-full bg-cyan-300 opacity-10" style={{width:200, height:200, top:'60%', right:'-5%'}} />
+          <div className="absolute rounded-full bg-cyan-300 opacity-10" style={{width:150, height:150, top:'30%', left:'50%'}} />
         </div>
-        <div className="bg-white rounded-lg shadow p-4 mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="font-bold text-gray-700">Upload a Document</h3>
-            <button
-              className="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300"
-              onClick={() => setInputMode(null)}
-            >
-              Back
-            </button>
+        <div className="relative z-10">
+          <div className="flex items-center mb-8">
+            <Map className="logo-glow text-cyan-400 mr-3 text-3xl" size={32} />
+            <h2 className="font-bold text-3xl bg-gradient-to-r from-cyan-400 to-cyan-200 bg-clip-text text-transparent">
+              LUMINA Summary
+            </h2>
           </div>
-          <form onSubmit={handleFileUpload} className="flex flex-col gap-4">
-            <input
-              type="file"
-              ref={fileInputRef}
-              accept=".pdf,.csv,.doc,.docx,.json,.txt"
-              className="border rounded p-2"
-            />
-            <button
-              type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition"
-              disabled={uploading}
-            >
-              {uploading ? 'Uploading...' : 'Upload Document'}
-            </button>
-          </form>
-          {uploadResult && (
-            <div className="mt-4">
-              {uploadResult.success ? (
-                <div className="text-green-600 font-semibold">
-                  {uploadResult.message}
-                </div>
-              ) : (
-                <div className="text-red-500">{uploadResult.error}</div>
-              )}
+          <div className="glass bg-white/5 backdrop-blur-lg border border-cyan-200/20 rounded-2xl shadow p-8 mb-8">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-semibold">Upload Document</h3>
+              <button
+                className="btn-secondary bg-white/10 border border-white/30 text-white rounded-lg px-6 py-2 hover:bg-white/20 hover:border-cyan-400 transition"
+                onClick={() => setInputMode(null)}
+              >
+                Back
+              </button>
             </div>
-          )}
+            <form onSubmit={handleFileUpload} className="flex flex-col gap-4">
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept=".pdf,.csv,.doc,.docx,.json,.txt"
+                className="form-input bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder:text-white/50"
+              />
+              <button
+                type="submit"
+                className="btn-primary bg-gradient-to-r from-cyan-400 to-cyan-200 text-[#0a1929] font-bold rounded-lg px-6 py-3 shadow hover:shadow-cyan-200/30 transition"
+                disabled={uploading}
+              >
+                {uploading ? (
+                  <span>
+                    <span className="loading-spinner inline-block mr-2"></span>
+                    Uploading...
+                  </span>
+                ) : (
+                  'Upload Document'
+                )}
+              </button>
+            </form>
+            {uploadResult && (
+              <div className="mt-4">
+                {uploadResult.success ? (
+                  <div className="p-4 rounded-lg bg-green-900/30 border border-green-400/50 text-green-400 font-semibold">
+                    {uploadResult.message}
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-lg bg-red-900/30 border border-red-400/50 text-red-400">
+                    {uploadResult.error}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
+        <style>{`
+          .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            display: inline-block;
+            vertical-align: middle;
+          }
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
       </div>
     );
   }
 
   if (inputMode === 'form') {
     return (
-      <ProductForm
-        onBack={() => setInputMode(null)}
-        onCsvCreated={handleCsvCreated}
-      />
+      <div className="p-6 min-h-screen bg-gradient-to-br from-[#0a1929] via-[#1e3a52] to-[#2d5a87] relative">
+        {/* Floating Orbs */}
+        <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0">
+          <div className="absolute rounded-full bg-cyan-300 opacity-10" style={{width:300, height:300, top:'10%', left:'-10%'}} />
+          <div className="absolute rounded-full bg-cyan-300 opacity-10" style={{width:200, height:200, top:'60%', right:'-5%'}} />
+          <div className="absolute rounded-full bg-cyan-300 opacity-10" style={{width:150, height:150, top:'30%', left:'50%'}} />
+        </div>
+        <div className="relative z-10">
+          <div className="flex items-center mb-8">
+            <Map className="logo-glow text-cyan-400 mr-3 text-3xl" size={32} />
+            <h2 className="font-bold text-3xl bg-gradient-to-r from-cyan-400 to-cyan-200 bg-clip-text text-transparent">
+              LUMINA Summary
+            </h2>
+          </div>
+          <div className="glass bg-white/5 backdrop-blur-lg border border-cyan-200/20 rounded-2xl shadow p-8 mb-8">
+            <ProductForm
+              onBack={() => setInputMode(null)}
+              onCsvCreated={handleCsvCreated}
+            />
+          </div>
+        </div>
+      </div>
     );
   }
 
