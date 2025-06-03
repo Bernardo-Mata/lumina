@@ -167,7 +167,7 @@ const Disruption = () => {
           margin: 0 auto;
           padding: 2rem;
           position: relative;
-          z-index: 1;
+          z-index: 0;
         }
         .header {
           display: flex;

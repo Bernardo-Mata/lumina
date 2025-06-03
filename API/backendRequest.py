@@ -250,7 +250,7 @@ def robust_json_parse(llm_response):
             pass
     return None
 
-# ----------- ENDPOINTS DASHBOARD, ALERTS, ETC -----------
+
 def insert_tabular_data_from_llm(llm_json, db, current_user):
     for dashboard in llm_json.get("dashboard", []):
         db.add(Dashboard(**filter_model_fields(Dashboard, {**dashboard, "user_id": current_user.id})))

@@ -15,12 +15,16 @@ const ChatBot = ({ data, loading }) => {
     setSending(true);
 
     try {
-      // Llama al endpoint del backend con el JSON y la pregunta
+      // Obtener el token del localStorage
+      const token = localStorage.getItem("token");
+      // Llama al endpoint del backend con la pregunta y el token en el header
       const res = await fetch('http://127.0.0.1:8000/chatbot/ask', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
-          json_data: data,
           question: input
         })
       });
@@ -352,7 +356,7 @@ const ChatBot = ({ data, loading }) => {
             max-width: 90%;
             padding: 0.6rem 0.8rem;
           }
-        }
+        }      }
       `}</style>
     </div>
   );

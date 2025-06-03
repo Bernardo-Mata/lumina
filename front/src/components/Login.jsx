@@ -13,7 +13,7 @@ const Login = ({ setToken }) => {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch("http://127.0.0.1:8000/token", {
+      const res = await fetch("http://127.0.0.1:8000/login", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ username, password }),
