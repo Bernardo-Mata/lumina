@@ -13,6 +13,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 from API.database import SessionLocal
 from API.auth import get_current_user
+import re
 
 def get_db():
     db = SessionLocal()
@@ -74,14 +75,40 @@ def get_context_from_full_report(db, current_user):
     report = get_user_full_report(db=db, current_user=current_user)
     return json.dumps(report, ensure_ascii=False, indent=2, default=str)
 
+def clean_llm_output(text):
+    """
+    Limpia el output del LLM para mostrarlo de forma decente en el front.
+    - Elimina espacios y saltos de línea excesivos.
+    - Elimina caracteres de control.
+    - Normaliza comillas y bullets.
+    - Elimina duplicados de saltos de línea.
+    """
+    if not isinstance(text, str):
+        return text
+    # Quita caracteres de control no imprimibles
+    text = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]', '', text)
+    # Normaliza bullets
+    text = re.sub(r'^[\-\*\•]\s*', '• ', text, flags=re.MULTILINE)
+    # Quita más de 2 saltos de línea seguidos
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    # Quita espacios al inicio de línea
+    text = re.sub(r'^[ \t]+', '', text, flags=re.MULTILINE)
+    # Normaliza comillas
+    text = text.replace("“", '"').replace("”", '"').replace("‘", "'").replace("’", "'")
+    # Quita espacios al final de línea
+    text = re.sub(r'[ \t]+$', '', text, flags=re.MULTILINE)
+    # Quita espacios al inicio y final del texto
+    text = text.strip()
+    return text
+
 async def ask_chatbot(db, current_user, question):
     context = get_context_from_full_report(db, current_user)
     prompt = prompt_template.format(context=context, question=question)
     llm, retriever = build_chain_from_json(context)
-    # Recupera contexto relevante
-    # docs = retriever.get_relevant_documents(question)
     result = await llm.ainvoke(prompt)
-    return result.content if hasattr(result, "content") else result
+    raw_answer = result.content if hasattr(result, "content") else result
+    cleaned_answer = clean_llm_output(raw_answer)
+    return cleaned_answer
 
 router = APIRouter()
 

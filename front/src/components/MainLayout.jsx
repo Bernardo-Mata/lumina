@@ -153,6 +153,12 @@ function MainLayout({ GenerateButtonWithRoute }) {
                   <span>ChatBot</span>
                 </Link>
               </li>
+
+              <li className="lumina-nav-item">
+                <Link to="/maps" className="lumina-nav-link">
+                  <span>Maps</span>
+                </Link>
+              </li>
             </ul>
           </nav>
         </aside>
