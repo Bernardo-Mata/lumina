@@ -63,6 +63,9 @@ class Alert(Base):
     lead_time = Column(Integer)
     description = Column(Text)
     solutions = Column(Text)
+    risk_type = Column(Text)
+    risk_reason = Column(Text)
+
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     def as_dict(self):

@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+
 import Dashboard from './components/Dashboard';
 import Alerts from './components/Alerts';
 import Suppliers from './components/Suppliers';
 import Summary from './components/Summary';
 import Compilance from './components/Compilance';
-import ChatBot from './components/chatbot';
+import ChatBot from './components/ChatBot';
 import Disruption from './components/Disruption';
-import Login from './components/login';
+import Login from './components/Login';
 import Register from './components/Register';
 import MainLayout from './components/MainLayout';
+import Maps from './components/Maps' // Asegúrate de que este componente esté implementado correctamente
+
 import './index.css';
 
 const App = () => {
@@ -62,12 +65,10 @@ const App = () => {
 
         {/* Rutas protegidas CON layout */}
         <Route
-          path="/*"
+          path="/"
           element={
             token ? (
-              <MainLayout>
-                {/* El Outlet de MainLayout renderiza aquí */}
-              </MainLayout>
+              <MainLayout />
             ) : (
               <Navigate to="/login" replace />
             )
@@ -127,30 +128,9 @@ const App = () => {
               }
             />
           } />
-          <Route
-            path="insights-llm-sim"
-            element={
-              <div style={{ padding: 24 }}>
-                <h2 style={{ fontWeight: 700, fontSize: 24, marginBottom: 16 }}>Raw insights-llm-sim JSON</h2>
-                {loading && <div>Loading...</div>}
-                {!loading && (
-                  <pre
-                    style={{
-                      background: '#222',
-                      color: '#80ffff',
-                      padding: 16,
-                      borderRadius: 8,
-                      fontSize: 14,
-                      overflowX: 'auto',
-                      maxHeight: 600
-                    }}
-                  >
-                    {JSON.stringify(llmSimData, null, 2)}
-                  </pre>
-                )}
-              </div>
-            }
-          />
+          {/* IMPLEMENTACIÓN DE MAPS */}
+          <Route path="maps" element={<Maps />} />
+          {/* ...otras rutas si las hay... */}
         </Route>
       </Routes>
     </Router>

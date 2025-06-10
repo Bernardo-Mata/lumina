@@ -13,7 +13,7 @@ const Login = ({ setToken }) => {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch("http://127.0.0.1:8000/token", {
+      const res = await fetch("http://127.0.0.1:8000/login", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ username, password }),
@@ -46,13 +46,13 @@ const Login = ({ setToken }) => {
           <div className="lumina-logo-text">LUMINA</div>
         </div>
         
-        <h2 className="lumina-form-title">Iniciar Sesión</h2>
+        <h2 className="lumina-form-title">Log In</h2>
         
         <form onSubmit={handleSubmit} className="lumina-form">
           <div className="lumina-form-group">
             <input
               className="lumina-form-input"
-              placeholder="Nombre de usuario"
+              placeholder="Username"
               value={username}
               onChange={e => setUsername(e.target.value)}
               autoComplete="username"
@@ -64,7 +64,7 @@ const Login = ({ setToken }) => {
           <div className="lumina-form-group">
             <input
               className="lumina-form-input"
-              placeholder="Contraseña"
+              placeholder="Password"
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
@@ -84,7 +84,7 @@ const Login = ({ setToken }) => {
             type="submit"
             disabled={loading}
           >
-            {loading ? "" : "Iniciar Sesión"}
+            {loading ? "" : "Log In"}
           </button>
         </form>
         
@@ -96,7 +96,7 @@ const Login = ({ setToken }) => {
               alert("Funcionalidad no implementada");
             }}
           >
-            ¿Olvidaste tu contraseña?
+            Forgot your password?
           </a>
         </div>
 

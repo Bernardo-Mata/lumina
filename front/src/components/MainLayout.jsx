@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { Bell, Settings, User, Box, LogOut } from "lucide-react";
 
@@ -6,11 +6,31 @@ function MainLayout({ GenerateButtonWithRoute }) {
   const username = localStorage.getItem("username");
   const navigate = useNavigate();
 
+  // Estado para mostrar/ocultar popover y almacenar alertas
+  const [showAlerts, setShowAlerts] = useState(false);
+  const [highRiskAlerts, setHighRiskAlerts] = useState([]);
+
+  // Cargar alertas de high risk al montar el componente
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    fetch("http://127.0.0.1:8000/api/user_alerts", {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(alerts => {
+        // Filtra solo las alertas de high risk
+        const high = alerts.filter(a => a.priority && a.priority.toLowerCase() === "high");
+        setHighRiskAlerts(high);
+      })
+      .catch(() => setHighRiskAlerts([]));
+  }, []);
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
     navigate("/login");
-    window.location.reload(); // Opcional: fuerza recarga para limpiar estado
+    window.location.reload();
   };
 
   return (
@@ -32,7 +52,6 @@ function MainLayout({ GenerateButtonWithRoute }) {
             <h1 className="lumina-logo-text">Lumina</h1>
           </div>
           <div className="lumina-header-actions">
-            
             <div className="lumina-navbar-right">
               {username ? (
                 <span className="lumina-navbar-welcome">
@@ -44,14 +63,41 @@ function MainLayout({ GenerateButtonWithRoute }) {
                 </span>
               )}
             </div>
-            <button className="lumina-icon-btn">
-              <Bell size={20} />
+            {/* Notificaciones */}
+            <div style={{ position: "relative" }}>
+              <button
+                className="lumina-icon-btn"
+                title="Notifications"
+                onClick={() => setShowAlerts(v => !v)}
+              >
+                <Bell size={25} />
+              </button>
+              {showAlerts && (
+                <div className="lumina-alert-popover">
+                  <div className="lumina-alert-popover-title">High Risk Alerts</div>
+                  {highRiskAlerts.length === 0 ? (
+                    <div className="lumina-alert-empty">No high risk alerts</div>
+                  ) : (
+                    highRiskAlerts.slice(0, 4).map((alert, idx) => (
+                      <div key={idx} className="lumina-alert-item">
+                        <div className="lumina-alert-product">{alert.product_type || alert.sku}</div>
+                        <div className="lumina-alert-desc">{alert.description}</div>
+                      </div>
+                    ))
+                  )}
+                  {highRiskAlerts.length > 4 && (
+                    <div className="lumina-alert-empty" style={{ textAlign: "center", fontSize: "0.95rem", marginTop: "0.5rem" }}>
+                      +{highRiskAlerts.length - 4} more...
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            <button className="lumina-icon-btn" title="Settings">
+              <Settings size={25} />
             </button>
-            <button className="lumina-icon-btn">
-              <Settings size={20} />
-            </button>
-            <button className="lumina-icon-btn lumina-user-btn">
-              <User size={20} />
+            <button className="lumina-icon-btn lumina-user-btn" title="User">
+              <User size={25} />
             </button>
             {username && (
               <button
@@ -59,7 +105,8 @@ function MainLayout({ GenerateButtonWithRoute }) {
                 onClick={handleLogout}
                 title="Log out"
               >
-                <LogOut size={20} />
+                <LogOut size={25} />
+                LogOut
               </button>
             )}
           </div>
@@ -106,6 +153,12 @@ function MainLayout({ GenerateButtonWithRoute }) {
                   <span>ChatBot</span>
                 </Link>
               </li>
+
+              <li className="lumina-nav-item">
+                <Link to="/maps" className="lumina-nav-link">
+                  <span>Maps</span>
+                </Link>
+              </li>
             </ul>
           </nav>
         </aside>
@@ -123,11 +176,11 @@ function MainLayout({ GenerateButtonWithRoute }) {
         .lumina-main-container {
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
           height: 100vh;
-          overflow: hidden;
           background: linear-gradient(135deg, #0a1929 0%, #1e3a52 50%, #2d5a87 100%);
           position: relative;
           display: flex;
           flex-direction: column;
+          z-index: 0; /* Asegura que el contenedor principal esté atrás */
         }
 
         /* Floating background elements */
@@ -233,7 +286,7 @@ function MainLayout({ GenerateButtonWithRoute }) {
         }
 
         .lumina-icon-btn {
-          width: 40px;
+          width: 80px;
           height: 40px;
           border: none;
           border-radius: 50%;
@@ -281,7 +334,7 @@ function MainLayout({ GenerateButtonWithRoute }) {
           flex: 1;
           overflow: hidden;
           position: relative;
-          z-index: 1;
+          z-index: 0; /* Manda el layout principal atrás */
         }
 
         /* Sidebar */
@@ -443,6 +496,52 @@ function MainLayout({ GenerateButtonWithRoute }) {
 
         .lumina-main-content::-webkit-scrollbar-thumb:hover {
           background: linear-gradient(135deg, #80ffff 0%, #40e0ff 100%);
+        }
+
+        .lumina-alert-popover {
+          position: fixed;
+          top: 70px;
+          right: 32px;
+          min-width: 260px;
+          background: rgba(10, 25, 41, 0.98);
+          color: #fff;
+          border-radius: 12px;
+          box-shadow: 0 8px 24px rgba(64,224,255,0.18);
+          border: 1px solid #40e0ff44;
+          z-index: 9999; /* El popover siempre por delante */
+          padding: 1rem;
+          animation: lumina-popIn 0.2s;
+        }
+        @keyframes lumina-popIn {
+          from { opacity: 0; transform: translateY(-10px);}
+          to { opacity: 1; transform: translateY(0);}
+        }
+        .lumina-alert-popover-title {
+          font-weight: 700;
+          color: #40e0ff;
+          margin-bottom: 0.5rem;
+          font-size: 1.1rem;
+        }
+        .lumina-alert-empty {
+          color: #aaa;
+          font-size: 0.95rem;
+          padding: 0.5rem 0;
+        }
+        .lumina-alert-item {
+          background: rgba(255,255,255,0.06);
+          border-radius: 8px;
+          margin-bottom: 0.5rem;
+          padding: 0.5rem 0.75rem;
+          box-shadow: 0 2px 8px rgba(64,224,255,0.05);
+        }
+        .lumina-alert-product {
+          font-weight: 600;
+          color: #ff6b6b;
+          font-size: 1rem;
+        }
+        .lumina-alert-desc {
+          font-size: 0.95rem;
+          color: #fff;
         }
       `}</style>
     </div>
