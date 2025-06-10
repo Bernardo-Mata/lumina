@@ -47,13 +47,13 @@ const Register = () => {
           <div className="lumina-logo-text">LUMINA</div>
         </div>
 
-        <h2 className="lumina-form-title">Crear Cuenta</h2>
+        <h2 className="lumina-form-title">Create account</h2>
 
         <form onSubmit={handleSubmit} className="lumina-form">
           <div className="lumina-form-group">
             <input
               className="lumina-form-input"
-              placeholder="Nombre de usuario"
+              placeholder="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               autoComplete="username"
@@ -64,7 +64,7 @@ const Register = () => {
           <div className="lumina-form-group">
             <input
               className="lumina-form-input"
-              placeholder="Correo electrónico"
+              placeholder="Email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -76,7 +76,7 @@ const Register = () => {
           <div className="lumina-form-group">
             <input
               className="lumina-form-input"
-              placeholder="Contraseña"
+              placeholder="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -96,7 +96,7 @@ const Register = () => {
             type="submit"
             disabled={loading}
           >
-            {loading ? "" : "Registrarse"}
+            {loading ? "" : "Register"}
           </button>
         </form>
 
@@ -108,10 +108,10 @@ const Register = () => {
               navigate("/login");
             }}
           >
-            ¿Ya tienes cuenta? Inicia sesión
+            arleady have an account? Login
           </a>
         </div>
-      </div>
+      </div>  
 
       <style jsx>{`
         .lumina-register-container {

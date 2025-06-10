@@ -16,8 +16,21 @@ const Alerts = () => {
           }
         });
         if (res.ok) {
-          const data = await res.json();
-          setAlerts(data);
+          // Si la respuesta es un string JSON, parsea primero
+          let data = await res.json();
+          if (typeof data === "string") {
+            try {
+              data = JSON.parse(data);
+            } catch (e) {
+              data = [];
+            }
+          }
+          // Si el JSON tiene una propiedad 'alerts', úsala
+          if (data && data.alerts) {
+            setAlerts(data.alerts);
+          } else {
+            setAlerts(data);
+          }
         } else {
           setAlerts([]);
         }
@@ -69,10 +82,20 @@ const Alerts = () => {
           <span className="label">Tiempo de Entrega:</span>
           <span className="value">{alert.lead_time ?? '-'}</span>
         </div>
+        <div className="alert-field">
+          <span className="label">Tipo de Riesgo:</span>
+          <span className="value">{alert.risk_type || '-'}</span>
+        </div>
       </div>
       <div className="alert-description">
         {alert.description || '-'}
       </div>
+      {alert.risk_reason && (
+        <div className="risk-reason-container">
+          <span className="risk-reason-title">Motivo del Riesgo:</span>
+          <span className="risk-reason-text">{alert.risk_reason}</span>
+        </div>
+      )}
       {alert.solutions && (
         <div className="solutions-container">
           <span className="solutions-title">Soluciones Recomendadas:</span>
@@ -527,6 +550,23 @@ const Alerts = () => {
             .alert-card {
                 padding: 1rem;
             }
+        }
+        .risk-reason-container {
+          background: rgba(255, 193, 7, 0.13);
+          border-left: 4px solid #ffc107;
+          padding: 0.75rem 1rem;
+          margin-bottom: 1rem;
+          border-radius: 8px;
+          backdrop-filter: blur(6px);
+        }
+        .risk-reason-title {
+          font-weight: 600;
+          color: #ffc107;
+          margin-right: 0.5rem;
+        }
+        .risk-reason-text {
+          color: #fff;
+          opacity: 0.95;
         }
       `}</style>
     </>
