@@ -13,10 +13,6 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
-// Configure Chart.js defaults for dark theme
-ChartJS.defaults.color = '#ffffff';
-ChartJS.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
-
 const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -34,9 +30,7 @@ const Dashboard = () => {
         });
         if (res.ok) {
           const data = await res.json();
-          // Toma el dashboard más reciente si hay varios
           setDashboardData(Array.isArray(data) && data.length > 0 ? data[data.length - 1] : {});
-          console.log("Dashboard data fetched:", data);
         } else {
           setDashboardData({});
         }
@@ -50,33 +44,42 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="lumina-loading-state">
-        <div className="lumina-loading-spinner"></div>
-        <div>Generating insights...</div>
-      </div>
+      <>
+        <style>{`
+          .dashboard-loading-state {
+            text-align: center;
+            padding: 4rem;
+            font-size: 1.2rem;
+            color: #2563eb;
+            position: relative;
+            z-index: 1;
+          }
+          .dashboard-loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #93c5fd;
+            border-top: 3px solid #2563eb;
+            border-radius: 50%;
+            animation: dashboard-spin 1s linear infinite;
+            margin: 0 auto 1rem;
+          }
+          @keyframes dashboard-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+        <div className="dashboard-loading-state">
+          <div className="dashboard-loading-spinner"></div>
+          <div>Generando insights...</div>
+        </div>
+      </>
     );
   }
 
   if (!dashboardData || Object.keys(dashboardData).length === 0) {
     return (
-      <div className="lumina-loading-state">
-        <div>No dashboard data available.</div>
-      </div>
-    );
-  }
-
-  if (dashboardData.error) {
-    return (
-      <div className="lumina-dashboard-container">
-        <div className="lumina-floating-elements">
-          <div className="lumina-floating-element"></div>
-          <div className="lumina-floating-element"></div>
-          <div className="lumina-floating-element"></div>
-        </div>
-        <div className="lumina-error-state">
-          <div className="text-red-500">{dashboardData.error}</div>
-          <pre className="bg-white text-black p-2 rounded mt-2">{dashboardData.raw}</pre>
-        </div>
+      <div className="dashboard-loading-state">
+        <div>No hay datos de dashboard disponibles.</div>
       </div>
     );
   }
@@ -93,16 +96,16 @@ const Dashboard = () => {
         label: 'Suppliers by Region',
         data: Object.values(regionDist),
         backgroundColor: [
-          'rgba(64, 224, 255, 0.8)',
-          'rgba(128, 255, 255, 0.8)',
-          'rgba(64, 224, 255, 0.6)',
-          'rgba(128, 255, 255, 0.6)'
+          'rgba(37, 99, 235, 0.8)',
+          'rgba(59, 130, 246, 0.8)',
+          'rgba(37, 99, 235, 0.6)',
+          'rgba(59, 130, 246, 0.6)'
         ],
         borderColor: [
-          'rgba(64, 224, 255, 1)',
-          'rgba(128, 255, 255, 1)',
-          'rgba(64, 224, 255, 1)',
-          'rgba(128, 255, 255, 1)'
+          'rgba(37, 99, 235, 1)',
+          'rgba(59, 130, 246, 1)',
+          'rgba(37, 99, 235, 1)',
+          'rgba(59, 130, 246, 1)'
         ],
         borderWidth: 2,
         borderRadius: 8
@@ -126,13 +129,13 @@ const Dashboard = () => {
           'rgba(34, 197, 94, 0.8)',
           'rgba(245, 158, 66, 0.8)',
           'rgba(239, 68, 68, 0.8)',
-          'rgba(107, 114, 128, 0.8)'
+          'rgba(37, 99, 235, 0.8)'
         ],
         borderColor: [
           'rgba(34, 197, 94, 1)',
           'rgba(245, 158, 66, 1)',
           'rgba(239, 68, 68, 1)',
-          'rgba(107, 114, 128, 1)'
+          'rgba(37, 99, 235, 1)'
         ],
         borderWidth: 2
       }
@@ -181,7 +184,7 @@ const Dashboard = () => {
     plugins: {
       legend: {
         labels: {
-          color: '#ffffff'
+          color: '#2563eb'
         }
       }
     },
@@ -189,18 +192,18 @@ const Dashboard = () => {
       y: {
         beginAtZero: true,
         grid: {
-          color: 'rgba(255, 255, 255, 0.1)'
+          color: 'rgba(37, 99, 235, 0.1)'
         },
         ticks: {
-          color: '#ffffff'
+          color: '#2563eb'
         }
       },
       x: {
         grid: {
-          color: 'rgba(255, 255, 255, 0.1)'
+          color: 'rgba(37, 99, 235, 0.1)'
         },
         ticks: {
-          color: '#ffffff'
+          color: '#2563eb'
         }
       }
     }
@@ -213,7 +216,7 @@ const Dashboard = () => {
       legend: {
         position: 'bottom',
         labels: {
-          color: '#ffffff',
+          color: '#2563eb',
           padding: 20
         }
       }
@@ -223,616 +226,338 @@ const Dashboard = () => {
   const renderList = (arr) =>
     Array.isArray(arr) && arr.length > 0
       ? arr.map((item, idx) => (
-          <li key={idx} className="lumina-list-item">{item}</li>
+          <li key={idx} className="dashboard-list-item">{item}</li>
         ))
-      : <li className="lumina-no-data">No data</li>;
+      : <li className="dashboard-no-data">No data</li>;
 
   return (
-    <div className="lumina-dashboard-container">
-      {/* Floating background elements */}
-      <div className="lumina-floating-elements">
-        <div className="lumina-floating-element"></div>
-        <div className="lumina-floating-element"></div>
-        <div className="lumina-floating-element"></div>
-      </div>
+    <>
+      <style>{`
+        .dashboard-container {
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          background: #f9fafb;
+          min-height: 100vh;
+          color: #111827;
+          position: relative;
+          padding: 2rem 0;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        .dashboard-header {
+          text-align: center;
+          margin-bottom: 2.5rem;
+        }
+        .dashboard-title {
+          font-size: 2.5rem;
+          font-weight: 700;
+          color: #2563eb;
+          margin-bottom: 0.5rem;
+          letter-spacing: 0.01em;
+        }
+        .dashboard-subtitle {
+          font-size: 1.1rem;
+          color: #64748b;
+        }
+        .dashboard-kpi-grid {
+          display: grid;
+          grid-template-columns: repeat(1, 1fr);
+          gap: 1.5rem;
+          margin-bottom: 2.5rem;
+        }
+        @media (min-width: 768px) {
+          .dashboard-kpi-grid {
+            grid-template-columns: repeat(4, 1fr);
+          }
+        }
+        .dashboard-kpi-card {
+          background: #fff;
+          border-radius: 1rem;
+          box-shadow: 0 2px 8px #0001;
+          border: 1px solid #e5e7eb;
+          padding: 2rem 1.5rem;
+          text-align: center;
+          transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .dashboard-kpi-card:hover {
+          box-shadow: 0 8px 24px #2563eb22;
+          transform: translateY(-4px) scale(1.02);
+        }
+        .dashboard-kpi-value {
+          font-size: 2rem;
+          font-weight: bold;
+          color: #2563eb;
+          margin-bottom: 0.5rem;
+        }
+        .dashboard-kpi-label {
+          font-size: 1rem;
+          color: #64748b;
+          font-weight: 500;
+        }
+        .dashboard-section {
+          margin-bottom: 2.5rem;
+        }
+        .dashboard-section-title {
+          font-size: 1.3rem;
+          font-weight: 600;
+          color: #2563eb;
+          margin-bottom: 1.2rem;
+          text-align: center;
+        }
+        .dashboard-chart-container {
+          background: #fff;
+          border-radius: 1rem;
+          box-shadow: 0 2px 8px #0001;
+          border: 1px solid #e5e7eb;
+          padding: 2rem;
+          margin-bottom: 2rem;
+        }
+        .dashboard-table-container {
+          background: #fff;
+          border-radius: 1rem;
+          box-shadow: 0 2px 8px #0001;
+          border: 1px solid #e5e7eb;
+          padding: 1.5rem;
+          overflow-x: auto;
+          margin-bottom: 2rem;
+        }
+        .dashboard-data-table {
+          width: 100%;
+          border-collapse: collapse;
+          color: #111827;
+          font-size: 0.95rem;
+        }
+        .dashboard-data-table th {
+          background: #eff6ff;
+          color: #2563eb;
+          padding: 1rem;
+          text-align: left;
+          font-weight: 600;
+          border-bottom: 2px solid #2563eb33;
+        }
+        .dashboard-data-table td {
+          padding: 0.75rem 1rem;
+          border-bottom: 1px solid #e5e7eb;
+          transition: background-color 0.2s;
+        }
+        .dashboard-data-table tr:hover td {
+          background: #f1f5f9;
+        }
+        .dashboard-list-container {
+          background: #fff;
+          border-radius: 1rem;
+          box-shadow: 0 2px 8px #0001;
+          border: 1px solid #e5e7eb;
+          padding: 1.5rem;
+          margin-bottom: 2rem;
+        }
+        .dashboard-data-list {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+        }
+        .dashboard-list-item {
+          padding: 1rem;
+          border-bottom: 1px solid #e5e7eb;
+          transition: background-color 0.2s;
+          border-radius: 8px;
+          margin-bottom: 0.5rem;
+        }
+        .dashboard-list-item:hover {
+          background: #f1f5f9;
+        }
+        .dashboard-list-item:last-child {
+          border-bottom: none;
+          margin-bottom: 0;
+        }
+        .dashboard-no-data {
+          color: #64748b;
+          font-style: italic;
+          text-align: center;
+          padding: 2rem;
+        }
+        /* Responsive */
+        @media (max-width: 768px) {
+          .dashboard-container {
+            padding: 1rem 0.25rem;
+          }
+          .dashboard-title {
+            font-size: 1.5rem;
+          }
+          .dashboard-kpi-value {
+            font-size: 1.3rem;
+          }
+          .dashboard-section-title {
+            font-size: 1.1rem;
+          }
+          .dashboard-chart-container,
+          .dashboard-table-container,
+          .dashboard-list-container {
+            padding: 1rem;
+          }
+        }
+      `}</style>
+      <div className="dashboard-container">
+        <div className="dashboard-header">
+          <h1 className="dashboard-title">Supply Chain Dashboard</h1>
+          <p className="dashboard-subtitle">Monitoreo en tiempo real de la cadena de suministro</p>
+        </div>
 
-      {/* Header */}
-      <div className="lumina-dashboard-header">
-        <h1 className="lumina-dashboard-title">Supply Chain Dashboard</h1>
-        <p className="lumina-dashboard-subtitle">Monitoreo en tiempo real de la cadena de suministro</p>
-      </div>
-
-      {/* KPIs */}
-      <div className="lumina-kpi-grid">
-        <div className="lumina-kpi-card">
-          <div className="lumina-kpi-value">{showValue(dashboardData.total_suppliers)}</div>
-          <div className="lumina-kpi-label">Total Suppliers</div>
-        </div>
-        <div className="lumina-kpi-card">
-          <div className="lumina-kpi-value">{showValue(dashboardData.average_risk_score)}</div>
-          <div className="lumina-kpi-label">Average Risk Score</div>
-        </div>
-        <div className="lumina-kpi-card">
-          <div className="lumina-kpi-value">{showValue(dashboardData.on_time_delivery_percentage)}%</div>
-          <div className="lumina-kpi-label">On-Time Delivery %</div>
-        </div>
-        <div className="lumina-kpi-card">
-          <div className="lumina-kpi-value">{showValue(dashboardData.compliance_issues_count)}</div>
-          <div className="lumina-kpi-label">Compliance Issues</div>
-        </div>
-        <div className="lumina-kpi-card">
-          <div className="lumina-kpi-value">{showValue(dashboardData.high_risk_suppliers_count)}</div>
-          <div className="lumina-kpi-label">High Risk Suppliers</div>
-        </div>
-        <div className="lumina-kpi-card">
-          <div className="lumina-kpi-value">{showValue(dashboardData.average_delivery_delay_days)}</div>
-          <div className="lumina-kpi-label">Avg. Delivery Delay (days)</div>
-        </div>
-        <div className="lumina-kpi-card">
-          <div className="lumina-kpi-value">{showValue(dashboardData.financial_risk_score)}</div>
-          <div className="lumina-kpi-label">Financial Risk Score</div>
-        </div>
-        <div className="lumina-kpi-card">
-          <div className="lumina-kpi-value">{showValue(dashboardData.inventory_turnover_rate)}</div>
-          <div className="lumina-kpi-label">Inventory Turnover Rate</div>
-        </div>
-      </div>
-
-      {/* Additional KPIs Row */}
-      <div className="lumina-kpi-grid lumina-additional-kpis">
-        <div className="lumina-kpi-card">
-          <div className="lumina-kpi-value">{showValue(dashboardData.supplier_dependency_index)}</div>
-          <div className="lumina-kpi-label">Supplier Dependency Index</div>
-        </div>
-        <div className="lumina-kpi-card">
-          <div className="lumina-kpi-value">{showValue(dashboardData.esg_non_compliance_count)}</div>
-          <div className="lumina-kpi-label">ESG Non-Compliance</div>
-        </div>
-        <div className="lumina-kpi-card">
-          <div className="lumina-kpi-value">{showValue(dashboardData.last_incident_date)}</div>
-          <div className="lumina-kpi-label">Last Incident Date</div>
-        </div>
-      </div>
-
-      {/* Supplier Region Distribution */}
-      <div className="lumina-section">
-        <h3 className="lumina-section-title">Distribución de Proveedores por Región</h3>
-        <div className="lumina-chart-container">
-          <Bar data={regionBarData} options={chartOptions} />
-        </div>
-        <div className="lumina-table-container">
-          <table className="lumina-data-table">
-            <thead>
-              <tr>
-                <th>Region</th>
-                <th>Count</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(regionDist).map(([region, count]) => (
-                <tr key={region}>
-                  <td>{region}</td>
-                  <td>{count}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Supplier Status Pie Chart */}
-      <div className="lumina-section">
-        <h3 className="lumina-section-title">Distribución de Estado de Proveedores</h3>
-        <div className="lumina-chart-container">
-          <div className="lumina-pie-chart-wrapper">
-            <div className="lumina-pie-chart-container">
-              <Pie data={statusPieData} options={pieOptions} />
-            </div>
+        {/* KPIs */}
+        <div className="dashboard-kpi-grid">
+          <div className="dashboard-kpi-card">
+            <div className="dashboard-kpi-value">{showValue(dashboardData.total_suppliers)}</div>
+            <div className="dashboard-kpi-label">Total Suppliers</div>
+          </div>
+          <div className="dashboard-kpi-card">
+            <div className="dashboard-kpi-value">{showValue(dashboardData.average_risk_score)}</div>
+            <div className="dashboard-kpi-label">Average Risk Score</div>
+          </div>
+          <div className="dashboard-kpi-card">
+            <div className="dashboard-kpi-value">{showValue(dashboardData.on_time_delivery_percentage)}%</div>
+            <div className="dashboard-kpi-label">On-Time Delivery %</div>
+          </div>
+          <div className="dashboard-kpi-card">
+            <div className="dashboard-kpi-value">{showValue(dashboardData.compliance_issues_count)}</div>
+            <div className="dashboard-kpi-label">Compliance Issues</div>
+          </div>
+          <div className="dashboard-kpi-card">
+            <div className="dashboard-kpi-value">{showValue(dashboardData.high_risk_suppliers_count)}</div>
+            <div className="dashboard-kpi-label">High Risk Suppliers</div>
+          </div>
+          <div className="dashboard-kpi-card">
+            <div className="dashboard-kpi-value">{showValue(dashboardData.average_delivery_delay_days)}</div>
+            <div className="dashboard-kpi-label">Avg. Delivery Delay (days)</div>
+          </div>
+          <div className="dashboard-kpi-card">
+            <div className="dashboard-kpi-value">{showValue(dashboardData.financial_risk_score)}</div>
+            <div className="dashboard-kpi-label">Financial Risk Score</div>
+          </div>
+          <div className="dashboard-kpi-card">
+            <div className="dashboard-kpi-value">{showValue(dashboardData.inventory_turnover_rate)}</div>
+            <div className="dashboard-kpi-label">Inventory Turnover Rate</div>
           </div>
         </div>
-      </div>
 
-      {/* Risk Score Distribution Bar Chart */}
-      <div className="lumina-section">
-        <h3 className="lumina-section-title">Distribución de Puntuación de Riesgo</h3>
-        <div className="lumina-chart-container">
-          <Bar data={riskBarData} options={chartOptions} />
+        {/* Additional KPIs Row */}
+        <div className="dashboard-kpi-grid" style={{ marginBottom: "2.5rem" }}>
+          <div className="dashboard-kpi-card">
+            <div className="dashboard-kpi-value">{showValue(dashboardData.supplier_dependency_index)}</div>
+            <div className="dashboard-kpi-label">Supplier Dependency Index</div>
+          </div>
+          <div className="dashboard-kpi-card">
+            <div className="dashboard-kpi-value">{showValue(dashboardData.esg_non_compliance_count)}</div>
+            <div className="dashboard-kpi-label">ESG Non-Compliance</div>
+          </div>
+          <div className="dashboard-kpi-card">
+            <div className="dashboard-kpi-value">{showValue(dashboardData.last_incident_date)}</div>
+            <div className="dashboard-kpi-label">Last Incident Date</div>
+          </div>
         </div>
-      </div>
 
-      {/* Recent Alerts */}
-      <div className="lumina-section">
-        <h3 className="lumina-section-title">Alertas Recientes</h3>
-        <div className="lumina-list-container">
-          <ul className="lumina-data-list">
-            {renderList(dashboardData.recent_alerts)}
-          </ul>
-        </div>
-      </div>
-
-      {/* Critical Materials Shortage */}
-      <div className="lumina-section">
-        <h3 className="lumina-section-title">Escasez de Materiales Críticos</h3>
-        <div className="lumina-list-container">
-          <ul className="lumina-data-list">
-            {renderList(dashboardData.critical_materials_shortage)}
-          </ul>
-        </div>
-      </div>
-
-      {/* Supply Chain Disruption Events */}
-      <div className="lumina-section">
-        <h3 className="lumina-section-title">Eventos de Disrupción en la Cadena de Suministro</h3>
-        <div className="lumina-list-container">
-          <ul className="lumina-data-list">
-            {renderList(dashboardData.supply_chain_disruption_events)}
-          </ul>
-        </div>
-      </div>
-
-      {/* Suppliers Table */}
-      {Array.isArray(dashboardData.suppliers) && dashboardData.suppliers.length > 0 && (
-        <div className="lumina-section">
-          <h3 className="lumina-section-title">Tabla de Proveedores</h3>
-          <div className="lumina-table-container">
-            <table className="lumina-data-table">
+        {/* Supplier Region Distribution */}
+        <div className="dashboard-section">
+          <h3 className="dashboard-section-title">Distribución de Proveedores por Región</h3>
+          <div className="dashboard-chart-container">
+            <Bar data={regionBarData} options={chartOptions} />
+          </div>
+          <div className="dashboard-table-container">
+            <table className="dashboard-data-table">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Location</th>
-                  <th>Risk Score</th>
-                  <th>Status</th>
+                  <th>Region</th>
+                  <th>Count</th>
                 </tr>
               </thead>
               <tbody>
-                {dashboardData.suppliers.map((s, idx) => (
-                  <tr key={idx}>
-                    <td>{s.name}</td>
-                    <td>{s.location}</td>
-                    <td>{s.risk_score}</td>
-                    <td>{s.status}</td>
+                {Object.entries(regionDist).map(([region, count]) => (
+                  <tr key={region}>
+                    <td>{region}</td>
+                    <td>{count}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         </div>
-      )}
 
-      <style jsx>{`
-        .lumina-dashboard-container {
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          background: linear-gradient(135deg, #0a1929 0%, #1e3a52 50%, #2d5a87 100%);
-          min-height: 100vh;
-          color: white;
-          position: relative;
-          padding: 2rem;
-          max-width: 1400px;
-          margin: 0 auto;
-        }
+        {/* Supplier Status Pie Chart */}
+        <div className="dashboard-section">
+          <h3 className="dashboard-section-title">Distribución de Estado de Proveedores</h3>
+          <div className="dashboard-chart-container" style={{ display: "flex", justifyContent: "center" }}>
+            <div style={{ width: 300, height: 300 }}>
+              <Pie data={statusPieData} options={pieOptions} />
+            </div>
+          </div>
+        </div>
 
-        /* Floating background elements */
-        .lumina-floating-elements {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          pointer-events: none;
-          z-index: 0;
-          overflow: hidden;
-        }
+        {/* Risk Score Distribution Bar Chart */}
+        <div className="dashboard-section">
+          <h3 className="dashboard-section-title">Distribución de Puntuación de Riesgo</h3>
+          <div className="dashboard-chart-container">
+            <Bar data={riskBarData} options={chartOptions} />
+          </div>
+        </div>
 
-        .lumina-floating-element {
-          position: absolute;
-          background: radial-gradient(circle, rgba(64, 224, 255, 0.08) 0%, transparent 70%);
-          border-radius: 50%;
-          animation: lumina-float 8s ease-in-out infinite;
-        }
+        {/* Recent Alerts */}
+        <div className="dashboard-section">
+          <h3 className="dashboard-section-title">Alertas Recientes</h3>
+          <div className="dashboard-list-container">
+            <ul className="dashboard-data-list">
+              {renderList(dashboardData.recent_alerts)}
+            </ul>
+          </div>
+        </div>
 
-        .lumina-floating-element:nth-child(1) {
-          width: 300px;
-          height: 300px;
-          top: 5%;
-          left: 75%;
-          animation-delay: 0s;
-        }
+        {/* Critical Materials Shortage */}
+        <div className="dashboard-section">
+          <h3 className="dashboard-section-title">Escasez de Materiales Críticos</h3>
+          <div className="dashboard-list-container">
+            <ul className="dashboard-data-list">
+              {renderList(dashboardData.critical_materials_shortage)}
+            </ul>
+          </div>
+        </div>
 
-        .lumina-floating-element:nth-child(2) {
-          width: 200px;
-          height: 200px;
-          top: 50%;
-          left: 5%;
-          animation-delay: 3s;
-        }
+        {/* Supply Chain Disruption Events */}
+        <div className="dashboard-section">
+          <h3 className="dashboard-section-title">Eventos de Disrupción en la Cadena de Suministro</h3>
+          <div className="dashboard-list-container">
+            <ul className="dashboard-data-list">
+              {renderList(dashboardData.supply_chain_disruption_events)}
+            </ul>
+          </div>
+        </div>
 
-        .lumina-floating-element:nth-child(3) {
-          width: 150px;
-          height: 150px;
-          top: 20%;
-          left: 30%;
-          animation-delay: 6s;
-        }
-
-        @keyframes lumina-float {
-          0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
-          33% { transform: translateY(-30px) rotate(120deg) scale(1.1); }
-          66% { transform: translateY(20px) rotate(240deg) scale(0.9); }
-        }
-
-        .lumina-dashboard-header {
-          text-align: center;
-          margin-bottom: 3rem;
-          opacity: 0;
-          animation: lumina-fadeInUp 1s ease forwards;
-          position: relative;
-          z-index: 1;
-        }
-
-        .lumina-dashboard-title {
-          font-size: 3rem;
-          font-weight: 700;
-          background: linear-gradient(135deg, #40e0ff 0%, #80ffff 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          margin-bottom: 0.5rem;
-          text-shadow: 0 0 30px rgba(64, 224, 255, 0.3);
-        }
-
-        .lumina-dashboard-subtitle {
-          font-size: 1.2rem;
-          color: rgba(255, 255, 255, 0.7);
-        }
-
-        @keyframes lumina-fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        /* KPI Cards */
-        .lumina-kpi-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-          gap: 1.5rem;
-          margin-bottom: 3rem;
-          position: relative;
-          z-index: 1;
-        }
-
-        .lumina-additional-kpis {
-          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        }
-
-        .lumina-kpi-card {
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          border-radius: 20px;
-          padding: 2rem;
-          text-align: center;
-          position: relative;
-          overflow: hidden;
-          transition: all 0.4s ease;
-          opacity: 0;
-          animation: lumina-slideInUp 0.8s ease forwards;
-        }
-
-        .lumina-kpi-card:nth-child(1) { animation-delay: 0.1s; }
-        .lumina-kpi-card:nth-child(2) { animation-delay: 0.2s; }
-        .lumina-kpi-card:nth-child(3) { animation-delay: 0.3s; }
-        .lumina-kpi-card:nth-child(4) { animation-delay: 0.4s; }
-        .lumina-kpi-card:nth-child(5) { animation-delay: 0.5s; }
-        .lumina-kpi-card:nth-child(6) { animation-delay: 0.6s; }
-        .lumina-kpi-card:nth-child(7) { animation-delay: 0.7s; }
-        .lumina-kpi-card:nth-child(8) { animation-delay: 0.8s; }
-
-        @keyframes lumina-slideInUp {
-          from {
-            opacity: 0;
-            transform: translateY(50px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .lumina-kpi-card:before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-          transition: left 0.8s ease;
-        }
-
-        .lumina-kpi-card:hover:before {
-          left: 100%;
-        }
-
-        .lumina-kpi-card:hover {
-          transform: translateY(-10px);
-          background: rgba(255, 255, 255, 0.15);
-          box-shadow: 0 20px 40px rgba(64, 224, 255, 0.2);
-        }
-
-        .lumina-kpi-value {
-          font-size: 3rem;
-          font-weight: 700;
-          margin-bottom: 0.5rem;
-          background: linear-gradient(135deg, #40e0ff 0%, #80ffff 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        .lumina-kpi-label {
-          font-size: 1rem;
-          color: rgba(255, 255, 255, 0.8);
-          font-weight: 500;
-        }
-
-        /* Chart Sections */
-        .lumina-section {
-          margin-bottom: 3rem;
-          opacity: 0;
-          animation: lumina-fadeInUp 1s ease forwards;
-          position: relative;
-          z-index: 1;
-        }
-
-        .lumina-section:nth-child(4) { animation-delay: 0.2s; }
-        .lumina-section:nth-child(5) { animation-delay: 0.4s; }
-        .lumina-section:nth-child(6) { animation-delay: 0.6s; }
-
-        .lumina-section-title {
-          font-size: 1.8rem;
-          font-weight: 600;
-          color: #80ffff;
-          margin-bottom: 1.5rem;
-          text-align: center;
-        }
-
-        .lumina-chart-container {
-          background: rgba(255, 255, 255, 0.08);
-          backdrop-filter: blur(15px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 20px;
-          padding: 2rem;
-          margin-bottom: 2rem;
-          transition: all 0.3s ease;
-        }
-
-        .lumina-chart-container:hover {
-          background: rgba(255, 255, 255, 0.12);
-          transform: translateY(-5px);
-          box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .lumina-pie-chart-wrapper {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 400px;
-        }
-
-        .lumina-pie-chart-container {
-          width: 300px;
-          height: 300px;
-        }
-
-        /* Tables */
-        .lumina-table-container {
-          background: rgba(255, 255, 255, 0.08);
-          backdrop-filter: blur(15px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 20px;
-          padding: 1.5rem;
-          overflow-x: auto;
-          margin-bottom: 2rem;
-          transition: all 0.3s ease;
-        }
-
-        .lumina-table-container:hover {
-          background: rgba(255, 255, 255, 0.12);
-        }
-
-        .lumina-data-table {
-          width: 100%;
-          border-collapse: collapse;
-          color: white;
-          font-size: 0.9rem;
-        }
-
-        .lumina-data-table th {
-          background: rgba(64, 224, 255, 0.2);
-          color: #80ffff;
-          padding: 1rem;
-          text-align: left;
-          font-weight: 600;
-          border-bottom: 2px solid rgba(64, 224, 255, 0.3);
-        }
-
-        .lumina-data-table td {
-          padding: 0.75rem 1rem;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-          transition: background-color 0.2s ease;
-        }
-
-        .lumina-data-table tr:hover td {
-          background: rgba(64, 224, 255, 0.1);
-        }
-
-        /* Lists */
-        .lumina-list-container {
-          background: rgba(255, 255, 255, 0.08);
-          backdrop-filter: blur(15px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 20px;
-          padding: 1.5rem;
-          margin-bottom: 2rem;
-        }
-
-        .lumina-data-list {
-          list-style: none;
-          margin: 0;
-          padding: 0;
-        }
-
-        .lumina-list-item {
-          padding: 1rem;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-          transition: all 0.3s ease;
-          border-radius: 8px;
-          margin-bottom: 0.5rem;
-        }
-
-        .lumina-list-item:hover {
-          background: rgba(64, 224, 255, 0.1);
-          transform: translateX(10px);
-        }
-
-        .lumina-list-item:last-child {
-          border-bottom: none;
-          margin-bottom: 0;
-        }
-
-        .lumina-no-data {
-          color: rgba(255, 255, 255, 0.5);
-          font-style: italic;
-          text-align: center;
-          padding: 2rem;
-        }
-
-        /* Loading and Error States */
-        .lumina-loading-state {
-          text-align: center;
-          padding: 4rem;
-          font-size: 1.2rem;
-          color: #80ffff;
-          position: relative;
-          z-index: 1;
-        }
-
-        .lumina-loading-spinner {
-          width: 40px;
-          height: 40px;
-          border: 3px solid rgba(64, 224, 255, 0.3);
-          border-top: 3px solid #40e0ff;
-          border-radius: 50%;
-          animation: lumina-spin 1s linear infinite;
-          margin: 0 auto 1rem;
-        }
-
-        @keyframes lumina-spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-
-        .lumina-error-state {
-          background: rgba(239, 68, 68, 0.1);
-          border: 1px solid rgba(239, 68, 68, 0.3);
-          border-radius: 15px;
-          padding: 2rem;
-          text-align: center;
-          color: #ff6b6b;
-          position: relative;
-          z-index: 1;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-          .lumina-dashboard-container {
-            padding: 1rem;
-          }
-
-          .lumina-dashboard-title {
-            font-size: 2rem;
-          }
-
-          .lumina-kpi-grid {
-            grid-template-columns: 1fr;
-            gap: 1rem;
-          }
-
-          .lumina-kpi-card {
-            padding: 1.5rem;
-          }
-
-          .lumina-kpi-value {
-            font-size: 2.5rem;
-          }
-
-          .lumina-chart-container {
-            padding: 1rem;
-          }
-
-          .lumina-section-title {
-            font-size: 1.5rem;
-          }
-
-          .lumina-pie-chart-container {
-            width: 250px;
-            height: 250px;
-          }
-
-          .lumina-floating-element {
-            display: none;
-          }
-        }
-
-        @media (max-width: 480px) {
-          .lumina-dashboard-title {
-            font-size: 1.5rem;
-          }
-
-          .lumina-kpi-value {
-            font-size: 2rem;
-          }
-
-          .lumina-section-title {
-            font-size: 1.2rem;
-          }
-
-          .lumina-data-table {
-            font-size: 0.8rem;
-          }
-
-          .lumina-data-table th,
-          .lumina-data-table td {
-            padding: 0.5rem;
-          }
-        }
-
-        /* Custom scrollbar */
-        .lumina-dashboard-container::-webkit-scrollbar {
-          width: 8px;
-        }
-
-        .lumina-dashboard-container::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 4px;
-        }
-
-        .lumina-dashboard-container::-webkit-scrollbar-thumb {
-          background: linear-gradient(135deg, #40e0ff 0%, #80ffff 100%);
-          border-radius: 4px;
-        }
-
-        .lumina-dashboard-container::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(135deg, #80ffff 0%, #40e0ff 100%);
-        }
-      `}</style>
-    </div>
+        {/* Suppliers Table */}
+        {Array.isArray(dashboardData.suppliers) && dashboardData.suppliers.length > 0 && (
+          <div className="dashboard-section">
+            <h3 className="dashboard-section-title">Tabla de Proveedores</h3>
+            <div className="dashboard-table-container">
+              <table className="dashboard-data-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Location</th>
+                    <th>Risk Score</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dashboardData.suppliers.map((s, idx) => (
+                    <tr key={idx}>
+                      <td>{s.name}</td>
+                      <td>{s.location}</td>
+                      <td>{s.risk_score}</td>
+                      <td>{s.status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

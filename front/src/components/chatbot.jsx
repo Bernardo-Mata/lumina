@@ -15,9 +15,7 @@ const ChatBot = ({ data, loading }) => {
     setSending(true);
 
     try {
-      // Obtener el token del localStorage
       const token = localStorage.getItem("token");
-      // Llama al endpoint del backend con la pregunta y el token en el header
       const res = await fetch('http://127.0.0.1:8000/chatbot/ask', {
         method: 'POST',
         headers: {
@@ -45,30 +43,74 @@ const ChatBot = ({ data, loading }) => {
 
   if (loading) {
     return (
-      <div className="p-6">
-        <div className="flex items-center mb-6">
-          <Activity className="text-blue-500 mr-2" size={28} />
-          <h2 className="font-bold text-2xl text-gray-800">Reports Chatbot</h2>
+      <>
+        <style>{`
+          .lumina-chatbot-loading {
+            min-height: 60vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #2563eb;
+            font-size: 1.2rem;
+          }
+          .lumina-chatbot-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #93c5fd;
+            border-top: 3px solid #2563eb;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+          }
+          @keyframes spin {
+            0% { transform: rotate(0deg);}
+            100% { transform: rotate(360deg);}
+          }
+        `}</style>
+        <div className="lumina-chatbot-loading">
+          <div className="lumina-chatbot-spinner"></div>
+          Cargando chatbot...
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="p-4">Loading reports...</div>
-        </div>
-      </div>
+      </>
     );
   }
 
   if (data && data.error) {
     return (
-      <div className="p-6">
-        <div className="flex items-center mb-6">
-          <Activity className="text-blue-500 mr-2" size={28} />
-          <h2 className="font-bold text-2xl text-gray-800">Reports Chatbot</h2>
+      <>
+        <style>{`
+          .lumina-chatbot-error {
+            min-height: 60vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #ef4444;
+            font-size: 1.1rem;
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 500px;
+          }
+          .lumina-chatbot-error-details {
+            background: #f3f4f6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            color: #334155;
+          }
+        `}</style>
+        <div className="lumina-chatbot-error">
+          <div>{data.error}</div>
+          {data.raw && <div className="lumina-chatbot-error-details">{data.raw}</div>}
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="p-4 text-red-500">{data.error}</div>
-          <pre className="bg-white text-black p-2 rounded mt-2">{data.raw}</pre>
-        </div>
-      </div>
+      </>
     );
   }
 
@@ -132,8 +174,8 @@ const ChatBot = ({ data, loading }) => {
           background: linear-gradient(135deg, #0a1929 0%, #1e3a52 50%, #2d5a87 100%);
           position: fixed;
           inset: 0;
-          width: 80vw;
-          height: 80vh;
+          width: 100vw;
+          height: 100vh;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -141,7 +183,8 @@ const ChatBot = ({ data, loading }) => {
         .lumina-chatbot-container {
           display: flex;
           flex-direction: column;
-          width: 80vw;
+          width: 90vw;
+          max-width: 600px;
           height: 80vh;
           background: rgba(255, 255, 255, 0.1);
           backdrop-filter: blur(20px);
@@ -151,6 +194,10 @@ const ChatBot = ({ data, loading }) => {
           box-sizing: border-box;
           box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
           animation: slideUp 0.8s ease-out;
+        }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(40px);}
+          to { opacity: 1; transform: translateY(0);}
         }
         .lumina-chatbot-header {
           flex-shrink: 0;
@@ -356,7 +403,7 @@ const ChatBot = ({ data, loading }) => {
             max-width: 90%;
             padding: 0.6rem 0.8rem;
           }
-        }      }
+        }
       `}</style>
     </div>
   );

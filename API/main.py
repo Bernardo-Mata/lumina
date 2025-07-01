@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI
 from API.auth import router as auth_router
 from API.backendRequest import router as backend_router

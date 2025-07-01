@@ -7,7 +7,7 @@ const Login = ({ setToken }) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  
+
   const handleSubmit = async e => {
     e.preventDefault();
     setError("");
@@ -23,7 +23,7 @@ const Login = ({ setToken }) => {
       if (data.access_token) {
         setToken(data.access_token);
         localStorage.setItem("token", data.access_token);
-        localStorage.setItem("username", username); // <-- Guarda el username
+        localStorage.setItem("username", username);
         navigate("/summary");
       } else {
         setError(data.detail || "Login failed");
@@ -35,389 +35,281 @@ const Login = ({ setToken }) => {
   };
 
   return (
-    <div className="lumina-login-container">
-      <div className="lumina-background-animation"></div>
-      
-      <div className="lumina-login-card">
-        <div className="lumina-logo-section">
-          <div className="lumina-logo-icon">
-            <span className="lumina-logo-symbol">✦</span>
-          </div>
-          <div className="lumina-logo-text">LUMINA</div>
-        </div>
-        
-        <h2 className="lumina-form-title">Log In</h2>
-        
-        <form onSubmit={handleSubmit} className="lumina-form">
-          <div className="lumina-form-group">
-            <input
-              className="lumina-form-input"
-              placeholder="Username"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-              autoComplete="username"
-              required
-              type="text"
-            />
-          </div>
-          
-          <div className="lumina-form-group">
-            <input
-              className="lumina-form-input"
-              placeholder="Password"
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              autoComplete="current-password"
-              required
-            />
-          </div>
-          
-          {error && (
-            <div className="lumina-error-message">
-              {error}
-            </div>
-          )}
-          
-          <button
-            className={`lumina-login-button ${loading ? "lumina-loading" : ""}`}
-            type="submit"
-            disabled={loading}
-          >
-            {loading ? "" : "Log In"}
-          </button>
-        </form>
-        
-        <div className="lumina-forgot-password">
-          <a
-            href="#"
-            onClick={e => {
-              e.preventDefault();
-              alert("Funcionalidad no implementada");
-            }}
-          >
-            Forgot your password?
-          </a>
-        </div>
-
-        <div className="lumina-register-link">
-          <a
-            href="#"
-            onClick={e => {
-              e.preventDefault();
-              navigate("/register");
-            }}
-          >
-            You don't have an account? Create one
-          </a>
-        </div>
-      </div>
-
-      <style jsx>{`
-        .lumina-login-container {
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-          background: linear-gradient(135deg, #0a1929 0%, #1e3a52 50%, #2d5a87 100%);
+    <>
+      <style>{`
+        .login-bg {
           min-height: 100vh;
           display: flex;
           align-items: center;
           justify-content: center;
-          overflow: hidden;
+          background: #f9fafb;
           position: relative;
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
+          padding: 16px;
         }
-
-        .lumina-background-animation {
+        .login-gradient {
           position: absolute;
-          top: -50%;
-          left: -50%;
-          width: 200%;
-          height: 200%;
-          background: radial-gradient(circle at 20% 80%, rgba(64, 224, 255, 0.1) 0%, transparent 50%),
-                      radial-gradient(circle at 80% 20%, rgba(128, 255, 255, 0.1) 0%, transparent 50%),
-                      radial-gradient(circle at 40% 40%, rgba(0, 191, 255, 0.05) 0%, transparent 50%);
-          animation: lumina-float 20s ease-in-out infinite;
+          inset: 0;
+          background: linear-gradient(135deg, #2563eb1a 0%, #bfdbfe1a 50%, #2563eb1a 100%);
+          pointer-events: none;
+          z-index: 0;
         }
-
-        @keyframes lumina-float {
-          0%, 100% { transform: translate(0px, 0px) rotate(0deg); }
-          33% { transform: translate(30px, -30px) rotate(120deg); }
-          66% { transform: translate(-20px, 20px) rotate(240deg); }
-        }
-
-        .lumina-login-card {
-          background: rgba(255, 255, 255, 0.05);
-          backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 20px;
-          padding: 3rem;
-          width: 100%;
-          max-width: 420px;
-          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        .login-card {
           position: relative;
-          z-index: 1;
-          animation: lumina-slideUp 0.8s ease-out;
+          z-index: 10;
+          width: 100%;
+          max-width: 400px;
+          background: #fff;
+          border-radius: 1rem;
+          box-shadow: 0 8px 32px #0001, 0 1.5px 4px #0001;
+          border: 1px solid #e5e7eb;
+          padding: 2rem;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
         }
-
-        @keyframes lumina-slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(50px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+        .login-logo-block {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          margin-bottom: 2rem;
         }
-
-        .lumina-logo-section {
-          text-align: center;
-          margin-bottom: 2.5rem;
-        }
-
-        .lumina-logo-icon {
-          width: 80px;
-          height: 80px;
-          margin: 0 auto 1rem;
-          background: linear-gradient(135deg, #40e0ff 0%, #80ffff 100%);
-          border-radius: 20px;
+        .login-logo {
+          width: 64px;
+          height: 64px;
+          background: #2563eb;
+          border-radius: 0.75rem;
           display: flex;
           align-items: center;
           justify-content: center;
-          position: relative;
-          box-shadow: 0 10px 30px rgba(64, 224, 255, 0.3);
-          animation: lumina-pulse 2s ease-in-out infinite alternate;
+          box-shadow: 0 2px 8px #2563eb22;
+          margin-bottom: 0.75rem;
         }
-
-        @keyframes lumina-pulse {
-          from { box-shadow: 0 10px 30px rgba(64, 224, 255, 0.3); }
-          to { box-shadow: 0 15px 40px rgba(64, 224, 255, 0.5); }
-        }
-
-        .lumina-logo-symbol {
+        .login-logo-icon {
+          color: #fff;
           font-size: 2rem;
-          color: #0a1929;
           font-weight: bold;
         }
-
-        .lumina-logo-text {
-          font-size: 2.5rem;
-          font-weight: 700;
-          color: #ffffff;
-          letter-spacing: 0.3rem;
-          text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        .login-title {
+          font-size: 2rem;
+          font-weight: bold;
+          color: #2563eb;
+          letter-spacing: 0.03em;
+          text-shadow: 0 1px 2px #2563eb22;
+          margin-bottom: 0.25rem;
         }
-
-        .lumina-form-title {
-          color: #ffffff;
-          font-size: 1.5rem;
-          font-weight: 600;
-          margin-bottom: 2rem;
-          text-align: center;
+        .login-subtitle {
+          font-size: 1rem;
+          color: #2563eb;
+          font-weight: 300;
           opacity: 0.9;
         }
-
-        .lumina-form {
-          width: 100%;
-        }
-
-        .lumina-form-group {
-          margin-bottom: 1.5rem;
-          position: relative;
-          transition: transform 0.3s ease;
-        }
-
-        .lumina-form-group:focus-within {
-          transform: scale(1.02);
-        }
-
-        .lumina-form-input {
-          width: 100%;
-          padding: 1rem 1.5rem;
-          background: rgba(255, 255, 255, 0.1);
-          border: 2px solid rgba(255, 255, 255, 0.1);
-          border-radius: 12px;
-          color: #ffffff;
-          font-size: 1rem;
-          transition: all 0.3s ease;
-          backdrop-filter: blur(10px);
-          box-sizing: border-box;
-        }
-
-        .lumina-form-input::placeholder {
-          color: rgba(255, 255, 255, 0.6);
-        }
-
-        .lumina-form-input:focus {
-          outline: none;
-          border-color: #40e0ff;
-          background: rgba(255, 255, 255, 0.15);
-          box-shadow: 0 0 20px rgba(64, 224, 255, 0.3);
-          transform: translateY(-2px);
-        }
-
-        .lumina-error-message {
-          background: rgba(255, 82, 82, 0.1);
-          border: 1px solid rgba(255, 82, 82, 0.3);
-          color: #ff8a80;
-          padding: 0.75rem 1rem;
-          border-radius: 8px;
-          margin-bottom: 1rem;
-          font-size: 0.9rem;
-          text-align: center;
-          backdrop-filter: blur(10px);
-        }
-
-        .lumina-login-button {
-          width: 100%;
-          padding: 1rem;
-          background: linear-gradient(135deg, #40e0ff 0%, #0099cc 100%);
-          border: none;
-          border-radius: 12px;
-          color: #ffffff;
-          font-size: 1.1rem;
+        .login-heading {
+          font-size: 1.25rem;
           font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          box-shadow: 0 10px 25px rgba(64, 224, 255, 0.3);
-          position: relative;
-          overflow: hidden;
-        }
-
-        .lumina-login-button::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-          transition: left 0.5s;
-        }
-
-        .lumina-login-button:hover::before {
-          left: 100%;
-        }
-
-        .lumina-login-button:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 15px 35px rgba(64, 224, 255, 0.4);
-        }
-
-        .lumina-login-button:active {
-          transform: translateY(-1px);
-        }
-
-        .lumina-login-button.lumina-loading {
-          pointer-events: none;
-          background: linear-gradient(135deg, #666 0%, #888 100%);
-        }
-
-        .lumina-login-button.lumina-loading::after {
-          content: '';
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 20px;
-          height: 20px;
-          margin: -10px 0 0 -10px;
-          border: 2px solid transparent;
-          border-top: 2px solid #ffffff;
-          border-radius: 50%;
-          animation: lumina-spin 1s linear infinite;
-        }
-
-        @keyframes lumina-spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-
-        .lumina-forgot-password {
+          color: #111827;
+          margin-bottom: 1.5rem;
           text-align: center;
+        }
+        .login-form {
+          width: 100%;
+        }
+        .login-field {
+          margin-bottom: 1rem;
+        }
+        .login-label {
+          display: block;
+          font-size: 0.95rem;
+          font-weight: 500;
+          color: #374151;
+          margin-bottom: 0.25rem;
+        }
+        .login-input {
+          width: 100%;
+          padding: 0.75rem 1rem;
+          background: #f9fafb;
+          border: 1px solid #e5e7eb;
+          border-radius: 0.5rem;
+          color: #111827;
+          font-size: 1rem;
+          transition: border 0.2s, box-shadow 0.2s;
+        }
+        .login-input:focus {
+          outline: none;
+          border-color: #2563eb;
+          box-shadow: 0 0 0 2px #2563eb33;
+        }
+        .login-error {
+          background: #fee2e2;
+          border: 1px solid #fecaca;
+          color: #dc2626;
+          padding: 0.5rem 1rem;
+          border-radius: 0.5rem;
+          margin-bottom: 1rem;
+          font-size: 0.95rem;
+          text-align: center;
+        }
+        .login-btn {
+          width: 100%;
+          padding: 0.75rem 1rem;
+          background: #2563eb;
+          color: #fff;
+          border: none;
+          border-radius: 0.5rem;
+          font-weight: 600;
+          font-size: 1rem;
+          box-shadow: 0 1px 2px #2563eb22;
+          cursor: pointer;
+          transition: background 0.2s, box-shadow 0.2s;
+        }
+        .login-btn:hover:not(:disabled) {
+          background: #1d4ed8;
+        }
+        .login-btn:focus {
+          outline: none;
+          box-shadow: 0 0 0 2px #2563eb55;
+        }
+        .login-btn-disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+        .login-spinner {
+          display: inline-block;
+          width: 1.25rem;
+          height: 1.25rem;
+          border: 2px solid #fff;
+          border-top: 2px solid transparent;
+          border-radius: 50%;
+          animation: login-spin 1s linear infinite;
+          vertical-align: middle;
+        }
+        @keyframes login-spin {
+          to { transform: rotate(360deg); }
+        }
+        .login-links {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
           margin-top: 1.5rem;
+          gap: 0.5rem;
         }
-
-        .lumina-forgot-password a {
-          color: #40e0ff;
-          text-decoration: none;
-          font-size: 0.9rem;
-          transition: color 0.3s ease;
+        .login-link {
+          color: #2563eb;
+          font-size: 0.95rem;
+          background: none;
+          border: none;
+          cursor: pointer;
+          text-decoration: underline;
+          transition: color 0.2s;
+          padding: 0;
         }
-
-        .lumina-forgot-password a:hover {
-          color: #80ffff;
+        .login-link:hover,
+        .login-link:focus {
+          color: #1d4ed8;
+          outline: none;
+        }
+        .login-register {
+          color: #15803d;
+          font-size: 0.95rem;
+          font-weight: 500;
+          background: none;
+          border: none;
+          border-radius: 9999px;
+          padding: 0.25rem 0.5rem;
+          cursor: pointer;
+          transition: background 0.2s;
+        }
+        .login-register:hover,
+        .login-register:focus {
+          background: #bbf7d0;
+          outline: none;
+        }
+        .login-register-underline {
           text-decoration: underline;
         }
-
-        .lumina-register-link {
-          text-align: center;
-          margin-top: 1rem;
-          padding-top: 1rem;
-          border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .lumina-register-link a {
-          color: #4caf50;
-          text-decoration: none;
-          font-size: 0.9rem;
-          font-weight: 500;
-          transition: all 0.3s ease;
-          padding: 0.5rem 1rem;
-          border-radius: 8px;
-          display: inline-block;
-        }
-
-        .lumina-register-link a:hover {
-          color: #81c784;
-          background: rgba(76, 175, 80, 0.1);
-          text-decoration: none;
-          transform: translateY(-1px);
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-          .lumina-login-card {
-            margin: 1rem;
-            padding: 2rem;
-            max-width: none;
-          }
-
-          .lumina-logo-text {
-            font-size: 2rem;
-            letter-spacing: 0.2rem;
-          }
-
-          .lumina-logo-icon {
-            width: 60px;
-            height: 60px;
-          }
-
-          .lumina-logo-symbol {
-            font-size: 1.5rem;
-          }
-        }
-
-        @media (max-width: 480px) {
-          .lumina-login-card {
-            padding: 1.5rem;
-          }
-
-          .lumina-form-title {
-            font-size: 1.3rem;
-          }
-
-          .lumina-form-input {
-            padding: 0.875rem 1.25rem;
-          }
-
-          .lumina-login-button {
-            padding: 0.875rem;
-            font-size: 1rem;
-          }
-        }
       `}</style>
-    </div>
+      <div className="login-bg">
+        <div className="login-gradient" />
+        <div className="login-card">
+          <div className="login-logo-block">
+            <div className="login-logo">
+              <span className="login-logo-icon">✦</span>
+            </div>
+            <div className="login-title">LUMINA</div>
+            <div className="login-subtitle">Supply Chain Intelligence</div>
+          </div>
+          <h2 className="login-heading">Inicia sesión en tu cuenta</h2>
+          <form onSubmit={handleSubmit} className="login-form">
+            <div className="login-field">
+              <label className="login-label" htmlFor="username">
+                Usuario
+              </label>
+              <input
+                id="username"
+                className="login-input"
+                placeholder="Usuario"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                autoComplete="username"
+                required
+                type="text"
+              />
+            </div>
+            <div className="login-field">
+              <label className="login-label" htmlFor="password">
+                Contraseña
+              </label>
+              <input
+                id="password"
+                className="login-input"
+                placeholder="Contraseña"
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                autoComplete="current-password"
+                required
+              />
+            </div>
+            {error && (
+              <div className="login-error">
+                {error}
+              </div>
+            )}
+            <button
+              className={`login-btn${loading ? " login-btn-disabled" : ""}`}
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? (
+                <span className="login-spinner"></span>
+              ) : (
+                "Iniciar sesión"
+              )}
+            </button>
+          </form>
+          <div className="login-links">
+            <button
+              className="login-link"
+              onClick={e => {
+                e.preventDefault();
+                alert("Funcionalidad no implementada");
+              }}
+            >
+              ¿Olvidaste tu contraseña?
+            </button>
+            <button
+              className="login-register"
+              onClick={e => {
+                e.preventDefault();
+                navigate("/register");
+              }}
+            >
+              ¿No tienes cuenta? <span className="login-register-underline">Crea una</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 

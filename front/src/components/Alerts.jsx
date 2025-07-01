@@ -16,7 +16,6 @@ const Alerts = () => {
           }
         });
         if (res.ok) {
-          // Si la respuesta es un string JSON, parsea primero
           let data = await res.json();
           if (typeof data === "string") {
             try {
@@ -25,7 +24,6 @@ const Alerts = () => {
               data = [];
             }
           }
-          // Si el JSON tiene una propiedad 'alerts', úsala
           if (data && data.alerts) {
             setAlerts(data.alerts);
           } else {
@@ -57,11 +55,22 @@ const Alerts = () => {
   const renderAlert = (alert, idx, priority) => (
     <div
       key={idx}
-      className={`alert-card ${priority.toLowerCase()}`}
+      className={`
+        bg-white rounded-lg shadow-sm border p-6 mb-6 transition-colors
+        ${priority === "High" ? "border-red-200" : priority === "Medium" ? "border-yellow-200" : "border-green-200"}
+        hover:bg-gray-50
+      `}
     >
-      <div className="alert-header">
-        <span className="alert-sku">{alert.sku || '-'}</span>
-        <span className={`priority-badge ${priority.toLowerCase()}`}>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
+        <span className="text-lg font-bold text-gray-900">{alert.sku || '-'}</span>
+        <span className={`
+          px-2 py-1 rounded-full text-xs font-medium uppercase shadow
+          ${priority === "High"
+            ? "bg-red-100 text-red-800"
+            : priority === "Medium"
+            ? "bg-yellow-100 text-yellow-800"
+            : "bg-green-100 text-green-800"}
+        `}>
           {priority === "High"
             ? "Alta Prioridad"
             : priority === "Medium"
@@ -69,37 +78,37 @@ const Alerts = () => {
             : "Prioridad Baja"}
         </span>
       </div>
-      <div className="alert-grid">
-        <div className="alert-field">
-          <span className="label">Tipo:</span>
-          <span className="value">{alert.product_type || '-'}</span>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <span className="font-medium text-gray-600">Tipo: </span>
+          <span className="text-gray-900">{alert.product_type || '-'}</span>
         </div>
-        <div className="alert-field">
-          <span className="label">Disponibilidad:</span>
-          <span className="value">{alert.availability ?? alert.stock_levels ?? '-'}</span>
+        <div>
+          <span className="font-medium text-gray-600">Disponibilidad: </span>
+          <span className="text-gray-900">{alert.availability ?? alert.stock_levels ?? '-'}</span>
         </div>
-        <div className="alert-field">
-          <span className="label">Tiempo de Entrega:</span>
-          <span className="value">{alert.lead_time ?? '-'}</span>
+        <div>
+          <span className="font-medium text-gray-600">Tiempo de Entrega: </span>
+          <span className="text-gray-900">{alert.lead_time ?? '-'}</span>
         </div>
-        <div className="alert-field">
-          <span className="label">Tipo de Riesgo:</span>
-          <span className="value">{alert.risk_type || '-'}</span>
+        <div>
+          <span className="font-medium text-gray-600">Tipo de Riesgo: </span>
+          <span className="text-gray-900">{alert.risk_type || '-'}</span>
         </div>
       </div>
-      <div className="alert-description">
+      <div className="text-gray-700 italic border-t border-gray-100 pt-3 mb-2 text-sm">
         {alert.description || '-'}
       </div>
       {alert.risk_reason && (
-        <div className="risk-reason-container">
-          <span className="risk-reason-title">Motivo del Riesgo:</span>
-          <span className="risk-reason-text">{alert.risk_reason}</span>
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-md px-4 py-2 mb-2 flex items-center gap-2">
+          <span className="font-semibold text-yellow-700 text-sm">Motivo del Riesgo:</span>
+          <span className="text-gray-800 text-sm">{alert.risk_reason}</span>
         </div>
       )}
       {alert.solutions && (
-        <div className="solutions-container">
-          <span className="solutions-title">Soluciones Recomendadas:</span>
-          <ul className="solutions-list">
+        <div className="bg-green-50 border border-green-200 rounded-md px-4 py-2 mt-2">
+          <span className="font-semibold text-green-700 block mb-1 text-sm">Soluciones Recomendadas:</span>
+          <ul className="list-disc list-inside text-green-900 text-xs">
             {Array.isArray(alert.solutions)
               ? alert.solutions.map((sol, i) => <li key={i}>{sol}</li>)
               : <li>{alert.solutions}</li>}
@@ -110,466 +119,75 @@ const Alerts = () => {
   );
 
   if (loading)
-    return <div className="loading">Cargando alertas...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <span className="text-blue-600 text-lg font-semibold mb-2">Cargando alertas...</span>
+        <span className="inline-block animate-spin border-2 border-blue-300 border-t-transparent rounded-full w-6 h-6"></span>
+      </div>
+    );
   if (!alerts || alerts.length === 0)
-    return <div className="no-data">No hay alertas para mostrar.</div>;
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <span className="text-gray-400 text-lg font-semibold">No hay alertas para mostrar.</span>
+      </div>
+    );
 
   return (
-    <>
-      {/* Floating background elements */}
-      <div className="bg-elements">
-        <div className="floating-element"></div>
-        <div className="floating-element"></div>
-        <div className="floating-element"></div>
-      </div>
-
+    <div className="relative z-10">
       {/* Header */}
-      <div className="header">
-        <div className="logo">LUMINA</div>
-        <div className="subtitle">Advanced Supply Chain Intelligence</div>
+      <div className="text-center py-8">
+        <div className="text-3xl font-bold text-blue-600 drop-shadow mb-2 tracking-wide">LUMINA</div>
+        <div className="text-base text-blue-600 font-light opacity-90">Advanced Supply Chain Intelligence</div>
       </div>
 
       {/* Main container */}
-      <div className="container">
-        <div className="glass-container">
-          <h2 className="main-title">Dashboard de Alertas Detalladas</h2>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white/90 rounded-xl shadow-xl border border-gray-200 p-8 mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6 text-center">Dashboard de Alertas Detalladas</h2>
 
           {/* Problem Summary */}
-          <div className="problem-summary">
-            <span className="label">Resumen del Problema:</span>
-            <span className="text">
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-md px-4 py-3 mb-6 flex items-center gap-2">
+            <span className="font-semibold text-yellow-700 text-sm">Resumen del Problema:</span>
+            <span className="text-gray-800 text-sm">
               Se han detectado múltiples alertas críticas en la cadena de suministro que requieren atención inmediata para mantener la operación óptima.
             </span>
           </div>
 
           {/* High Priority */}
-          <div className="priority-section">
-            <h3 className="priority-title high">
-              <span className="priority-dot high"></span>
+          <div className="mb-8">
+            <h3 className="flex items-center text-lg font-semibold text-red-600 mb-4">
+              <span className="w-3 h-3 rounded-full bg-red-500 mr-3 animate-pulse"></span>
               Alta Prioridad
             </h3>
             {groupedAlerts.High.length > 0
               ? groupedAlerts.High.map((alert, idx) => renderAlert(alert, idx, "High"))
-              : <div className="no-data">Sin alertas de alta prioridad.</div>}
+              : <div className="text-center text-gray-400 py-6 text-sm">Sin alertas de alta prioridad.</div>}
           </div>
 
           {/* Medium Priority */}
-          <div className="priority-section">
-            <h3 className="priority-title medium">
-              <span className="priority-dot medium"></span>
+          <div className="mb-8">
+            <h3 className="flex items-center text-lg font-semibold text-yellow-600 mb-4">
+              <span className="w-3 h-3 rounded-full bg-yellow-400 mr-3 animate-pulse"></span>
               Prioridad Media
             </h3>
             {groupedAlerts.Medium.length > 0
               ? groupedAlerts.Medium.map((alert, idx) => renderAlert(alert, idx, "Medium"))
-              : <div className="no-data">Sin alertas de prioridad media.</div>}
+              : <div className="text-center text-gray-400 py-6 text-sm">Sin alertas de prioridad media.</div>}
           </div>
 
           {/* Low Priority */}
-          <div className="priority-section">
-            <h3 className="priority-title low">
-              <span className="priority-dot low"></span>
+          <div>
+            <h3 className="flex items-center text-lg font-semibold text-green-600 mb-4">
+              <span className="w-3 h-3 rounded-full bg-green-400 mr-3 animate-pulse"></span>
               Prioridad Baja
             </h3>
             {groupedAlerts.Low.length > 0
               ? groupedAlerts.Low.map((alert, idx) => renderAlert(alert, idx, "Low"))
-              : <div className="no-data">Sin alertas de prioridad baja.</div>}
+              : <div className="text-center text-gray-400 py-6 text-sm">Sin alertas de prioridad baja.</div>}
           </div>
         </div>
       </div>
-
-      <style>{`
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0a1929 0%, #1e3a52 50%, #2d5a87 100%);
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
-        .bg-elements {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-        .floating-element {
-            position: absolute;
-            background: rgba(64, 224, 255, 0.1);
-            border-radius: 50%;
-            animation: float 15s infinite linear;
-        }
-        .floating-element:nth-child(1) {
-            width: 80px;
-            height: 80px;
-            top: 20%;
-            left: 10%;
-            animation-delay: 0s;
-        }
-        .floating-element:nth-child(2) {
-            width: 120px;
-            height: 120px;
-            top: 60%;
-            right: 15%;
-            animation-delay: 5s;
-        }
-        .floating-element:nth-child(3) {
-            width: 60px;
-            height: 60px;
-            top: 80%;
-            left: 20%;
-            animation-delay: 10s;
-        }
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0px) rotate(0deg);
-                opacity: 0.3;
-            }
-            50% {
-                transform: translateY(-30px) rotate(180deg);
-                opacity: 0.7;
-            }
-        }
-        .header {
-            text-align: center;
-            padding: 2rem 1rem;
-            position: relative;
-            z-index: 10;
-        }
-        .logo {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #40e0ff;
-            text-shadow: 0 0 20px rgba(64, 224, 255, 0.5);
-            animation: glow 2s ease-in-out infinite alternate;
-            margin-bottom: 0.5rem;
-        }
-        @keyframes glow {
-            from {
-                text-shadow: 0 0 20px rgba(64, 224, 255, 0.5);
-            }
-            to {
-                text-shadow: 0 0 30px rgba(64, 224, 255, 0.8), 0 0 40px rgba(128, 255, 255, 0.3);
-            }
-        }
-        .subtitle {
-            color: #80ffff;
-            font-size: 1.1rem;
-            font-weight: 300;
-            opacity: 0.9;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-            position: relative;
-            z-index: 10;
-        }
-        .glass-container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            animation: slideUp 0.8s ease-out;
-        }
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .main-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-        .problem-summary {
-            background: rgba(255, 193, 7, 0.2);
-            border-left: 4px solid #ffc107;
-            padding: 1rem;
-            margin-bottom: 2rem;
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
-            animation: fadeIn 0.6s ease-out 0.2s both;
-        }
-        .problem-summary .label {
-            font-weight: 600;
-            color: #fff3cd;
-        }
-        .problem-summary .text {
-            color: #ffffff;
-            opacity: 0.9;
-        }
-        .priority-section {
-            margin-bottom: 2rem;
-            animation: fadeIn 0.6s ease-out both;
-        }
-        .priority-section:nth-child(2) { animation-delay: 0.1s; }
-        .priority-section:nth-child(3) { animation-delay: 0.2s; }
-        .priority-section:nth-child(4) { animation-delay: 0.3s; }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        .priority-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            text-transform: capitalize;
-        }
-        .priority-title.high { color: #ff6b6b; }
-        .priority-title.medium { color: #ffd93d; }
-        .priority-title.low { color: #4ecdc4; }
-        .priority-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 0.75rem;
-            animation: pulse 2s ease-in-out infinite;
-        }
-        .priority-dot.high { background: #ff6b6b; }
-        .priority-dot.medium { background: #ffd93d; }
-        .priority-dot.low { background: #4ecdc4; }
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(1.2);
-                opacity: 0.7;
-            }
-        }
-        .alert-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(15px);
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-        .alert-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            transition: width 0.3s ease;
-        }
-        .alert-card.high::before { background: #ff6b6b; }
-        .alert-card.medium::before { background: #ffd93d; }
-        .alert-card.low::before { background: #4ecdc4; }
-        .alert-card:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            border-color: rgba(64, 224, 255, 0.5);
-        }
-        .alert-card:hover::before {
-            width: 8px;
-        }
-        .alert-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        .alert-sku {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #ffffff;
-        }
-        .priority-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #ffffff;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
-        .priority-badge.high { background: linear-gradient(135deg, #ff6b6b, #ff5252); }
-        .priority-badge.medium { background: linear-gradient(135deg, #ffd93d, #ffb300); }
-        .priority-badge.low { background: linear-gradient(135deg, #4ecdc4, #26a69a); }
-        .alert-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-        .alert-field {
-            color: #ffffff;
-        }
-        .alert-field .label {
-            font-weight: 600;
-            color: #80ffff;
-            margin-right: 0.5rem;
-        }
-        .alert-field .value {
-            opacity: 0.9;
-        }
-        .alert-description {
-            color: #ffffff;
-            opacity: 0.8;
-            font-style: italic;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-top: 1rem;
-            margin-bottom: 1rem;
-            line-height: 1.5;
-        }
-        .solutions-container {
-            background: rgba(76, 175, 80, 0.2);
-            border: 1px solid rgba(76, 175, 80, 0.3);
-            border-radius: 10px;
-            padding: 1rem;
-            margin-top: 1rem;
-        }
-        .solutions-title {
-            font-weight: 600;
-            color: #81c784;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-        .solutions-list {
-            list-style: none;
-            padding: 0;
-        }
-        .solutions-list li {
-            color: #ffffff;
-            opacity: 0.9;
-            margin-bottom: 0.3rem;
-            padding-left: 1rem;
-            position: relative;
-        }
-        .solutions-list li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: #81c784;
-            font-weight: bold;
-        }
-        .loading {
-            text-align: center;
-            padding: 3rem;
-            color: #80ffff;
-            font-size: 1.1rem;
-        }
-        .loading::after {
-            content: '';
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #80ffff;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 1s linear infinite;
-            margin-left: 0.5rem;
-        }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-        .no-data {
-            text-align: center;
-            padding: 3rem;
-            color: #ffffff;
-            opacity: 0.7;
-            font-size: 1.1rem;
-        }
-        .error {
-            text-align: center;
-            padding: 3rem;
-            color: #ff6b6b;
-            font-size: 1.1rem;
-        }
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-            .glass-container {
-                padding: 1.5rem;
-                border-radius: 15px;
-            }
-            .logo {
-                font-size: 2rem;
-            }
-            .main-title {
-                font-size: 1.5rem;
-            }
-            .alert-grid {
-                grid-template-columns: 1fr;
-                gap: 0.5rem;
-            }
-            .alert-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
-            }
-            .priority-title {
-                font-size: 1.1rem;
-            }
-            .floating-element {
-                display: none;
-            }
-        }
-        @media (max-width: 480px) {
-            .header {
-                padding: 1rem;
-            }
-            .glass-container {
-                padding: 1rem;
-            }
-            .alert-card {
-                padding: 1rem;
-            }
-        }
-        .risk-reason-container {
-          background: rgba(255, 193, 7, 0.13);
-          border-left: 4px solid #ffc107;
-          padding: 0.75rem 1rem;
-          margin-bottom: 1rem;
-          border-radius: 8px;
-          backdrop-filter: blur(6px);
-        }
-        .risk-reason-title {
-          font-weight: 600;
-          color: #ffc107;
-          margin-right: 0.5rem;
-        }
-        .risk-reason-text {
-          color: #fff;
-          opacity: 0.95;
-        }
-      `}</style>
-    </>
+    </div>
   );
 };
 

@@ -1,0 +1,503 @@
+[33mcommit d0ab54bf4721db05247b9c6b845afbff3ca55c02[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mlitzyuno[m[33m, [m[1;31morigin/litzyuno[m[33m, [m[1;32mmain[m[33m)[m
+Merge: 6c1f26c8 8543bff5
+Author: litzypesina <litzypesinar@gmail.com>
+Date:   Tue Jun 10 05:02:18 2025 -0600
+
+    seguimiento 2 del 10 de junio
+
+[33mcommit 6c1f26c8e661ff792cd804a1ba79969f1e917269[m
+Author: litzypesina <litzypesinar@gmail.com>
+Date:   Tue Jun 10 04:54:40 2025 -0600
+
+    prueba del 10 de junio
+
+[33mcommit 8543bff58eb6178c36e28f61291b4b808ca6837f[m[33m ([m[1;31morigin/dev[m[33m)[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Tue Jun 10 15:08:13 2025 +0530
+
+    adding new features on Alerts
+
+[33mcommit 9cfd82521cb6198dc78bf7b816fa03caaedbad92[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Wed Jun 4 01:13:58 2025 +0530
+
+    implementing maps
+
+[33mcommit 22ba4551ed6cb83c45adddb8ec30907714db5a7e[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Tue Jun 3 10:56:47 2025 +0530
+
+    editing chabot and adding popover
+
+[33mcommit d95f778891997e3a71b0aa219d6654a1d165aa96[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Mon Jun 2 16:38:30 2025 +0530
+
+    adding styles
+
+[33mcommit bbc79e5a1bf1c6b2332582d85e4b747064b2448d[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Mon Jun 2 15:02:53 2025 +0530
+
+    adding chatbot (without context)
+
+[33mcommit e464b7d026ccf8b410b1e5538246566929397e1c[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Mon Jun 2 13:16:01 2025 +0530
+
+    implementing email service
+
+[33mcommit fa2060743316edf9f7db49d2f467eaea55430853[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Mon Jun 2 13:06:04 2025 +0530
+
+    implementing .env to submit credentials, the .env is empty
+
+[33mcommit 949c8e5128cda7f03ed06f4c327969ca6ef71c18[m
+Author: bernardo mata <101667557+Bernardo-Mata@users.noreply.github.com>
+Date:   Mon Jun 2 11:57:57 2025 +0530
+
+    Update README.md
+
+[33mcommit 81059fb82566a5045d82068ff943f6120d139a38[m
+Author: bernardo mata <101667557+Bernardo-Mata@users.noreply.github.com>
+Date:   Mon Jun 2 11:55:08 2025 +0530
+
+    Update README.md
+
+[33mcommit 1ce91211779e1c1f46f9621ee159ce7ec25f3cc8[m
+Author: bernardo mata <101667557+Bernardo-Mata@users.noreply.github.com>
+Date:   Mon Jun 2 11:54:50 2025 +0530
+
+    Update README.md
+    
+    updating README.md
+
+[33mcommit 7a81a8b381352473ef2d00f7ec0dfb9a0583e8a4[m
+Merge: 3a287b93 2b08bc10
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Mon Jun 2 11:47:42 2025 +0530
+
+    Merge branch 'dev'
+
+[33mcommit 2b08bc10fba6bf1f593dcf0e1676c07823ac6822[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Mon Jun 2 11:42:14 2025 +0530
+
+    removing env to repository
+
+[33mcommit 3a287b93d40c0b67ea296b332dd04ac68303ac67[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Mon Jun 2 11:36:40 2025 +0530
+
+     Remove env from version
+
+[33mcommit 49a0a6f97b6dd808dfcfe9ed3991513baace0368[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Mon Jun 2 11:30:03 2025 +0530
+
+     hola
+
+[33mcommit 397d796946fe430a49f586059f79a95a29cf8fa8[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Mon Jun 2 11:28:51 2025 +0530
+
+     hola
+
+[33mcommit d6262b2011b75cdb6544e221050ee82bebc4663f[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Mon Jun 2 11:27:24 2025 +0530
+
+     hola
+
+[33mcommit 1837daa6edb2b0f3f429028cbbcf5a04789ddb49[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Mon Jun 2 11:18:17 2025 +0530
+
+     hola
+
+[33mcommit e2e9d5e4513a9d8f8b01922f94665a8c48a9f64a[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Mon Jun 2 11:11:39 2025 +0530
+
+    hola
+
+[33mcommit 24866cc93a3631d05dbef0339bffde302d5671ff[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Mon Jun 2 11:11:19 2025 +0530
+
+    hola
+
+[33mcommit f8949ff8fe6cee4c330a6307b802f62c762dd5b4[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Mon Jun 2 11:06:45 2025 +0530
+
+    adding documents in gitignore
+
+[33mcommit 686c23df3e22bb3082fe6487f91a5847a08c5506[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Mon Jun 2 11:06:06 2025 +0530
+
+    adding documents in gitignore
+
+[33mcommit d84336f56f9c9567098fb09804dd0983254d5fdf[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Mon Jun 2 10:57:20 2025 +0530
+
+    hola
+
+[33mcommit 96826eca9ae02e6c2fcfd923fe65bb86ec23cd33[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Mon Jun 2 10:52:34 2025 +0530
+
+    merging feature to dev
+
+[33mcommit 9e97f62c2830e6b9e398363b4f71ee76882ac2c8[m
+Merge: 3daabad4 b27286ff
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Sun May 25 20:50:26 2025 +0530
+
+    project finished 1.0.0
+
+[33mcommit b27286ff315284c492c13671c8c1b34dca1bdf0e[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Sun May 25 20:49:48 2025 +0530
+
+    project finished 1.0.0
+
+[33mcommit 730d7b294c27bf8db86c297308fbe0480e2018c0[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Sun May 25 20:49:03 2025 +0530
+
+    project finished 1.0.0
+
+[33mcommit 947f50e30503e174d51d84749d833ad5dffd7d64[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Sun May 25 18:37:45 2025 +0530
+
+    almost finished
+
+[33mcommit a9b1b0f55527b0fb521dc37ba8c2d36c1887028b[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Sun May 25 18:27:55 2025 +0530
+
+    almost
+
+[33mcommit d756e113e707a154b435474744f8466b77a928e4[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Sun May 25 18:08:26 2025 +0530
+
+    project almost completed
+
+[33mcommit 8238ad60ce4b93fae848606386e88285a219d5e8[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Sun May 25 14:59:51 2025 +0530
+
+    creating other fake database
+
+[33mcommit a5cfa05e24c1a1ea7143d01899f5c621bab0468a[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Sun May 25 14:25:06 2025 +0530
+
+    adding all components to summary and fixing errors
+
+[33mcommit 3daabad4804fd1d97311de1c05c1368231715613[m
+Merge: ff6f96b3 60453225
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Sun May 25 13:14:21 2025 +0530
+
+    merging feature to main
+
+[33mcommit 6045322512df65f94dd095c0430e9e4b9f1824f0[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Sat May 24 16:08:02 2025 +0530
+
+    adding suppliers and sytles
+
+[33mcommit 0ba81968cb343f1fd3b3750775e17bcac0e63606[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Sat May 24 15:41:23 2025 +0530
+
+    adding summary component and making better components
+
+[33mcommit 9b51df7f8d85ddfb300848053792a5f8070de946[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Sat May 24 13:16:58 2025 +0530
+
+    fixing errors
+
+[33mcommit 14cbde06e9056502972fd93b625910c7223cdbfc[m
+Merge: 76f289e6 151f175b
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Sat May 24 12:44:12 2025 +0530
+
+    Merge branch 'main' of https://github.com/Bernardo-Mata/lumina into feature/bernardo
+
+[33mcommit ff6f96b3b4f88aa81b10db4548a1e85a46ce8027[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Sat May 24 12:39:35 2025 +0530
+
+    fixing LLM and styles errors
+
+[33mcommit 151f175bab0d9f5588f656e8b9e89e612b27727a[m
+Author: Bernardo Mata Ayala <bernardomata.TRN@ad.infosys.com>
+Date:   Fri May 23 10:57:03 2025 +0530
+
+    finish all components
+
+[33mcommit 231269feeeb8f2c3fb496397b4a86a87ee920348[m
+Author: Bernardo Mata Ayala <bernardomata.TRN@ad.infosys.com>
+Date:   Fri May 23 10:54:48 2025 +0530
+
+    finish all components
+
+[33mcommit 694f4f6a5f0934fde2f2197a219a0899b4b9711f[m
+Author: Bernardo Mata Ayala <bernardomata.TRN@ad.infosys.com>
+Date:   Fri May 23 10:52:42 2025 +0530
+
+    finish all components
+
+[33mcommit 3842728977b5ae9a7bb4ecc14427f149a2f41f97[m
+Author: Bernardo Mata Ayala <bernardomata.TRN@ad.infosys.com>
+Date:   Thu May 22 12:54:58 2025 +0530
+
+    merging dev to main
+
+[33mcommit f9d91adf3a2768a63bdbd255319db7dac7f096a8[m
+Author: Bernardo Mata Ayala <bernardomata.TRN@ad.infosys.com>
+Date:   Thu May 22 10:22:51 2025 +0530
+
+    implement risk and dashboards
+
+[33mcommit 46965e827bec85ca64ef6860ca8c0647fa3c4a23[m
+Author: Bernardo Mata Ayala <bernardomata.TRN@ad.infosys.com>
+Date:   Wed May 21 12:31:11 2025 +0530
+
+    get succesful response
+
+[33mcommit fb4b8554ea5b4223bbc72850350ae7ea599c7bb2[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Wed May 21 10:57:56 2025 +0530
+
+    last change
+
+[33mcommit 7dafded899ae957e975eec6c40db93d1a8fdae82[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Wed May 21 02:05:45 2025 +0530
+
+    generating LLM response
+
+[33mcommit 24cde889c30faae22fe238e619eb35899e3f4352[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Wed May 21 00:00:11 2025 +0530
+
+    adding components
+
+[33mcommit e89db94ea89d26b1d7f79292e0058ecafd28eb1d[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Tue May 20 16:01:23 2025 +0530
+
+    new UI
+
+[33mcommit 76f289e6be31de3ffadad44e541a57b8d63967d6[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Tue May 20 15:37:54 2025 +0530
+
+    Hola
+
+[33mcommit 5cea1d661eb6639e2d676a92decb11e47320212f[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Tue May 20 14:42:34 2025 +0530
+
+    pulling main to fb
+
+[33mcommit 3d270cd39cd2bace213bbdf739c8a8db1e0d33a3[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Tue May 20 14:41:13 2025 +0530
+
+    deleting src/index.html
+
+[33mcommit 2266d982f34942fadbb204ffe788667b22a48990[m
+Author: Bernardo Mata Ayala <bernardomata.TRN@ad.infosys.com>
+Date:   Mon May 19 12:07:34 2025 +0530
+
+    importing Back to Front
+
+[33mcommit a8985fbc79f1c0569db55fd17ef5b00dd90a5a32[m
+Merge: d85311fd 40cff44f
+Author: litzypesina <litzypesinar@gmail.com>
+Date:   Fri May 16 04:13:49 2025 -0600
+
+    Solve conflicts of merge
+
+[33mcommit d85311fd1921d122dadb4fcc3a06b5d3330ba075[m
+Author: litzypesina <litzypesinar@gmail.com>
+Date:   Fri May 16 04:09:50 2025 -0600
+
+    Importing react
+
+[33mcommit 484a3aa5d551a22e51f49c3ac9c3787bb0218e5a[m
+Author: litzypesina <litzypesinar@gmail.com>
+Date:   Fri May 16 03:49:09 2025 -0600
+
+    importing react
+
+[33mcommit ec68ed2a9352e3774b3578e5b0113dfa650b6679[m
+Author: litzypesina <litzypesinar@gmail.com>
+Date:   Fri May 16 03:44:20 2025 -0600
+
+    Importando React
+
+[33mcommit 40cff44f0a41dbfd7f1637cde5601d1522d86c7f[m
+Merge: 1c3622a8 d371d00b
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Fri May 16 15:06:57 2025 +0530
+
+    getting better the code
+
+[33mcommit d371d00b9faa8050dcb911e583524635677fcf3a[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Fri May 16 15:05:44 2025 +0530
+
+    getting better the code
+
+[33mcommit 08cc5081af0872b662658b7bc98461aac0681337[m
+Merge: 5d0e3552 a7e740f4
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Fri May 16 15:03:26 2025 +0530
+
+    getting better the code
+
+[33mcommit a7e740f482400d577daddfcb6cab23092aa8e82a[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Fri May 16 15:02:09 2025 +0530
+
+    getting better the code
+
+[33mcommit c221d0ff1715ba75485e491eab3423b972f1d472[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Fri May 16 15:00:24 2025 +0530
+
+    getting better the code
+
+[33mcommit 5d0e355293be8bbe9269d126fdc4bf014319bf37[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Fri May 16 14:33:24 2025 +0530
+
+    commit
+
+[33mcommit b4965247cbc6f063aac3bebf7f2d4e82e6bd90ff[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Fri May 16 11:56:28 2025 +0530
+
+    testing all
+
+[33mcommit b37ca3d9dc5d12121a49b505b503144b5a390419[m
+Author: litzypesina <litzypesinar@gmail.com>
+Date:   Thu May 15 23:41:57 2025 -0600
+
+    creating a react application
+
+[33mcommit 1c3622a83f8e8b2d80c15d982531f5086868d8d9[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Fri May 16 11:01:26 2025 +0530
+
+    testing successful
+
+[33mcommit 685173b463957e38fc18114e0568e4c5c54451f6[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Fri May 16 11:00:57 2025 +0530
+
+    testing successful
+
+[33mcommit 826e0b251c55164f4b1e0d226544044dc3a99cb9[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Thu May 15 12:36:07 2025 +0530
+
+    creating docstrings
+
+[33mcommit 524b8325edcd04be7b68013cb01db794394f77f1[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Thu May 15 12:20:42 2025 +0530
+
+    creating all llms and agents
+
+[33mcommit d4b5095010f89980b3bd2e5c9f78fc2f97baa661[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Thu May 15 11:59:20 2025 +0530
+
+    creating all the agents
+
+[33mcommit e74e045660d4dacad731d440016474d53408100c[m
+Merge: a0dd56bd 5b8d4619
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Thu May 15 11:19:54 2025 +0530
+
+    creating the agents
+
+[33mcommit 5b8d46198aefa3d5991e5433f921ee79ef0a7297[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Thu May 15 11:18:56 2025 +0530
+
+    creating the agents
+
+[33mcommit 396c2af86fc710157c904cf2eb387e6504585e23[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Wed May 14 17:04:07 2025 +0530
+
+    doing the backend for the LLM and making preprocessing
+
+[33mcommit f8f5ee773bb8d167ad3d9df40fa187a53a741cf8[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Wed May 14 17:02:32 2025 +0530
+
+    doing the backend for the LLM and making preprocessing
+
+[33mcommit a0dd56bdb4763f131671f78929771e71742d4fe8[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Wed May 14 14:29:06 2025 +0530
+
+    merging
+
+[33mcommit e356f55676d6c7d17ba63895547fc29c42d235ec[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Wed May 14 14:27:55 2025 +0530
+
+    merging
+
+[33mcommit c4bfa55f92808343766012078b621fe2d41e1cec[m
+Merge: bb688b55 3c023173
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Wed May 14 11:49:23 2025 +0530
+
+    adding a PromptTemplate to the research agent
+
+[33mcommit 3c02317343a6328eedc02e98470651a554a977c4[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Wed May 14 11:46:10 2025 +0530
+
+    adding PromptTemplate to the research agent
+
+[33mcommit bb688b5516e383138b921c1571bd46af36ac7710[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Tue May 13 18:00:12 2025 +0530
+
+    Implement FastAPI endpoint to generate LLM responses using the last processed text from the textarea input. Enhanced /generate-response to dynamically use stored text and ensured error handling for empty or missing inputs.
+
+[33mcommit 1a192598970edf82f29103bb34f84f2f401e0248[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Tue May 13 17:59:06 2025 +0530
+
+    Implement FastAPI endpoint to generate LLM responses using the last processed text from the textarea input. Enhanced /generate-response to dynamically use stored text and ensured error handling for empty or missing inputs.
+
+[33mcommit b734721b2636fde3c5168dde5c380d5dd18d4f96[m
+Author: Bernardo Mata <matabernardo2@gmail.com>
+Date:   Tue May 13 16:04:42 2025 +0530
+
+    Initial commit
+
+[33mcommit c87859da7e9c33a7b3ffc2da1d144918b4266647[m
+Author: bernardo mata <101667557+Bernardo-Mata@users.noreply.github.com>
+Date:   Tue May 13 16:03:04 2025 +0530
+
+    Initial commit

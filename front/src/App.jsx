@@ -11,7 +11,7 @@ import Disruption from './components/Disruption';
 import Login from './components/Login';
 import Register from './components/Register';
 import MainLayout from './components/MainLayout';
-import Maps from './components/Maps' // Asegúrate de que este componente esté implementado correctamente
+import Maps from './components/Maps'; // Asegúrate de que este componente esté implementado correctamente
 
 import './index.css';
 
@@ -57,83 +57,112 @@ const App = () => {
   }, [token]);
 
   return (
-    <Router>
-      <Routes>
-        {/* Login y registro SIN layout */}
-        <Route path="/login" element={<Login setToken={setToken} />} />
-        <Route path="/register" element={<Register />} />
+    <div className="min-h-screen bg-gray-50">
+      <Router>
+        <Routes>
+          {/* Login y registro SIN layout */}
+          <Route path="/login" element={<Login setToken={setToken} />} />
+          <Route path="/register" element={<Register />} />
 
-        {/* Rutas protegidas CON layout */}
-        <Route
-          path="/"
-          element={
-            token ? (
-              <MainLayout />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        >
-          <Route path="summary" element={
-            <Summary
-              loading={loading}
-              llmSimData={llmSimData}
-            />
-          } />
+          {/* Rutas protegidas CON layout */}
           <Route
-            path="dashboard"
+            path="/"
             element={
-              <Dashboard
-                data={llmSimData ? llmSimData.dashboard : []}
-                loading={loading}
-              />
+              token ? (
+                <MainLayout />
+              ) : (
+                <Navigate to="/login" replace />
+              )
             }
-          />
-          <Route
-            path="alerts"
-            element={
-              <Alerts
-                data={llmSimData ? llmSimData.alerts : []}
-                loading={loading}
-              />
-            }
-          />
-          <Route
-            path="suppliers"
-            element={
-              <Suppliers
-                data={llmSimData ? llmSimData.suppliers : []}
-                loading={loading}
-              />
-            }
-          />
-          <Route path="compliance" element={
-            <Compilance
-              data={llmSimData ? llmSimData.compliance : []}
-              loading={loading}
-            />
-          } />
-          <Route path="chatbot" element={
-            <ChatBot
-              data={{}}
-              loading={false}
-            />
-          } />
-          <Route path="disruption" element={
-            <Disruption
-              message={
-                llmSimData && llmSimData.disruption && llmSimData.disruption.length > 0
-                  ? llmSimData.disruption[llmSimData.disruption.length - 1].summary
-                  : undefined
+          >
+            <Route path="summary" element={
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <Summary
+                  loading={loading}
+                  llmSimData={llmSimData}
+                />
+              </div>
+            } />
+            <Route
+              path="dashboard"
+              element={
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+                  <Dashboard
+                    data={llmSimData ? llmSimData.dashboard : []}
+                    loading={loading}
+                  />
+                  <Alerts
+                    data={llmSimData ? llmSimData.alerts : []}
+                    loading={loading}
+                  />
+                  <Maps />
+                  <Suppliers
+                    data={llmSimData ? llmSimData.suppliers : []}
+                    loading={loading}
+                  />
+                </div>
               }
             />
-          } />
-          {/* IMPLEMENTACIÓN DE MAPS */}
-          <Route path="maps" element={<Maps />} />
-          {/* ...otras rutas si las hay... */}
-        </Route>
-      </Routes>
-    </Router>
+            <Route
+              path="alerts"
+              element={
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                  <Alerts
+                    data={llmSimData ? llmSimData.alerts : []}
+                    loading={loading}
+                  />
+                </div>
+              }
+            />
+            <Route
+              path="suppliers"
+              element={
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                  <Suppliers
+                    data={llmSimData ? llmSimData.suppliers : []}
+                    loading={loading}
+                  />
+                </div>
+              }
+            />
+            <Route path="compliance" element={
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <Compilance
+                  data={llmSimData ? llmSimData.compliance : []}
+                  loading={loading}
+                />
+              </div>
+            } />
+            <Route path="chatbot" element={
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <ChatBot
+                  data={{}}
+                  loading={false}
+                />
+              </div>
+            } />
+            <Route path="disruption" element={
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <Disruption
+                  message={
+                    llmSimData && llmSimData.disruption && llmSimData.disruption.length > 0
+                      ? llmSimData.disruption[llmSimData.disruption.length - 1].summary
+                      : undefined
+                  }
+                />
+              </div>
+            } />
+            {/* IMPLEMENTACIÓN DE MAPS */}
+            <Route path="maps" element={
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <Maps />
+              </div>
+            } />
+            {/* ...otras rutas si las hay... */}
+          </Route>
+        </Routes>
+      </Router>
+    </div>
   );
 };
 
