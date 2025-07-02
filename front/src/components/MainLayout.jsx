@@ -341,11 +341,7 @@ function MainLayout({ GenerateButtonWithRoute }) {
                     Disruption
                   </Link>
                 </li>
-                <li>
-                  <Link to="/chatbot" className={navLinkClass("/chatbot")}>
-                    ChatBot
-                  </Link>
-                </li>
+    
                 <li>
                   <Link to="/maps" className={navLinkClass("/maps")}>
                     Maps
